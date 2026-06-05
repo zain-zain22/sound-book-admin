@@ -2,15 +2,26 @@
 <html lang="ml">
 <head>
     <meta charset="UTF-8">
-    <title>സൗണ്ട് ബുക്ക് - അഡ്മിൻ പാനൽ (Voice Recorder)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>സൗണ്ട് ബുക്ക് - മൊബൈൽ & ലാപ്ടോപ്പ് അഡ്മിൻ പാനൽ</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #eef2f3; text-align: center; }
-        .admin-box { background: white; max-width: 650px; margin: 0 auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        canvas { border: 2px solid #34495e; margin-top: 10px; cursor: crosshair; max-width: 100%; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 15px; background: #eef2f3; text-align: center; margin: 0; }
+        .admin-box { background: white; max-width: 600px; margin: 0 auto; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        /* ബട്ടണുകളുടെ സ്റ്റൈലുകൾ */
-        button { color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; font-weight: bold; }
-        .btn-blue { background: #3498db; }
+        /* ചിത്രം കാണിക്കുന്ന ഭാഗം */
+        .image-container { position: relative; display: inline-block; margin-top: 15px; border: 2px solid #34495e; max-width: 100%; overflow: hidden; }
+        .image-container img { display: block; width: 100%; height: auto; max-width: 500px; }
+        
+        /* സെലക്ട് ചെയ്യുന്ന ബോക്സ് */
+        .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; pointer-events: none; }
+        
+        /* സൈസ് മാറ്റാനുള്ള കൺട്രോളുകൾ */
+        .controls { background: #f9f9f9; padding: 15px; border-radius: 6px; margin-top: 15px; border: 1px solid #ddd; text-align: left; }
+        .controls label { font-weight: bold; display: block; margin-top: 5px; }
+        .controls input[type="range"] { width: 100%; margin-bottom: 10px; }
+
+        button { color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; margin: 5px; font-weight: bold; font-size: 14px; }
+        .btn-blue { background: #3498db; width: 100%; margin-top: 10px; }
         .btn-record { background: #e74c3c; }
         .btn-stop { background: #2c3e50; display: none; }
         .btn-publish { background: #2ecc71; width: 100%; margin-top: 20px; font-size: 16px; }
@@ -22,16 +33,27 @@
 <body>
 
     <div class="admin-box">
-        <h2>👨‍🏫 ടീച്ചർ പാനൽ (Direct Voice Recording)</h2>
+        <h2>👨‍🏫 സൗണ്ട് ബുക്ക് അഡ്മിൻ പാനൽ</h2>
         <p>പുസ്തകത്തിന്റെ പേജ് ചിത്രം തിരഞ്ഞെടുക്കുക:</p>
         <input type="file" id="imageUploader" accept="image/*"><br><br>
         
         <div id="mappingSection" style="display:none;">
-            <p><b>ഘട്ടം 1:</b> ചിത്രത്തിൽ മൗസ്/വിരൽ അമർത്തി വലിച്ച് വാക്ക് അടയാളപ്പെടുത്തുക:</p>
-            <canvas id="mapCanvas"></canvas><br>
+            <p style="color: #2c3e50; font-weight: bold;">📱 ചിത്രത്തിലെ വാക്കിന് മുകളിൽ ജസ്റ്റ് ഒന്ന് തൊടുക (Tap ചെയ്യുക):</p>
             
-            <p><b>ഘട്ടം 2:</b> ആ വാക്ക് റെക്കോർഡ് ചെയ്യുകയോ ഓഡിയോ ഫയൽ അപ്‌ലോഡ് ചെയ്യുകയോ ചെയ്യാം:</p>
+            <div class="image-container" id="imageContainer" onclick="selectWordLocation(event)">
+                <img id="bookImg" src="" alt="Book Page">
+                <div class="selection-box" id="selectionBox"></div>
+            </div>
             
+            <div class="controls">
+                <label>↔️ ബോക്സിന്റെ വീതി (Width):</label>
+                <input type="range" id="boxWidth" min="20" max="200" value="80" oninput="updateBoxSize()">
+                
+                <label>↕️ ബോക്സിന്റെ ഉയരം (Height):</label>
+                <input type="range" id="boxHeight" min="15" max="100" value="35" oninput="updateBoxSize()">
+            </div>
+            
+            <p><b>ഘട്ടം 2:</b> ആ വാക്ക് റെക്കോർഡ് ചെയ്യുക:</p>
             <div>
                 <button type="button" class="btn-record" id="startBtn" onclick="startRecording()">🎤 റെക്കോർഡിംഗ് തുടങ്ങുക</button>
                 <button type="button" class="btn-stop" id="stopBtn" onclick="stopRecording()">🛑 റെക്കോർഡിംഗ് നിർത്തുക</button>
@@ -39,10 +61,7 @@
             <p class="status-text" id="recordStatus"></p>
             <audio id="audioPlayback" controls></audio>
             
-            <p style="margin: 15px 0; color: #7f8c8d;">--- അല്ലെങ്കിൽ ഫയൽ അപ്‌ലോഡ് ചെയ്യാം ---</p>
-            <input type="file" id="audioUploader" accept="audio/*"><br><br>
-            
-            <button type="button" class="btn-blue" onclick="saveWordZone()">💾 ഈ വാക്ക് മാപ്പ് ചെയ്ത് സേവ് ചെയ്യുക</button>
+            <button type="button" class="btn-blue" onclick="saveWordZone()">💾 ഈ വാക്ക് ലിങ്ക് ചെയ്ത് സേവ് ചെയ്യുക</button>
             <h3 id="zoneCount" style="color: #7f8c8d;">(0 വാക്കുകൾ ചേർത്തു)</h3>
         </div>
         
@@ -52,52 +71,76 @@
     <script>
         let currentZones = [];
         let base64Img = "";
-        let latestAudioBlobUrl = null;
         let latestAudioBase64 = null;
-        
-        // വോയ്‌സ് റെക്കോർഡിംഗ് വേരിയബിളുകൾ
         let mediaRecorder;
         let audioChunks = [];
+        
+        // സെലക്ഷൻ അളവുകൾ
+        let selectedLeft = 0;
+        let selectedTop = 0;
 
-        const canvas = document.getElementById('mapCanvas');
-        const ctx = canvas.getContext('2d');
-        let img = new Image();
-        let startX, startY, isDrawing = false, coords = {};
+        const imageUploader = document.getElementById('imageUploader');
+        const bookImg = document.getElementById('bookImg');
+        const selectionBox = document.getElementById('selectionBox');
+        const imgContainer = document.getElementById('imageContainer');
 
         // 1. ചിത്രം ലോഡ് ചെയ്യുമ്പോൾ
-        document.getElementById('imageUploader').addEventListener('change', function(e) {
+        imageUploader.addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                img.onload = function() {
-                    canvas.width = 500;
-                    canvas.height = (img.height * 500) / img.width;
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                bookImg.onload = function() {
                     document.getElementById('mappingSection').style.display = 'block';
+                    selectionBox.style.display = 'none'; // പഴയ ബോക്സ് മാറ്റുക
+                    currentZones = [];
+                    document.getElementById('zoneCount').innerText = "(0 വാക്കുകൾ ചേർത്തു)";
                 }
-                img.src = event.target.result;
+                bookImg.src = event.target.result;
                 base64Img = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // 2. ഇമേജ് മാപ്പിംഗ് (ബോക്സ് വരയ്ക്കൽ)
-        canvas.addEventListener('mousedown', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            startX = e.clientX - rect.left; startY = e.clientY - rect.top;
-            isDrawing = true;
-        });
-        canvas.addEventListener('mousemove', (e) => {
-            if (!isDrawing) return;
-            const rect = canvas.getBoundingClientRect();
-            let cX = e.clientX - rect.left; let cY = e.clientY - rect.top;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = '#e74c3c'; ctx.lineWidth = 2; ctx.strokeRect(startX, startY, cX - startX, cY - startY);
-            coords = { left: Math.min(startX, cX), top: Math.min(startY, cY), width: Math.abs(cX - startX), height: Math.abs(cY - startY) };
-        });
-        canvas.addEventListener('mouseup', () => isDrawing = false);
+        // 2. ചിത്രത്തിൽ തൊടുമ്പോൾ ബോക്സ് അവിടെ കൊണ്ട് വെക്കുക (Mobile Friendly Click)
+        function selectWordLocation(event) {
+            const rect = imgContainer.getBoundingClientRect();
+            
+            // ക്ലിക്ക് ചെയ്ത സ്ഥലം കണ്ടുപിടിക്കുന്നു
+            let clickX = event.clientX - rect.left;
+            let clickY = event.clientY - rect.top;
+            
+            let bWidth = parseInt(document.getElementById('boxWidth').value);
+            let bHeight = parseInt(document.getElementById('boxHeight').value);
+            
+            // ബോക്സ് ക്ലിക്ക് ചെയ്തതിന്റെ കൃത്യം നടുക്ക് വരാൻ
+            selectedLeft = clickX - (bWidth / 2);
+            selectedTop = clickY - (bHeight / 2);
+            
+            // ബോക്സ് ചിത്രത്തിന് പുറത്തേക്ക് പോകാതിരിക്കാൻ
+            if(selectedLeft < 0) selectedLeft = 0;
+            if(selectedTop < 0) selectedTop = 0;
 
-        // 3. നേരിട്ട് റെക്കോർഡ് ചെയ്യാനുള്ള ഫങ്ഷനുകൾ
+            drawSelectionBox(selectedLeft, selectedTop, bWidth, bHeight);
+        }
+
+        // ബോക്സ് സ്ക്രീനിൽ കാണിക്കാൻ
+        function drawSelectionBox(left, top, width, height) {
+            selectionBox.style.left = left + 'px';
+            selectionBox.style.top = top + 'px';
+            selectionBox.style.width = width + 'px';
+            selectionBox.style.height = height + 'px';
+            selectionBox.style.display = 'block';
+        }
+
+        // സ്ലൈഡർ മാറ്റുമ്പോൾ ബോക്സിന്റെ വലിപ്പം തത്സമയം മാറ്റാൻ
+        function updateBoxSize() {
+            if (selectionBox.style.display === 'block') {
+                let bWidth = parseInt(document.getElementById('boxWidth').value);
+                let bHeight = parseInt(document.getElementById('boxHeight').value);
+                drawSelectionBox(selectedLeft, selectedTop, bWidth, bHeight);
+            }
+        }
+
+        // 3. വോയ്‌സ് റെക്കോർഡിംഗ് (മൊബൈലിലും വർക്ക് ചെയ്യും)
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(stream => {
@@ -111,23 +154,20 @@
 
                     mediaRecorder.addEventListener("stop", () => {
                         const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                        latestAudioBlobUrl = URL.createObjectURL(audioBlob);
-                        
-                        // കുട്ടികളുടെ പേജിലേക്ക് കൈമാറാൻ ഓഡിയോയെ Base64 രീതിയിലേക്ക് മാറ്റുന്നു
                         const reader = new FileReader();
                         reader.readAsDataURL(audioBlob);
                         reader.onloadend = function() {
                             latestAudioBase64 = reader.result;
-                            document.getElementById('audioPlayback').src = latestAudioBlobUrl;
+                            document.getElementById('audioPlayback').src = URL.createObjectURL(audioBlob);
                             document.getElementById('audioPlayback').style.display = 'block';
                         }
                     });
 
                     document.getElementById('startBtn').style.display = 'none';
                     document.getElementById('stopBtn').style.display = 'inline-block';
-                    document.getElementById('recordStatus').innerText = "🔴 റെക്കോർഡ് ചെയ്തുകൊണ്ടിരിക്കുന്നു... സംസാരിക്കൂ";
+                    document.getElementById('recordStatus').innerText = "🔴 റെക്കോർഡ് ചെയ്യുന്നു...";
                 }).catch(err => {
-                    alert("മൈക്രോഫോൺ അനുമതി നൽകിയിട്ടില്ല!");
+                    alert("മൈക്ക് ഓൺ ചെയ്യാൻ അനുവാദം നൽകുക!");
                 });
         }
 
@@ -135,56 +175,48 @@
             mediaRecorder.stop();
             document.getElementById('startBtn').style.display = 'inline-block';
             document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് പൂർത്തിയായി! താഴെ പ്ലേ ചെയ്തു കേൾക്കാം.";
+            document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
         }
 
-        // 4. വാക്ക് ഫയലിലേക്ക് സേവ് ചെയ്യുക
+        // 4. വാക്ക് സേവ് ചെയ്യുക
         function saveWordZone() {
-            const fileInput = document.getElementById('audioUploader').files[0];
-            
-            if (!coords.width) {
-                return alert("ദയവായി ചിത്രത്തിൽ ഒരു വാക്ക് ആദ്യം ബോക്സ് വരച്ച് അടയാളപ്പെടുത്തുക.");
+            let bWidth = parseInt(document.getElementById('boxWidth').value);
+            let bHeight = parseInt(document.getElementById('boxHeight').value);
+
+            if (selectionBox.style.display === 'none') {
+                return alert("ദയവായി ചിത്രത്തിൽ വാക്ക് ഉള്ള ഭാഗത്ത് ആദ്യം ഒന്ന് തൊടുക.");
+            }
+            if (!latestAudioBase64) {
+                return alert("ദയവായി ഓഡിയോ റെക്കോർഡ് ചെയ്യുക.");
             }
 
-            // മൈക്ക് വഴി റെക്കോർഡ് ചെയ്തിട്ടുണ്ടെങ്കിൽ അത് എടുക്കും
-            if (latestAudioBase64) {
-                addZoneToMemory(latestAudioBase64);
-            } 
-            // അതല്ല ഫയൽ ആണ് അപ്‌ലോഡ് ചെയ്തതെങ്കിൽ അത് എടുക്കും
-            else if (fileInput) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    addZoneToMemory(e.target.result);
-                };
-                reader.readAsDataURL(fileInput);
-            } else {
-                alert("ദയവായി വാക്ക് റെക്കോർഡ് ചെയ്യുകയോ അല്ലെങ്കിൽ ഒരു MP3 ഫയൽ അപ്‌ലോഡ് ചെയ്യുകയോ ചെയ്യുക.");
-            }
-        }
+            // കോർഡിനേറ്റുകളും ഓഡിയോയും അറേയിലേക്ക് മാറ്റുന്നു
+            currentZones.push({
+                coords: { left: selectedLeft, top: selectedTop, width: bWidth, height: bHeight },
+                audioSrc: latestAudioBase64,
+                clicked: false
+            });
 
-        function addZoneToMemory(audioData) {
-            currentZones.push({ coords: {...coords}, audioSrc: audioData, clicked: false });
             document.getElementById('zoneCount').innerText = `(${currentZones.length} വാക്കുകൾ ചേർത്തു)`;
             
-            // ഫോം റീസെറ്റ് ചെയ്യുക (அടുത്ത വാക്കിനായി)
-            document.getElementById('audioUploader').value = '';
-            document.getElementById('audioPlayback').style.display = 'none';
+            // റീസെറ്റ് ഫോം
+            document.getElementById('audioPlayback').style.style.display = 'none';
             document.getElementById('recordStatus').innerText = "";
+            selectionBox.style.display = 'none';
             latestAudioBase64 = null;
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            coords = {};
+            alert("വാക്ക് വിജയകരമായി ചേർത്തു! അടുത്ത വാക്ക് സെലക്ട് ചെയ്യാം.");
         }
 
-        // 5. കുട്ടികളുടെ പേജിലേക്ക് വിവരങ്ങൾ അയക്കുക
+        // 5. പബ്ലിഷ് ചെയ്യുക
         function publishToStudentPage() {
-            if(!base64Img || currentZones.length === 0) return alert("പേജിൽ വിവരങ്ങൾ ഒന്നും ചേർത്തിട്ടില്ല!");
+            if(!base64Img || currentZones.length === 0) return alert("വിവരങ്ങൾ അപൂർണ്ണമാണ്!");
             
             let localPages = JSON.parse(localStorage.getItem('soundBookPages')) || [];
             let newPage = { id: Date.now(), image: base64Img, zones: currentZones, completed: false };
             localPages.unshift(newPage); 
             
             localStorage.setItem('soundBookPages', JSON.stringify(localPages));
-            alert("🎉 ഈ പേജ് വിജയകരമായി പബ്ലിഷ് ചെയ്തു!");
+            alert("🎉 ഈ പേജ് കുട്ടികൾക്കായി പബ്ലിഷ് ചെയ്തു!");
             window.location.reload();
         }
     </script>

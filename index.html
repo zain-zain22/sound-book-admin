@@ -8,28 +8,19 @@
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
         .admin-box { background: white; max-width: 500px; margin: 0 auto; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
-        /* ഫുൾ സ്ക്രീൻ ഇമേജ് കണ്ടെയ്നർ */
-        .image-container { position: relative; display: inline-block; margin-top: 15px; border: 2px solid #34495e; width: 100%; max-width: 100%; background: #000; }
+        .image-container { position: relative; display: inline-block; margin-top: 15px; border: 2px solid #34495e; width: 100%; background: #000; }
         .image-container img { display: block; width: 100%; height: auto; }
-        
-        /* സെലക്ഷൻ ബോക്സ് (ശതമാനക്കണക്കിൽ) */
         .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; pointer-events: none; }
-        
         .controls { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-top: 15px; text-align: left; }
         .controls input[type="range"] { width: 100%; }
-
         button { color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; margin: 5px 0; font-weight: bold; width: 100%; font-size: 15px; }
         .btn-blue { background: #3498db; }
         .btn-record { background: #e74c3c; }
         .btn-stop { background: #2c3e50; display: none; }
         .btn-publish { background: #2ecc71; font-size: 16px; margin-top: 15px; }
         .btn-delete { background: #c0392b; padding: 5px 10px; width: auto; font-size: 12px; float: right; }
-        
         .status-text { font-weight: bold; color: #e74c3c; margin: 5px 0; }
         #audioPlayback { margin-top: 5px; display: none; width: 100%; }
-        
-        /* പ്രിവ്യൂ ലിസ്റ്റ് */
         .preview-page { background: #fff; border: 1px solid #ccc; margin-top: 10px; padding: 10px; border-radius: 5px; text-align: left; }
     </style>
 </head>
@@ -41,7 +32,6 @@
         
         <div id="mappingSection" style="display:none;">
             <p style="color: #2c3e50; font-weight: bold; margin: 5px 0;">📱 ചിത്രത്തിൽ വാക്കിന് മുകളിൽ തൊടുക:</p>
-            
             <div class="image-container" id="imageContainer" onclick="selectWordLocation(event)">
                 <img id="bookImg" src="" alt="Book Page">
                 <div class="selection-box" id="selectionBox"></div>
@@ -64,7 +54,6 @@
         </div>
         
         <button class="btn-publish" onclick="publishToStudentPage()">🚀 പേജ് കുട്ടികൾക്കായി പോസ്റ്റ് ചെയ്യുക</button>
-        
         <hr style="margin: 20px 0;">
         <h3>നിലവിൽ പോസ്റ്റ് ചെയ്ത പേജുകൾ:</h3>
         <div id="postedPagesList"></div>
@@ -102,21 +91,16 @@
             const rect = imgContainer.getBoundingClientRect();
             let clickX = event.clientX - rect.left;
             let clickY = event.clientY - rect.top;
-            
             let bWidthPct = parseFloat(document.getElementById('boxWidth').value);
             let bHeightPct = parseFloat(document.getElementById('boxHeight').value);
-            
-            // ക്ലിക്ക് ചെയ്ത സ്ഥലം ചിത്രത്തിന്റെ ആകെ വീതിയുടെ എത്ര ശതമാനമാണ് എന്ന് കണക്കാക്കുന്നു
             pctLeft = ((clickX / rect.width) * 100) - (bWidthPct / 2);
             pctTop = ((clickY / rect.height) * 100) - (bHeightPct / 2);
-
             drawSelectionBox();
         }
 
         function drawSelectionBox() {
             let bWidthPct = document.getElementById('boxWidth').value;
             let bHeightPct = document.getElementById('boxHeight').value;
-            
             selectionBox.style.left = pctLeft + '%';
             selectionBox.style.top = pctTop + '%';
             selectionBox.style.width = bWidthPct + '%';
@@ -127,6 +111,21 @@
         function updateBoxSize() {
             if (selectionBox.style.display === 'block') drawSelectionBox();
         }
+
+        document.getElementById('boxWidth').addEventListener('change', function() {
+            if(currentZones.length > 0 || pctLeft > 0) {
+                 localStorage.setItem('lastWidth', this.value);
+            }
+        });
+        document.getElementById('boxHeight').addEventListener('change', function() {
+            if(currentZones.length > 0 || pctTop > 0) {
+                 localStorage.setItem('lastHeight', this.value);
+            }
+        });
+        window.addEventListener('load', function() {
+            if(localStorage.getItem('lastWidth')) document.getElementById('boxWidth').value = localStorage.getItem('lastWidth');
+            if(localStorage.getItem('lastHeight')) document.getElementById('boxHeight').value = localStorage.getItem('lastHeight');
+        });
 
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
@@ -160,7 +159,6 @@
         function saveWordZone() {
             let bWidthPct = parseFloat(document.getElementById('boxWidth').value);
             let bHeightPct = parseFloat(document.getElementById('boxHeight').value);
-
             if (selectionBox.style.display === 'none') return alert("ചിത്രത്തിൽ തൊടുക!");
             if (!latestAudioBase64) return alert("ഓഡിയോ റെക്കോർഡ് ചെയ്യുക!");
 
@@ -187,7 +185,6 @@
             window.location.reload();
         }
 
-        // പോസ്റ്റ് ചെയ്ത പേജുകൾ കാണിക്കാനും ഡിലീറ്റ് ചെയ്യാനും
         function loadPostedPages() {
             let localPages = JSON.parse(localStorage.getItem('soundBookPages')) || [];
             let listDiv = document.getElementById('postedPagesList');

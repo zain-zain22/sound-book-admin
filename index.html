@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>സൗണ്ട് ബുക്ക് - സൂപ്പർ അഡ്മിൻ പാനൽ</title>
+    <title>സൗണ്ട് ബുക്ക് - സൂപ്പർ അഡ്മിൻ പാനൽ (Updated)</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
@@ -175,6 +175,22 @@
             if (selectionBox.style.display === 'block') drawSelectionBox();
         }
 
+        // ബോക്സിന്റെ അളവുകൾ ബ്രൗസറിൽ ഓർത്തു വെക്കാൻ
+        document.getElementById('boxWidth').addEventListener('change', function() {
+            if(currentZones.length > 0 || pctLeft > 0) {
+                 localStorage.setItem('lastWidth', this.value);
+            }
+        });
+        document.getElementById('boxHeight').addEventListener('change', function() {
+            if(currentZones.length > 0 || pctTop > 0) {
+                 localStorage.setItem('lastHeight', this.value);
+            }
+        });
+        window.addEventListener('load', function() {
+            if(localStorage.getItem('lastWidth')) document.getElementById('boxWidth').value = localStorage.getItem('lastWidth');
+            if(localStorage.getItem('lastHeight')) document.getElementById('boxHeight').value = localStorage.getItem('lastHeight');
+        });
+
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 mediaRecorder = new MediaRecorder(stream);
@@ -221,13 +237,17 @@
             document.getElementById('recordStatus').innerText = "";
             selectionBox.style.display = 'none';
             latestAudioBase64 = null;
-            alert("വാക്ക് ചേർത്തു!");
+            alert("వాക്ക് ചേർത്തു!");
         }
 
+        // 🚀 ഇവിടെയാണ് മാറ്റം വരുത്തിയിരിക്കുന്നത് (push രീതിയിലേക്ക് മാറ്റി)
         function publishToStudentPage() {
             if(!base64Img || currentZones.length === 0) return alert("വിവരങ്ങൾ അപൂർണ്ണമാണ്!");
             let localPages = JSON.parse(localStorage.getItem('soundBookPages')) || [];
-            localPages.unshift({ id: Date.now(), image: base64Img, zones: currentZones, completed: false }); 
+            
+            // രണ്ടാമത്തെ പേജ് വരാത്ത പ്രശ്നം പരിഹരിക്കാൻ 'push' ഉപയോഗിക്കുന്നു
+            localPages.push({ id: Date.now(), image: base64Img, zones: currentZones, completed: false }); 
+            
             localStorage.setItem('soundBookPages', JSON.stringify(localPages));
             alert("🎉 പേജ് പോസ്റ്റ് ചെയ്തു!");
             window.location.reload();
@@ -237,10 +257,11 @@
             let localPages = JSON.parse(localStorage.getItem('soundBookPages')) || [];
             let listDiv = document.getElementById('postedPagesList');
             listDiv.innerHTML = localPages.length === 0 ? '<p>പേജുകൾ ഒന്നും പോസ്റ്റ് ചെയ്തിട്ടില്ല.</p>' : '';
+            
             localPages.forEach((p, idx) => {
                 let div = document.createElement('div');
                 div.className = 'list-item';
-                div.innerHTML = `<b>പേജ് ${localPages.length - idx}</b> (${p.zones.length} വാക്കുകൾ)`;
+                div.innerHTML = `<b>പേജ് ${idx + 1}</b> (${p.zones.length} വാക്കുകൾ)`;
                 let delBtn = document.createElement('button');
                 delBtn.className = 'btn-delete';
                 delBtn.innerText = '🗑️ Delete';
@@ -256,7 +277,7 @@
             });
         }
 
-        // Initialize
+        // സിസ്റ്റം ആരംഭിക്കുന്നു
         updateMadrasaDropdowns();
         loadPostedPages();
     </script>

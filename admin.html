@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>സൗണ്ട് ബുക്ക് - ഓഫ്‌ലൈൻ സിപ്പ് ജനറേറ്റർ</title>
+    <title>സൗണ്ട് ബുക്ക് - ഫയർബേസ് അഡ്മിൻ പാനൽ</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
@@ -20,27 +20,42 @@
         .btn-green { background: #2ecc71; }
         .btn-record { background: #e74c3c; }
         .btn-stop { background: #2c3e50; display: none; }
+        .btn-delete { background: #c0392b; padding: 3px 8px; width: auto; font-size: 12px; float: right; margin: 0; }
         .status-text { font-weight: bold; color: #e74c3c; text-align: center; margin: 5px 0; }
         #audioPlayback { margin-top: 5px; display: none; width: 100%; }
+        .list-item { background: #fff; padding: 8px; border: 1px solid #eee; margin-top: 5px; border-radius: 4px; font-size: 13px; }
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); color: white; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; z-index: 9999; }
     </style>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
-    <div class="loading-overlay" id="loadingOverlay">📦 ഫോൾഡറുകൾ ക്രമീകരിച്ച് ZIP തയ്യാറാക്കുന്നു...</div>
+    <div class="loading-overlay" id="loadingOverlay">📦 സിപ്പ് (data.zip) ഫയൽ തയ്യാറാക്കുന്നു, ദയവായി കാത്തിരിക്കൂ...</div>
 
     <div class="admin-box">
-        <h2>🏫 മദ്രസ & വിദ്യാർത്ഥി വിവരങ്ങൾ</h2>
+        <h2>🏫 മദ്രസ & വിദ്യാർത്ഥി മാനേജ്‌മെന്റ്</h2>
+        
         <div class="section">
-            <input type="text" id="madrasaName" placeholder="മദ്രസയുടെ പേര് ഇംഗ്ലീഷിൽ (ഉദാ: Busthan)" required>
-            <input type="text" id="studentName" placeholder="കുട്ടിയുടെ പേര് ഇംഗ്ലീഷിൽ (ഉദാ: Zain)" required>
+            <h4>1. പുതിയ മദ്രസ ചേർക്കുക:</h4>
+            <input type="text" id="madrasaName" placeholder="മദ്രസയുടെ പേര് ഇംഗ്ലീഷിൽ എഴുതുക...">
+            <button class="btn-blue" onclick="addMadrasa()">➕ മദ്രസ സേവ് ചെയ്യുക</button>
+        </div>
+
+        <div class="section">
+            <h4>2. മദ്രസയിലേക്ക് കുട്ടികളെ ചേർക്കുക:</h4>
+            <label>മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
+            <select id="madrasaSelect"></select>
+            <input type="text" id="studentName" placeholder="കുട്ടിയുടെ പേര് ഇംഗ്ലീഷിൽ എഴുതുക...">
+            <button class="btn-green" onclick="addStudent()">➕ കുട്ടിയെ സേവ് ചെയ്യുക</button>
         </div>
     </div>
 
     <div class="admin-box">
-        <h2>📖 പാഠഭാഗങ്ങൾ സെറ്റ് ചെയ്യുക</h2>
+        <h2>📖 പാഠഭാഗങ്ങൾ അപ്‌ലോഡ് ചെയ്യുക</h2>
         <input type="file" id="imageUploader" accept="image/*">
         
         <div id="mappingSection" style="display:none;">
@@ -66,16 +81,67 @@
             <h4 id="zoneCount" style="color: #7f8c8d; text-align:center; margin: 5px 0;">(0 വാക്കുകൾ ചേർത്തു)</h4>
         </div>
         
-        <button class="btn-green" style="font-size:16px; margin-top:15px;" onclick="generateZipPackage()">🚀 സിപ്പ് (ZIP) ഫയൽ ഡൗൺലോഡ് ചെയ്യുക</button>
+        <button class="btn-green" style="font-size:16px; margin-top:15px;" onclick="publishToStudentPage()">🚀 പേജ് കുട്ടികൾക്കായി പോസ്റ്റ് ചെയ്യുക</button>
+        
+        <hr style="margin: 20px 0;">
+        <h3>നിലവിൽ പോസ്റ്റ് ചെയ്ത പേജുകൾ:</h3>
+        <div id="postedPagesList"></div>
     </div>
 
     <script>
+        // Firebase Configuration (മദ്രസ ലിസ്റ്റ് റീഡ് ചെയ്യാൻ മാത്രം)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXSgalqZ3h6Dle6pzu2VMXYkCKM4X3Pis",
+            authDomain: "sond-book.firebaseapp.com",
+            projectId: "sond-book",
+            storageBucket: "sond-book.appspot.com",
+            messagingSenderId: "731880152541",
+            appId: "1:731880152541:web:da0e241383b850381dea34"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
         let currentZones = [];
         let selectedImageFile = null;
         let audioBlobs = []; 
         let mediaRecorder;
         let audioChunks = [];
         let pctLeft = 0, pctTop = 0;
+
+        // മദ്രസകൾ ലോഡ് ചെയ്യുക
+        function loadMadrasas() {
+            db.collection("madrasas").onSnapshot(snapshot => {
+                const select1 = document.getElementById('madrasaSelect');
+                select1.innerHTML = '';
+                snapshot.forEach(doc => {
+                    let opt = document.createElement('option');
+                    opt.value = doc.id; opt.innerText = doc.id;
+                    select1.appendChild(opt);
+                });
+            });
+        }
+
+        function addMadrasa() {
+            let name = document.getElementById('madrasaName').value.trim();
+            if(!name) return alert("പേര് ടൈപ്പ് ചെയ്യുക!");
+            db.collection("madrasas").doc(name).set({ created: true }).then(() => {
+                document.getElementById('madrasaName').value = '';
+                alert("മദ്രസ ചേർത്തു!");
+            });
+        }
+
+        function addStudent() {
+            let madrasa = document.getElementById('madrasaSelect').value;
+            let student = document.getElementById('studentName').value.trim();
+            if(!madrasa) return alert("ആദ്യം മദ്രസ ആഡ് ചെയ്യുക!");
+            if(!student) return alert("കുട്ടിയുടെ പേര് എഴുതുക!");
+            
+            db.collection("madrasas").doc(madrasa).collection("students").doc(student).set({ name: student }).then(() => {
+                document.getElementById('studentName').value = '';
+                alert("വിദ്യാർത്ഥിയെ ചേർത്തു!");
+            });
+        }
 
         const imageUploader = document.getElementById('imageUploader');
         const bookImg = document.getElementById('bookImg');
@@ -167,27 +233,29 @@
             alert("വാക്ക് ചേർത്തു!");
         }
 
-        async function generateZipPackage() {
-            let madrasa = document.getElementById('madrasaName').value.trim();
+        // 🚀 പേജ് സബ്മിറ്റ് ചെയ്യുമ്പോൾ ഓഫ്‌ലൈനായി 'data.zip' ഫയൽ ഉണ്ടാക്കുന്ന പ്രധാന ഫങ്ക്ഷൻ
+        async function publishToStudentPage() {
+            let madrasa = document.getElementById('madrasaSelect').value;
             let student = document.getElementById('studentName').value.trim();
             
-            if(!madrasa || !student) return alert("ദയവായി മദ്രസയുടെ പേരും കുട്ടിയുടെ പേരും ടൈപ്പ് ചെയ്യുക!");
-            if(!selectedImageFile || currentZones.length === 0) return alert("ദയവായി ചിത്രവും വാക്കുകളും ചേർക്കുക!");
+            if(!madrasa) return alert("ദയവായി ഒരു മദ്രസ തിരഞ്ഞെടുക്കുക!");
+            if(!student) return alert("കുട്ടിയുടെ പേര് എഴുതുക!");
+            if(!selectedImageFile || currentZones.length === 0) return alert("ചിത്രവും വാക്കുകളും ചേർക്കാതെ പോസ്റ്റ് ചെയ്യാൻ കഴിയില്ല!");
             
             document.getElementById('loadingOverlay').style.display = 'flex';
             
             const zip = new JSZip();
             const pageId = Date.now().toString();
             
-            // 📁 ജാവക്രിപ്റ്റ് വഴി 'data/മദ്രസ_പേര്/കുട്ടിയുടെ_പേര്' എന്ന ഫോൾഡർ സ്ട്രക്ചർ സിപ്പിനുള്ളിൽ ഉണ്ടാക്കുന്നു
+            // 📁 സിപ്പിനുള്ളിൽ 'data/മദ്രസയുടെ_പേര്/കുട്ടിയുടെ_പേര്' എന്ന കൃത്യമായ സ്ട്രക്ചർ തനിയെ ഉണ്ടാക്കുന്നു
             const folderPath = zip.folder("data").folder(madrasa).folder(student);
             
-            // 1. ചിത്രം ഫോൾഡറിലേക്ക് മാറ്റുന്നു
+            // 1. ചിത്രത്തിന്റെ എക്സ്റ്റൻഷൻ നോക്കി ഇമേജ് ഫയൽ ഫോൾഡറിലേക്ക് മാറ്റുന്നു
             const imgExtension = selectedImageFile.name.split('.').pop();
             const zipImgName = `image_${pageId}.${imgExtension}`;
             folderPath.file(zipImgName, selectedImageFile);
             
-            // 2. ഓഡിയോകൾ ഫോൾഡറിലേക്ക് മാറ്റുന്നു
+            // 2. ഓരോ ഓഡിയോ ഫയലുകളും ഈ ഫോൾഡറിലേക്ക് പേര് മാറ്റി സേവ് ചെയ്യുന്നു
             let updatedZones = [];
             for(let i=0; i<currentZones.length; i++) {
                 let blobIndex = currentZones[i].audioIndex;
@@ -196,6 +264,7 @@
                 
                 folderPath.file(zipAudioName, audioBlob);
                 
+                // കുട്ടികളുടെ പേജിൽ പ്ലേ ചെയ്യാൻ ഈ റൂട്ടാണ് ഗിറ്റ്ഹബ്ബ് ഉപയോഗിക്കുക
                 updatedZones.push({
                     coords: currentZones[i].coords,
                     audioSrc: `data/${madrasa}/${student}/${zipAudioName}`,
@@ -203,7 +272,7 @@
                 });
             }
             
-            // 3. ഡാറ്റ ഫയൽ (json) ഫോൾഡറിലേക്ക് മാറ്റുന്നു
+            // 3. പേജ് വിവരങ്ങൾ അടങ്ങിയ 'data_pageId.json' ഫയൽ കൂടി അതേ ഫോൾഡറിലേക്ക് ചേർക്കുന്നു
             const pageData = {
                 id: pageId,
                 madrasa: madrasa,
@@ -213,20 +282,29 @@
             };
             folderPath.file(`data_${pageId}.json`, JSON.stringify(pageData, null, 2));
             
-            // 4. സിപ്പ് ഫയൽ ഡൗൺലോഡ് ചെയ്യിക്കുന്നു
+            // 4. ഡൗൺലോഡ് ചെയ്യാൻ തക്കവണ്ണം 'data.zip' എന്ന പേരിൽ ഫയൽ പുറത്തുവിടുന്നു
             zip.generateAsync({type:"blob"}).then(function(content) {
                 const element = document.createElement("a");
                 element.href = URL.createObjectURL(content);
-                element.download = `${madrasa}_${student}_soundbook.zip`;
+                element.download = `data.zip`; // ഗിറ്റ്ഹബിൽ ഇടേണ്ട അതേ പേര് തന്നെ സെറ്റ് ചെയ്തു!
                 document.body.appendChild(element);
                 element.click();
                 document.body.removeChild(element);
                 
                 document.getElementById('loadingOverlay').style.display = 'none';
-                alert("🎉 ഫോൾഡറുകൾ അടങ്ങിയ ZIP ഫയൽ റെഡിയായിട്ടുണ്ട്!");
+                alert("🎉 'data.zip' വിജയകരമായി നിങ്ങളുടെ ലാപ്ടോപ്പിൽ ഡൗൺലോഡ് ആയിട്ടുണ്ട്! ഇനി ഇത് ഗിറ്റ്ഹബിലേക്ക് ഡ്രാഗ് ചെയ്യാം.");
                 window.location.reload();
             });
         }
+
+        function loadPostedPages() {
+            // ഈ സിസ്റ്റത്തിൽ ഫയലുകൾ ഓഫ്‌ലൈൻ ആയതിനാൽ ലോക്കൽ ഹിസ്റ്ററി തൽക്കാലം ഒഴിവാക്കി
+            let listDiv = document.getElementById('postedPagesList');
+            listDiv.innerHTML = '<p style="color:#7f8c8d; font-size:13px; text-align:center;">(ഫയലുകൾ നേരിട്ട് ZIP വഴി ഡൗൺലോഡ് ചെയ്യുന്നതിനാൽ ഇവിടെ ഹിസ്റ്ററി കാണിക്കില്ല)</p>';
+        }
+
+        loadMadrasas();
+        loadPostedPages();
     </script>
 </body>
 </html>

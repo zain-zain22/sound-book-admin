@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>സൗണ്ട് ബുക്ക് - മദ്രസ വൈസ് അഡ്മിൻ</title>
+    <title>സൗണ്ട് ബുക്ക് - ഗ്ലോബൽ അഡ്മിൻ</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
@@ -53,12 +53,9 @@
     </div>
 
     <div class="admin-box" style="border-top: 4px solid #2ecc71;">
-        <h2>📖 പാഠപുസ്തകം സെറ്റ് ചെയ്യുക</h2>
-        <div class="section" style="background: #eef2f3;">
-            <label style="font-weight: bold; color: #2c3e50;">🎯 ഏത് മദ്രസയ്ക്കാണ് പാഠം ഉണ്ടാക്കുന്നത്?</label>
-            <select id="finalMadrasaSelect" style="font-weight: bold; color: #2c3e50; border: 2px solid #3498db;"></select>
-        </div>
-
+        <h2>📖 എല്ലാവർക്കുമുള്ള പൊതുവായ പാഠം</h2>
+        <p style="color: #7f8c8d; font-size: 13px; margin: 0; text-align: center;">(ഇവിടെ ഉണ്ടാക്കുന്ന പാഠം ലിസ്റ്റിലുള്ള എല്ലാ മദ്രസയിലെ കുട്ടികൾക്കും കാണാം)</p>
+        <br>
         <input type="file" id="imageUploader" accept="image/*">
         
         <div id="mappingSection" style="display:none;">
@@ -84,13 +81,13 @@
             <h4 id="zoneCount" style="color: #7f8c8d; text-align:center; margin: 5px 0;">(0 വാക്കുകൾ ചേർത്തു)</h4>
         </div>
         
-        <button class="btn-green" style="font-size:16px; margin-top:15px; width: 100%;" onclick="publishToZipWithMasterData()">🚀 സിപ്പ് (ZIP) ഫയൽ ഡൗൺലോഡ് ചെയ്യുക</button>
+        <button class="btn-green" style="font-size:16px; margin-top:15px; width: 100%;" onclick="publishGlobalZip()">🚀 സിപ്പ് (ZIP) ഫയൽ ഡൗൺലോഡ് ചെയ്യുക</button>
     </div>
 
     <script>
         let masterSchoolData = {};
 
-        // 📥 GitHub-ൽ നിന്ന് പഴയ മാസ്റ്റർ ലിസ്റ്റ് തനിയെ എടുക്കുന്നു
+        // 📥 GitHub-ൽ നിന്ന് പഴയ മാസ്റ്റർ ലിസ്റ്റ് എടുക്കുന്നു
         async function loadOldDataFromGitHub() {
             document.getElementById('loadingOverlay').style.display = 'flex';
             try {
@@ -98,9 +95,9 @@
                 if(response.ok) {
                     masterSchoolData = await response.json();
                     loadDropdowns();
-                    document.getElementById('syncStatus').innerText = "✅ പഴയ ലിസ്റ്റുകൾ വിജയകരമായി ലോഡ് ചെയ്തു!";
+                    document.getElementById('syncStatus').innerText = "✅ പഴയ ലിസ്റ്റുകൾ ഗിറ്റ്ഹബ്ബിൽ നിന്ന് ലോഡ് ചെയ്തു!";
                 } else {
-                    document.getElementById('syncStatus').innerText = "ℹ️ ആദ്യ തവണയാണ്, ഫയലുകൾ ഒന്നും ലഭ്യമല്ല.";
+                    document.getElementById('syncStatus').innerText = "ℹ️ ആദ്യ തവണയാണ്, ഫയലുകൾ ഒന്നുമില്ല.";
                 }
             } catch (e) {
                 document.getElementById('syncStatus').innerText = "ℹ️ പുതിയ പ്രൊജക്റ്റ് ആയി തുടങ്ങാം.";
@@ -110,12 +107,10 @@
 
         function loadDropdowns() {
             const m1 = document.getElementById('madrasaSelect');
-            const m2 = document.getElementById('finalMadrasaSelect');
-            m1.innerHTML = ''; m2.innerHTML = '';
+            m1.innerHTML = '';
             Object.keys(masterSchoolData).sort().forEach(madrasa => {
-                let opt1 = document.createElement('option'); opt1.value = madrasa; opt1.innerText = madrasa;
-                let opt2 = document.createElement('option'); opt2.value = madrasa; opt2.innerText = madrasa;
-                m1.appendChild(opt1); m2.appendChild(opt2);
+                let opt = document.createElement('option'); opt.value = madrasa; opt.innerText = madrasa;
+                m1.appendChild(opt);
             });
         }
 
@@ -126,7 +121,7 @@
             masterSchoolData[name] = [];
             document.getElementById('madrasaName').value = '';
             loadDropdowns();
-            document.getElementById('finalMadrasaSelect').value = name;
+            document.getElementById('madrasaSelect').value = name;
         }
 
         function addStudentData() {
@@ -140,7 +135,7 @@
             alert(`${student} എന്ന കുട്ടിയെ ചേർത്തു!`);
         }
 
-        // --- 📖 റെക്കോർഡിംഗ് & മാപ്പിംഗ് ലോജിക് ---
+        // --- 📖 റെക്കോർഡിംഗ് ലോജിക് ---
         let currentZones = []; let selectedImageFile = null; let audioBlobs = []; 
         let mediaRecorder; let audioChunks = []; let pctLeft = 0, pctTop = 0;
 
@@ -224,70 +219,44 @@
             alert("വാക്ക് ലിങ്ക് ചെയ്തു!");
         }
 
-        // 🚀 പാഠം മദ്രസ വൈസ് ആയി മാറ്റി സിപ്പ് നിർമ്മിക്കുന്ന ഭാഗം
-        async function publishToZipWithMasterData() {
-            let madrasa = document.getElementById('finalMadrasaSelect').value;
-            if(!madrasa) return alert("ദയവായി മദ്രസ തിരഞ്ഞെടുക്കുക!");
+        // 🚀 എല്ലാവർക്കും വേണ്ടിയുള്ള കോമൺ സിപ്പ് ഫയൽ നിർമ്മിക്കുന്ന ഭാഗം
+        async function publishGlobalZip() {
             if(!selectedImageFile || currentZones.length === 0) return alert("ചിത്രവും വാക്കുകളും ചേർക്കുക!");
             
-            const loadText = document.getElementById('loadText');
             const overlay = document.getElementById('loadingOverlay');
             overlay.style.display = 'flex';
+            document.getElementById('loadText').innerText = "📦 സിപ്പ് ഫയൽ പാക്ക് ചെയ്യുന്നു...";
             
             const zip = new JSZip();
-            const pageId = Date.now().toString();
             const dataFolder = zip.folder("data");
 
-            // 🔄 പഴയ എല്ലാ മദ്രസകളുടെയും പാഠഭാഗങ്ങൾ ഗിറ്റ്ഹബ്ബിൽ നിന്ന് പുതിയ സിപ്പിലേക്ക് സുരക്ഷിതമായി മാറ്റുന്നു
-            loadText.innerText = "⏳ പഴയ പാഠങ്ങൾ ശേഖരിക്കുന്നു...";
-            for (const m of Object.keys(masterSchoolData)) {
-                if (m === madrasa) continue; // നമ്മൾ ഇപ്പോൾ ചെയ്യുന്ന മദ്രസ ഒഴിച്ച് ബാക്കിയുള്ളവ ബാക്കപ്പ് ചെയ്യുന്നു
-                try {
-                    let oldRes = await fetch(`data/${m}/data_book.json`);
-                    if(oldRes.ok) {
-                        let oldBook = await oldRes.json();
-                        const oldFolder = dataFolder.folder(m);
-                        oldFolder.file("data_book.json", JSON.stringify(oldBook, null, 2));
-
-                        let imgRes = await fetch(oldBook.image);
-                        if(imgRes.ok) oldFolder.file(oldBook.image.split('/').pop(), await imgRes.blob());
-
-                        for (const zone of oldBook.zones) {
-                            let audRes = await fetch(zone.audioSrc);
-                            if(audRes.ok) oldFolder.file(zone.audioSrc.split('/').pop(), await audRes.blob());
-                        }
-                    }
-                } catch(e) { console.log(`ബാക്കപ്പ് എറർ: ${m}`, e); }
-            }
-            
-            loadText.innerText = "📦 പുതിയ പാഠങ്ങൾ സിപ്പിലേക്ക് പാക്ക് ചെയ്യുന്നു...";
+            // 1. മാസ്റ്റർ ലിസ്റ്റ് (മദ്രസകളും കുട്ടികളും) ചേർക്കുന്നു
             dataFolder.file("master_list.json", JSON.stringify(masterSchoolData, null, 2));
             
-            // ഈ മദ്രസയ്ക്ക് വേണ്ടിയുള്ള പൊതുവായ ഫോൾഡർ
-            const madrasaFolder = dataFolder.folder(madrasa);
+            // 2. ഇമേജ് ഫയൽ നേരിട്ട് ഡാറ്റാ ഫോൾഡറിൽ ചേർക്കുന്നു
             const imgExtension = selectedImageFile.name.split('.').pop();
-            const zipImgName = `image_${pageId}.${imgExtension}`;
-            madrasaFolder.file(zipImgName, selectedImageFile);
+            const zipImgName = `book_image.${imgExtension}`;
+            dataFolder.file(zipImgName, selectedImageFile);
             
+            // 3. ഓഡിയോ ഫയലുകൾ ചേർക്കുന്നു
             let updatedZones = [];
             for(let i=0; i<currentZones.length; i++) {
                 let audioBlob = audioBlobs[currentZones[i].audioIndex];
-                const zipAudioName = `audio_${pageId}_${i}.mp3`;
-                madrasaFolder.file(zipAudioName, audioBlob);
+                const zipAudioName = `audio_${i}.mp3`;
+                dataFolder.file(zipAudioName, audioBlob);
                 
                 updatedZones.push({
                     coords: currentZones[i].coords,
-                    audioSrc: `data/${madrasa}/${zipAudioName}`
+                    audioSrc: `data/${zipAudioName}`
                 });
             }
             
+            // 4. പൊതുവായ ജെയ്സൺ ഫയൽ (Global Data Book)
             const pageData = {
-                id: pageId,
-                madrasa: madrasa,
-                image: `data/${madrasa}/${zipImgName}`,
+                image: `data/${zipImgName}`,
                 zones: updatedZones
             };
-            madrasaFolder.file(`data_book.json`, JSON.stringify(pageData, null, 2));
+            dataFolder.file(`data_book.json`, JSON.stringify(pageData, null, 2));
             
             zip.generateAsync({type:"blob"}).then(function(content) {
                 const element = document.createElement("a");
@@ -295,7 +264,7 @@
                 element.download = `data.zip`;
                 document.body.appendChild(element); element.click(); document.body.removeChild(element);
                 overlay.style.display = 'none';
-                alert(`🎉 ${madrasa} മദ്രസയിലെ എല്ലാ കുട്ടികൾക്കും വേണ്ടിയുള്ള പാഠങ്ങൾ അടങ്ങിയ data.zip റെഡിയായി!`);
+                alert("🎉 എല്ലാ മദ്രസകൾക്കും വേണ്ടിയുള്ള പൊതുവായ 'data.zip' തയ്യാറായി കഴിഞ്ഞു!");
                 window.location.reload();
             });
         }

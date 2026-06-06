@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ഡെയിലി റിവിഷൻ ബുക്ക്</title>
+    <title>📚 ഡെയിലി റിവിഷൻ ബുക്ക് 🔊</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #1a252f; color: white; padding: 10px; margin: 0; text-align: center; }
@@ -12,8 +12,8 @@
         .student-info { background: #34495e; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 15px; border-left: 5px solid #2ecc71; text-align: left; }
         .search-box { background: #34495e; padding: 12px; border-radius: 6px; margin-bottom: 15px; text-align: left; }
         label { font-size: 13px; color: #bdc3c7; display: block; margin-bottom: 4px; }
-        input[type="text"] { width: 100%; padding: 10px; border: none; border-radius: 4px; background: #fff; color: #333; font-size: 14px; margin-bottom: 10px; }
-        button { background: #2ecc71; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; }
+        select { width: 100%; padding: 12px; border: none; border-radius: 4px; background: #fff; color: #333; font-size: 15px; margin-bottom: 12px; font-weight: bold; }
+        button { background: #2ecc71; color: white; border: none; padding: 12px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 15px; }
         .image-wrapper { position: relative; width: 100%; border: 3px solid #7f8c8d; background: #000; margin-top: 10px; border-radius: 4px; overflow: hidden; display: none; }
         .image-wrapper img { width: 100%; display: block; height: auto; }
         .word-touch-zone { position: absolute; border: 2px dashed rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.15); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
@@ -27,10 +27,16 @@
         <h2>📚 ഡെയിലി റിവിഷൻ ബുക്ക് 🔊</h2>
         
         <div class="search-box">
-            <label>മദ്രസയുടെ പേര് (English):</label>
-            <input type="text" id="fetchMadrasa" placeholder="ഉദാ: Busthan">
-            <label>കുട്ടിയുടെ പേര് (English):</label>
-            <input type="text" id="fetchStudent" placeholder="ഉദാ: Zain">
+            <label>🏫 മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
+            <select id="madrasaSelect" onchange="updateStudentDropdown()">
+                <option value="">⏳ ലോഡ് ചെയ്യുന്നു...</option>
+            </select>
+            
+            <label>👤 വിദ്യാർത്ഥിയുടെ പേര്:</label>
+            <select id="studentSelect">
+                <option value="">-- മദ്രസ ആദ്യം തിരഞ്ഞെടുക്കുക --</option>
+            </select>
+            
             <button onclick="loadStudentBook()">📖 പാഠം കാണുക</button>
         </div>
 
@@ -49,13 +55,56 @@
 
     <script>
         let currentAudio = null;
+        let masterSchoolData = {};
 
+        // 📥 പേജ് ലോഡ് ചെയ്യുമ്പോൾ സിപ്പിൽ നിന്നുള്ള മാസ്റ്റർ ലിസ്റ്റ് തനിയെ റീഡ് ചെയ്യുന്നു
+        async function fetchMasterList() {
+            const mSelect = document.getElementById('madrasaSelect');
+            try {
+                // നിങ്ങൾ അപ്‌ലോഡ് ചെയ്യുന്ന സിപ്പിലെ മാസ്റ്റർ ഫയലിലേക്ക് ലിങ്ക് ചെയ്യുന്നു
+                let response = await fetch('data/master_list.json');
+                if(!response.ok) throw new Error("മാസ്റ്റർ ലിസ്റ്റ് കണ്ടെത്താനായില്ല");
+                
+                masterSchoolData = await response.json();
+                
+                mSelect.innerHTML = '<option value="">-- മദ്രസ സെലക്ട് ചെയ്യുക --</option>';
+                Object.keys(masterSchoolData).sort().forEach(madrasa => {
+                    let opt = document.createElement('option');
+                    opt.value = madrasa;
+                    opt.innerText = madrasa;
+                    mSelect.appendChild(opt);
+                });
+                document.getElementById('statusMsg').innerText = "";
+            } catch (error) {
+                mSelect.innerHTML = '<option value="">❌ ഡാറ്റ ലഭ്യമല്ല</option>';
+                document.getElementById('statusMsg').innerText = "⚠️ പുതിയ പാഠങ്ങളോ മാസ്റ്റർ ലിസ്റ്റോ GitHub-ൽ അപ്‌ലോഡ് ചെയ്തിട്ടില്ല!";
+                console.error(error);
+            }
+        }
+
+        // മദ്രസ മാറുമ്പോൾ കുട്ടികളുടെ ലിസ്റ്റ് മാറ്റുന്നു
+        function updateStudentDropdown() {
+            const mSelect = document.getElementById('madrasaSelect').value;
+            const sSelect = document.getElementById('studentSelect');
+            sSelect.innerHTML = '<option value="">-- കുട്ടിയുടെ പേര് സെലക്ട് ചെയ്യുക --</option>';
+            
+            if (mSelect && masterSchoolData[mSelect]) {
+                masterSchoolData[mSelect].sort().forEach(student => {
+                    let opt = document.createElement('option');
+                    opt.value = student;
+                    opt.innerText = student;
+                    sSelect.appendChild(opt);
+                });
+            }
+        }
+
+        // 📖 കുട്ടിയുടെ കൃത്യമായ പാഠഭാഗം കാണിക്കുന്ന ഫങ്ക്ഷൻ
         async function loadStudentBook() {
-            let madrasa = document.getElementById('fetchMadrasa').value.trim();
-            let student = document.getElementById('fetchStudent').value.trim();
+            let madrasa = document.getElementById('madrasaSelect').value;
+            let student = document.getElementById('studentSelect').value;
             
             if(!madrasa || !student) {
-                alert("ദയവായി മദ്രസയുടെ പേരും കുട്ടിയുടെ പേരും ടൈപ്പ് ചെയ്യുക!");
+                alert("ദയവായി മദ്രസയും കുട്ടിയുടെ പേരും സെലക്ട് ചെയ്യുക!");
                 return;
             }
 
@@ -64,34 +113,30 @@
             let infoBar = document.getElementById('infoBar');
             let zonesContainer = document.getElementById('zonesContainer');
             
-            statusMsg.innerText = "⏳ വിവരങ്ങൾ ശേഖരിക്കുന്നു...";
+            statusMsg.innerText = "⏳ പാഠഭാഗം ലോഡ് ചെയ്യുന്നു...";
             bookWrapper.style.display = 'none';
             infoBar.style.display = 'none';
             zonesContainer.innerHTML = '';
 
-            // 📂 ഗിറ്റ്ഹബിൽ നിങ്ങൾ അപ്‌ലോഡ് ചെയ്ത data ഫോൾഡറിൽ നിന്നും തനിയെ വിവരങ്ങൾ കണ്ടെത്തുന്നു
-            // നിങ്ങളുടെ സിസ്റ്റം ഓഫ്‌ലൈൻ ആയതുകൊണ്ട് തന്നെ നമുക്ക് ഇവിടെ പേജിന്റെ കൃത്യമായ ID അറിയാൻ പ്രയാസമാണ്.
-            // അതിനാൽ അഡ്മിൻ പാനൽ നിർമ്മിക്കുന്ന ഡാറ്റാ ഫയൽ എപ്പോഴും 'data_book.json' എന്ന ലളിതമായ പേരിൽ സേവ് ചെയ്യാൻ ഞാൻ അഡ്മിൻ കോഡ് മാറ്റിയിട്ടുണ്ട്.
-            
             let jsonUrl = `data/${madrasa}/${student}/data_book.json`;
 
             try {
                 let response = await fetch(jsonUrl);
-                if(!response.ok) throw new Error("ഫയൽ കണ്ടെത്താനായില്ല");
+                if(!response.ok) throw new Error("പാഠം കണ്ടെത്താനായില്ല");
                 
                 let pageData = await response.json();
                 
-                // വിവരങ്ങൾ സ്ക്രീനിൽ കാണിക്കുന്നു
+                // വിവരങ്ങൾ കാണിക്കുന്നു
                 document.getElementById('lblStudent').innerText = pageData.student;
                 document.getElementById('lblMadrasa').innerText = pageData.madrasa;
                 infoBar.style.display = 'block';
                 
-                // ചിത്രം സെറ്റ് ചെയ്യുന്നു
+                // പുസ്തകത്തിന്റെ പേജ് ചിത്രം ലോഡ് ചെയ്യുന്നു
                 document.getElementById('pageImage').src = pageData.image;
                 bookWrapper.style.display = 'block';
                 statusMsg.innerText = "";
 
-                // വാക്കുകളുടെ ടച്ച് സോണുകൾ ഉണ്ടാക്കുന്നു
+                // ടച്ച് സോണുകൾ ഉണ്ടാക്കുന്നു
                 pageData.zones.forEach(zone => {
                     let box = document.createElement('div');
                     box.className = 'word-touch-zone';
@@ -100,21 +145,24 @@
                     box.style.width = zone.coords.width + '%';
                     box.style.height = zone.coords.height + '%';
                     
-                    // ക്ലിക്ക് ചെയ്യുമ്പോൾ ഓഡിയോ പ്ലേ ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
+                    // ക്ലിക്ക് ചെയ്യുമ്പോൾ ഉള്ള ഓഡിയോ പ്ലേ ലോജിക്
                     box.onclick = function() {
                         if(currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
                         currentAudio = new Audio(zone.audioSrc);
-                        currentAudio.play().catch(e => console.log("ഓഡിയോ പ്ലേ ചെയ്യാൻ കഴിഞ്ഞില്ല:", e));
+                        currentAudio.play().catch(e => console.log("ഓഡിയോ പ്ലേ എറർ:", e));
                     };
                     
                     zonesContainer.appendChild(box);
                 });
 
             } catch (error) {
-                statusMsg.innerText = "❌ ഈ കുട്ടിയുടെ പേരിൽ പാഠഭാഗങ്ങൾ ഒന്നും കണ്ടെത്തിയില്ല! (പേര് സ്പെല്ലിംഗ് കൃത്യമാണോ എന്ന് പരിശോധിക്കുക അല്ലെങ്കിൽ ഡാറ്റ ഫയൽ GitHub-ൽ അപ്‌ലോഡ് ചെയ്തിട്ടുണ്ടെന്ന് ഉറപ്പുവരുത്തുക).";
+                statusMsg.innerText = "❌ ഈ കുട്ടിയുടെ പേരിൽ നിലവിൽ പാഠഭാഗങ്ങൾ ഒന്നും ലഭ്യമല്ല!";
                 console.error(error);
             }
         }
+
+        // പേജ് ഓപ്പൺ ചെയ്യുമ്പോൾ തന്നെ ലിസ്റ്റ് ലോഡ് ചെയ്യുക
+        fetchMasterList();
     </script>
 </body>
 </html>

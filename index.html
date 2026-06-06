@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>📚 ഡെയിലി റിവിഷൻ ബുക്ക് 🔊</title>
+    <title>📚 വിദ്യാർത്ഥി പാനൽ 🔊</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: #1a252f; color: white; padding: 10px; margin: 0; text-align: center; }
@@ -24,25 +24,25 @@
 <body>
 
     <div class="container">
-        <h2>📚 ഡെയിലി റിവിഷൻ ബുക്ക് 🔊</h2>
+        <h2>📚 സൗണ്ട് ബുക്ക് - സ്റ്റുഡന്റ് പാനൽ</h2>
         
         <div class="search-box">
-            <label>🏫 മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
+            <label>🏫 നിങ്ങളുടെ മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
             <select id="madrasaSelect" onchange="updateStudentDropdown()">
                 <option value="">⏳ ലോഡ് ചെയ്യുന്നു...</option>
             </select>
             
-            <label>👤 വിദ്യാർത്ഥിയുടെ പേര്:</label>
+            <label>👤 നിങ്ങളുടെ പേര് തിരഞ്ഞെടുക്കുക:</label>
             <select id="studentSelect">
                 <option value="">-- മദ്രസ ആദ്യം തിരഞ്ഞെടുക്കുക --</option>
             </select>
             
-            <button onclick="loadStudentBook()">📖 പാഠം കാണുക</button>
+            <button onclick="loadCommonBook()">📖 പാഠപുസ്തകം തുറക്കുക</button>
         </div>
 
         <div class="student-info" id="infoBar" style="display:none;">
-            👤 <b>വിദ്യാർത്ഥി:</b> <span id="lblStudent" style="color:#2ecc71;"></span><br>
-            🏫 <b>മദ്രസ:</b> <span id="lblMadrasa"></span>
+            👤 <b>വിദ്യാർത്ഥി:</b> <span id="lblStudent" style="color:#2ecc71; font-weight:bold;"></span><br>
+            🏫 <b>മദ്രസ:</b> <span id="lblMadrasa" style="font-weight:bold;"></span>
         </div>
 
         <p id="statusMsg" class="no-data"></p>
@@ -57,111 +57,88 @@
         let currentAudio = null;
         let masterSchoolData = {};
 
-        // 📥 പേജ് ലോഡ് ചെയ്യുമ്പോൾ സിപ്പിൽ നിന്നുള്ള മാസ്റ്റർ ലിസ്റ്റ് തനിയെ റീഡ് ചെയ്യുന്നു
+        // 📥 മാസ്റ്റർ ലിസ്റ്റ് എടുക്കുന്നു
         async function fetchMasterList() {
             const mSelect = document.getElementById('madrasaSelect');
             try {
-                // നിങ്ങൾ അപ്‌ലോഡ് ചെയ്യുന്ന സിപ്പിലെ മാസ്റ്റർ ഫയലിലേക്ക് ലിങ്ക് ചെയ്യുന്നു
                 let response = await fetch('data/master_list.json');
-                if(!response.ok) throw new Error("മാസ്റ്റർ ലിസ്റ്റ് കണ്ടെത്താനായില്ല");
-                
+                if(!response.ok) throw new Error("ലിസ്റ്റ് ലഭ്യമല്ല");
                 masterSchoolData = await response.json();
                 
                 mSelect.innerHTML = '<option value="">-- മദ്രസ സെലക്ട് ചെയ്യുക --</option>';
                 Object.keys(masterSchoolData).sort().forEach(madrasa => {
-                    let opt = document.createElement('option');
-                    opt.value = madrasa;
-                    opt.innerText = madrasa;
+                    let opt = document.createElement('option'); opt.value = madrasa; opt.innerText = madrasa;
                     mSelect.appendChild(opt);
                 });
                 document.getElementById('statusMsg').innerText = "";
             } catch (error) {
                 mSelect.innerHTML = '<option value="">❌ ഡാറ്റ ലഭ്യമല്ല</option>';
-                document.getElementById('statusMsg').innerText = "⚠️ പുതിയ പാഠങ്ങളോ മാസ്റ്റർ ലിസ്റ്റോ GitHub-ൽ അപ്‌ലോഡ് ചെയ്തിട്ടില്ല!";
-                console.error(error);
+                document.getElementById('statusMsg').innerText = "⚠️ പുതിയ ലിസ്റ്റുകൾ ഒന്നും അപ്‌ലോഡ് ചെയ്തിട്ടില്ല!";
             }
         }
 
-        // മദ്രസ മാറുമ്പോൾ കുട്ടികളുടെ ലിസ്റ്റ് മാറ്റുന്നു
+        // 🏫 മദ്രസ മാറുമ്പോൾ അതിലെ കുട്ടികളെ മാത്രം ഡ്രോപ്പ്ഡൗണിൽ കാണിക്കുന്നു
         function updateStudentDropdown() {
             const mSelect = document.getElementById('madrasaSelect').value;
             const sSelect = document.getElementById('studentSelect');
-            sSelect.innerHTML = '<option value="">-- കുട്ടിയുടെ പേര് സെലക്ട് ചെയ്യുക --</option>';
+            sSelect.innerHTML = '<option value="">-- നിങ്ങളുടെ പേര് തിരഞ്ഞെടുക്കുക --</option>';
             
             if (mSelect && masterSchoolData[mSelect]) {
                 masterSchoolData[mSelect].sort().forEach(student => {
-                    let opt = document.createElement('option');
-                    opt.value = student;
-                    opt.innerText = student;
+                    let opt = document.createElement('option'); opt.value = student; opt.innerText = student;
                     sSelect.appendChild(opt);
                 });
             }
         }
 
-        // 📖 കുട്ടിയുടെ കൃത്യമായ പാഠഭാഗം കാണിക്കുന്ന ഫങ്ക്ഷൻ
-        async function loadStudentBook() {
+        // 📖 കുട്ടിയുടെ പേര് സെലക്ട് ചെയ്യുമ്പോൾ കോമൺ ആയ ഒരൊറ്റ പാഠം ലോഡ് ചെയ്യുന്നു!
+        async function loadCommonBook() {
             let madrasa = document.getElementById('madrasaSelect').value;
             let student = document.getElementById('studentSelect').value;
             
-            if(!madrasa || !student) {
-                alert("ദയവായി മദ്രസയും കുട്ടിയുടെ പേരും സെലക്ട് ചെയ്യുക!");
-                return;
-            }
+            if(!madrasa || !student) return alert("ദയവായി മദ്രസയും നിങ്ങളുടെ പേരും സെലക്ട് ചെയ്യുക!");
 
             let statusMsg = document.getElementById('statusMsg');
             let bookWrapper = document.getElementById('bookWrapper');
             let infoBar = document.getElementById('infoBar');
             let zonesContainer = document.getElementById('zonesContainer');
             
-            statusMsg.innerText = "⏳ പാഠഭാഗം ലോഡ് ചെയ്യുന്നു...";
-            bookWrapper.style.display = 'none';
-            infoBar.style.display = 'none';
-            zonesContainer.innerHTML = '';
+            statusMsg.innerText = "⏳ പാഠപുസ്തകം ലോഡ് ചെയ്യുന്നു...";
+            bookWrapper.style.display = 'none'; infoBar.style.display = 'none'; zonesContainer.innerHTML = '';
 
-            let jsonUrl = `data/${madrasa}/${student}/data_book.json`;
+            // 🎯 പെർഫെക്റ്റ് ലോജിക്: പാഠം കിടക്കുന്നത് നേരിട്ട് ഡാറ്റാ ഫോൾഡറിലെ കോമൺ ഫയലിലാണ്!
+            let jsonUrl = `data/data_book.json`;
 
             try {
                 let response = await fetch(jsonUrl);
-                if(!response.ok) throw new Error("പാഠം കണ്ടെത്താനായില്ല");
-                
+                if(!response.ok) throw new Error("പാഠം ലഭ്യമല്ല");
                 let pageData = await response.json();
                 
-                // വിവരങ്ങൾ കാണിക്കുന്നു
-                document.getElementById('lblStudent').innerText = pageData.student;
-                document.getElementById('lblMadrasa').innerText = pageData.madrasa;
+                document.getElementById('lblStudent').innerText = student;
+                document.getElementById('lblMadrasa').innerText = madrasa;
                 infoBar.style.display = 'block';
                 
-                // പുസ്തകത്തിന്റെ പേജ് ചിത്രം ലോഡ് ചെയ്യുന്നു
                 document.getElementById('pageImage').src = pageData.image;
-                bookWrapper.style.display = 'block';
-                statusMsg.innerText = "";
+                bookWrapper.style.display = 'block'; statusMsg.innerText = "";
 
-                // ടച്ച് സോണുകൾ ഉണ്ടാക്കുന്നു
                 pageData.zones.forEach(zone => {
                     let box = document.createElement('div');
                     box.className = 'word-touch-zone';
-                    box.style.left = zone.coords.left + '%';
-                    box.style.top = zone.coords.top + '%';
-                    box.style.width = zone.coords.width + '%';
-                    box.style.height = zone.coords.height + '%';
+                    box.style.left = zone.coords.left + '%'; box.style.top = zone.coords.top + '%';
+                    box.style.width = zone.coords.width + '%'; box.style.height = zone.coords.height + '%';
                     
-                    // ക്ലിക്ക് ചെയ്യുമ്പോൾ ഉള്ള ഓഡിയോ പ്ലേ ലോജിക്
                     box.onclick = function() {
                         if(currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
                         currentAudio = new Audio(zone.audioSrc);
-                        currentAudio.play().catch(e => console.log("ഓഡിയോ പ്ലേ എറർ:", e));
+                        currentAudio.play().catch(e => console.log("Error:", e));
                     };
-                    
                     zonesContainer.appendChild(box);
                 });
-
             } catch (error) {
-                statusMsg.innerText = "❌ ഈ കുട്ടിയുടെ പേരിൽ നിലവിൽ പാഠഭാഗങ്ങൾ ഒന്നും ലഭ്യമല്ല!";
-                console.error(error);
+                statusMsg.innerText = `❌ നിലവിൽ പാഠങ്ങൾ ഒന്നും സെറ്റ് ചെയ്തിട്ടില്ല!`;
             }
         }
 
-        // പേജ് ഓപ്പൺ ചെയ്യുമ്പോൾ തന്നെ ലിസ്റ്റ് ലോഡ് ചെയ്യുക
         fetchMasterList();
     </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>സൗണ്ട് ബുക്ക് - ഓഫ്‌ലൈൻ അഡ്മിൻ (ZIP മോഡൽ)</title>
+    <title>സൗണ്ട് ബുക്ക് - ഗിറ്റ്ഹബ്ബ് സിങ്ക് അഡ്മിൻ</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
@@ -18,7 +18,6 @@
         button { color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; margin: 5px 0; font-weight: bold; width: 100%; font-size: 15px; }
         .btn-blue { background: #3498db; }
         .btn-green { background: #2ecc71; }
-        .btn-orange { background: #e67e22; }
         .btn-record { background: #e74c3c; }
         .btn-stop { background: #2c3e50; display: none; }
         .status-text { font-weight: bold; color: #e74c3c; text-align: center; margin: 5px 0; }
@@ -30,21 +29,18 @@
 </head>
 <body>
 
-    <div class="loading-overlay" id="loadingOverlay">📦 പുതിയ ZIP ഫയൽ തയ്യാറാക്കുന്നു...</div>
-
-    <div class="admin-box" style="border-top: 4px solid #e67e22;">
-        <h2>📥 പഴയ ഫയൽ ലോഡ് ചെയ്യുക</h2>
-        <p style="font-size:12px; color:#7f8c8d; margin: 0 0 10px 0;">(മുമ്പ് ഡൗൺലോഡ് ചെയ്ത data.zip ഉണ്ടെങ്കിൽ അത് ഇവിടെ കൊടുക്കുക. പഴയ എല്ലാ കുട്ടികളും ലിസ്റ്റിലേക്ക് തിരിച്ചു വരും)</p>
-        <input type="file" id="zipImporter" accept=".zip" onchange="importZipData(event)">
+    <div class="loading-overlay" id="loadingOverlay" style="flex-direction: column;">
+        <span id="loadText">📦 GitHub-ൽ നിന്ന് പഴയ ഡാറ്റകൾ ശേഖരിക്കുന്നു...</span>
     </div>
 
     <div class="admin-box">
         <h2>🏫 മദ്രസ & വിദ്യാർത്ഥി മാനേജ്‌മെന്റ്</h2>
+        <p id="syncStatus" style="color: #27ae60; font-weight: bold; text-align: center; margin: 0; font-size: 13px;">🔄 GitHub-മായി ലിങ്ക് ചെയ്തിരിക്കുന്നു</p>
         
         <div class="section">
             <h4>1. പുതിയ മദ്രസ ചേർക്കുക:</h4>
             <input type="text" id="madrasaName" placeholder="മദ്രസയുടെ പേര് ഇംഗ്ലീഷിൽ (ഉദാ: Busthan)">
-            <button class="btn-blue" onclick="addMadrasaData()">➕ മദ്രസ സേവ് ചെയ്യുക</button>
+            <button class="btn-blue" onclick="addMadrasaData()">➕ മദ്രസ ലിസ്റ്റിലേക്ക് ചേർക്കുക</button>
         </div>
 
         <div class="section">
@@ -53,7 +49,7 @@
             <select id="madrasaSelect" onchange="updateStudentDropdown()"></select>
             
             <input type="text" id="studentName" placeholder="കുട്ടിയുടെ പേര് ഇംഗ്ലീഷിൽ (ഉദാ: Zain)">
-            <button class="btn-green" onclick="addStudentData()">➕ കുട്ടിയെ സേവ് ചെയ്യുക</button>
+            <button class="btn-green" onclick="addStudentData()">➕ കുട്ടിയെ ലിസ്റ്റിലേക്ക് ചേർക്കുക</button>
         </div>
 
         <div class="section" style="background: #eef2f3; border: 2px solid #3498db;">
@@ -93,9 +89,26 @@
     </div>
 
     <script>
-        // 💾 മാസ്റ്റർ ഡാറ്റ സൂക്ഷിക്കുന്ന മെയിൻ ഒബ്ജക്റ്റ്
         let masterSchoolData = {};
-        let existingZipFiles = {}; // പഴയ ഓഡിയോകളും ചിത്രങ്ങളും സൂക്ഷിക്കാൻ
+
+        // 📥 പേജ് തുറക്കുമ്പോൾ തനിയെ GitHub-ൽ നിന്ന് പഴയ ലിസ്റ്റ് എടുക്കുന്ന ഫങ്ക്ഷൻ
+        async function loadOldDataFromGitHub() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                let response = await fetch('data/master_list.json');
+                if(response.ok) {
+                    masterSchoolData = await response.json();
+                    loadDropdowns();
+                    document.getElementById('syncStatus').innerText = "✅ പഴയ ലിസ്റ്റുകൾ GitHub-ൽ നിന്ന് ലോഡ് ചെയ്തു!";
+                } else {
+                    document.getElementById('syncStatus').innerText = "ℹ️ ആദ്യത്തെ തവണയാണ്, ഫയലുകൾ ഒന്നും ലഭ്യമല്ല.";
+                }
+            } catch (e) {
+                console.log("പഴയ ഫയലുകൾ ലഭ്യമല്ല", e);
+                document.getElementById('syncStatus').innerText = "ℹ️ പഴയ ഡാറ്റ ലഭ്യമല്ല, പുതിയതായി തുടങ്ങാം.";
+            }
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
 
         function loadDropdowns() {
             const madrasaSelect = document.getElementById('madrasaSelect');
@@ -130,7 +143,6 @@
             loadDropdowns();
             document.getElementById('madrasaSelect').value = name;
             updateStudentDropdown();
-            alert("മദ്രസ ലിസ്റ്റിൽ ചേർത്തു!");
         }
 
         function addStudentData() {
@@ -143,30 +155,9 @@
             document.getElementById('studentName').value = '';
             updateStudentDropdown();
             document.getElementById('finalStudentSelect').value = student;
-            alert("കുട്ടിയെ ലിസ്റ്റിൽ ചേർത്തു!");
         }
 
-        // 📥 പഴയ ZIP ഇമ്പോർട്ട് ചെയ്യുമ്പോൾ മുഴുവൻ ഫയലുകളും റീഡ് ചെയ്യുന്ന ഭാഗം
-        function importZipData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            JSZip.loadAsync(file).then(function(zip) {
-                existingZipFiles = zip.files; // പഴയ ഫയലുകൾ ഒക്കെ മെമ്മറിയിൽ എടുത്തു
-                const masterFile = zip.file("data/master_list.json");
-                if (masterFile) {
-                    masterFile.async("string").then(function(content) {
-                        masterSchoolData = JSON.parse(content);
-                        loadDropdowns();
-                        alert("✅ പഴയ ലിസ്റ്റുകളും റെക്കോർഡുകളും തിരികെ എടുത്തു!");
-                    });
-                } else {
-                    alert("⚠️ ഇതിൽ മാസ്റ്റർ ലിസ്റ്റുകൾ ഒന്നും കാണുന്നില്ല!");
-                }
-            }).catch(err => alert("ഫയൽ റീഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല: " + err));
-        }
-
-        // --- 📖 റെക്കോർഡിംഗ് & മാപ്പിംഗ് ലോജിക് (മാറ്റമില്ല) ---
+        // --- 📖 റെക്കോർഡിംഗ് & മാപ്പിംഗ് ലോജിക് ---
         let currentZones = [];
         let selectedImageFile = null;
         let audioBlobs = []; 
@@ -235,7 +226,7 @@
         function stopRecording() {
             mediaRecorder.stop();
             document.getElementById('startBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.none;
             document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
         }
 
@@ -257,7 +248,7 @@
             alert("വാക്ക് ചേർത്തു!");
         }
 
-        // 🚀 പഴയ വിവരങ്ങളും പുതിയ വിവരങ്ങളും ഒന്നിച്ച് സിപ്പ് ആക്കുന്ന ഫങ്ക്ഷൻ
+        // 🚀 പഴയ കുട്ടികളുടെ ബാക്കപ്പും പുതിയ കുട്ടിയുടെ വിവരങ്ങളും ഒന്നിച്ച് സിപ്പ് ആക്കുന്ന ഫങ്ക്ഷൻ
         async function publishToZipWithMasterData() {
             let madrasa = document.getElementById('madrasaSelect').value;
             let student = document.getElementById('finalStudentSelect').value;
@@ -265,24 +256,48 @@
             if(!madrasa || !student) return alert("ദയവായി മദ്രസയും കുട്ടിയും തിരഞ്ഞെടുക്കുക!");
             if(!selectedImageFile || currentZones.length === 0) return alert("ചിത്രവും വാക്കുകളും ചേർക്കുക!");
             
-            document.getElementById('loadingOverlay').style.display = 'flex';
+            const loadText = document.getElementById('loadText');
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+            loadText.innerText = "⏳ പഴയ ഫയലുകൾ സുരക്ഷിതമായി ശേഖരിക്കുന്നു...";
             
             const zip = new JSZip();
             const pageId = Date.now().toString();
-            
-            // 1. പഴയ സിപ്പിൽ ഉണ്ടായിരുന്ന മുഴുവൻ ഫയലുകളും പുതിയ സിപ്പിലേക്ക് മാറ്റുന്നു (മറ്റുള്ളവ ഡിലീറ്റ് ആകാതിരിക്കാൻ)
-            for (let relativePath in existingZipFiles) {
-                if (!existingZipFiles[relativePath].dir) {
-                    const fileData = await existingZipFiles[relativePath].async("blob");
-                    zip.file(relativePath, fileData);
+            const dataFolder = zip.folder("data");
+
+            // 🔄 തന്ത്രപ്രധാനമായ നീക്കം: നിലവിൽ ഗിറ്റ്ഹബ്ബിലുള്ള പഴയ കുട്ടികളുടെ ചിത്രങ്ങളും ഓഡിയോകളും ഇന്റർനെറ്റ് വഴി പുതിയ സിപ്പിലേക്ക് മാറ്റുന്നു
+            for (const m of Object.keys(masterSchoolData)) {
+                for (const s of masterSchoolData[m]) {
+                    // പുതിയ കുട്ടി ഒഴികെ ബാക്കി എല്ലാവരുടെയും പഴയ ജെയ്സൺ ഫയൽ ഡൗൺലോഡ് ചെയ്ത് എടുക്കുന്നു
+                    if (m === madrasa && s === student) continue;
+                    try {
+                        let oldRes = await fetch(`data/${m}/${s}/data_book.json`);
+                        if(oldRes.ok) {
+                            let oldBook = await oldRes.json();
+                            const oldFolder = dataFolder.folder(m).folder(s);
+                            oldFolder.file("data_book.json", JSON.stringify(oldBook, null, 2));
+
+                            // പഴയ ഇമേജ് ബാക്കപ്പ് ചെയ്യുന്നു
+                            let imgRes = await fetch(oldBook.image);
+                            if(imgRes.ok) oldFolder.file(oldBook.image.split('/').pop(), await imgRes.blob());
+
+                            // പഴയ ഓരോ ഓഡിയോകളും ബാക്കപ്പ് ചെയ്യുന്നു
+                            for (const zone of oldBook.zones) {
+                                let audRes = await fetch(zone.audioSrc);
+                                if(audRes.ok) oldFolder.file(zone.audioSrc.split('/').pop(), await audRes.blob());
+                            }
+                        }
+                    } catch(e) { console.log(`പഴയ ഡാറ്റ ബാക്കപ്പ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു: ${m} -> ${s}`, e); }
                 }
             }
             
-            // 2. മാസ്റ്റർ ലിസ്റ്റ് അപ്ഡേറ്റ് ചെയ്ത് ചേർക്കുന്നു
-            zip.file("data/master_list.json", JSON.stringify(masterSchoolData, null, 2));
+            loadText.innerText = "📦 പുതിയ ഡാറ്റകൾ സിപ്പിലേക്ക് ചേർക്കുന്നു...";
             
-            // ഈ കുട്ടിയുടെ പുതിയ ഫോൾഡർ സ്ട്രക്ചർ
-            const studentFolder = zip.folder("data").folder(madrasa).folder(student);
+            // 2. മാസ്റ്റർ ലിസ്റ്റ് ചേർക്കുന്നു
+            dataFolder.file("master_list.json", JSON.stringify(masterSchoolData, null, 2));
+            
+            // പുതിയ കുട്ടിയുടെ ഫോൾഡർ
+            const studentFolder = dataFolder.folder(madrasa).folder(student);
             
             // 3. പുതിയ ഇമേജ് ഫയൽ ചേർക്കുന്നു
             const imgExtension = selectedImageFile.name.split('.').pop();
@@ -305,7 +320,7 @@
                 });
             }
             
-            // 5. പുതിയ പാഠത്തിന്റെ JSON ഡാറ്റാ ഫയൽ
+            // 5. പുതിയ പാഠത്തിന്റെ JSON ഫയൽ
             const pageData = {
                 id: pageId,
                 madrasa: madrasa,
@@ -324,11 +339,14 @@
                 element.click();
                 document.body.removeChild(element);
                 
-                document.getElementById('loadingOverlay').style.display = 'none';
-                alert("🎉 പഴയതും പുതിയതുമായ എല്ലാ വിവരങ്ങളും അടങ്ങിയ 'data.zip' ഡൗൺലോഡ് ആയിട്ടുണ്ട്!");
+                overlay.style.display = 'none';
+                alert("🎉 പഴയതും പുതിയതുമായ എല്ലാ ഡാറ്റയും അടങ്ങിയ 'data.zip' റെഡിയായിട്ടുണ്ട്!");
                 window.location.reload();
             });
         }
+
+        // പേജ് ലോഡ് ചെയ്യുമ്പോൾ തന്നെ ലോഡ് ചെയ്യുക
+        loadOldDataFromGitHub();
     </script>
 </body>
 </html>

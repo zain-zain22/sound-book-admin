@@ -3,222 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ഡെയിലി റിവിഷൻ - സൗണ്ട് ബുക്ക്</title>
+    <title>ഡെയിലി റിവിഷൻ ബുക്ക്</title>
     <style>
         * { box-sizing: border-box; }
-        body { font-family: sans-serif; background: #2c3e50; text-align: center; padding: 5px; margin: 0; color: white; }
-        .login-box { background: white; color: #333; max-width: 400px; margin: 50px auto; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
-        select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; font-weight: bold; }
-        button { background: #2ecc71; color: white; border: none; cursor: pointer; }
-        .main-content { display: none; }
-        .page-box { background: white; border-radius: 8px; padding: 10px; max-width: 500px; margin: 15px auto; position: relative; color: #333; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .img-wrap { position: relative; display: inline-block; width: 100%; background: #000; }
-        .img-wrap img { display: block; width: 100%; height: auto; }
-        .word-zone { position: absolute; background: transparent; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-        .locked { filter: blur(5px) grayscale(100%); pointer-events: none; }
-        .lock-text { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); color:white; display:flex; justify-content:center; align-items:center; font-size:15px; font-weight:bold; border-radius: 8px; padding:10px; }
-        .certificate-container { display: none; background: #fff; color: #333; max-width: 500px; margin: 20px auto; padding: 25px; border: 8px double #b8860b; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .cert-title { font-family: 'Georgia', serif; font-size: 24px; color: #b8860b; font-weight: bold; margin-bottom: 5px; }
-        .cert-body { font-size: 16px; line-height: 1.6; margin: 20px 0; }
-        .cert-highlight { font-size: 18px; font-weight: bold; color: #2c3e50; border-bottom: 1px dashed #333; padding: 2px 5px; }
-        .screenshot-notice { background: #f39c12; color: white; padding: 10px; border-radius: 5px; font-weight: bold; margin-top: 15px; font-size: 14px; }
-        h1 { font-size: 20px; margin: 10px 0; }
-        h3 { margin: 5px 0; font-size: 15px; color: #2c3e50; }
-        .badge { background: #e67e22; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; float: right; }
-        .badge.completed { background: #2ecc71; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a252f; color: white; padding: 10px; margin: 0; text-align: center; }
+        .container { max-width: 500px; margin: 0 auto; background: #2c3e50; padding: 15px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        h2 { margin-top: 5px; color: #ecf0f1; font-size: 20px; }
+        .student-info { background: #34495e; padding: 10px; border-radius: 6px; margin-bottom: 15px; font-size: 15px; border-left: 5px solid #2ecc71; text-align: left; }
+        .search-box { background: #34495e; padding: 12px; border-radius: 6px; margin-bottom: 15px; text-align: left; }
+        label { font-size: 13px; color: #bdc3c7; display: block; margin-bottom: 4px; }
+        input[type="text"] { width: 100%; padding: 10px; border: none; border-radius: 4px; background: #fff; color: #333; font-size: 14px; margin-bottom: 10px; }
+        button { background: #2ecc71; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; width: 100%; font-size: 14px; }
+        .image-wrapper { position: relative; width: 100%; border: 3px solid #7f8c8d; background: #000; margin-top: 10px; border-radius: 4px; overflow: hidden; display: none; }
+        .image-wrapper img { width: 100%; display: block; height: auto; }
+        .word-touch-zone { position: absolute; border: 2px dashed rgba(46, 204, 113, 0.4); background: rgba(46, 204, 113, 0.15); border-radius: 4px; cursor: pointer; transition: all 0.2s; }
+        .word-touch-zone:active { background: rgba(231, 76, 60, 0.5); border-color: #e74c3c; }
+        .no-data { color: #e74c3c; font-weight: bold; margin-top: 20px; font-size: 15px; }
     </style>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 </head>
 <body>
 
-    <div class="login-box" id="loginScreen">
-        <h2 style="margin-top:0; color:#2c3e50;">📖 മദ്രസ ലോഗിൻ</h2>
-        <label style="display:block; text-align:left; font-weight:bold;">മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
-        <select id="studMadrasaSelect" onchange="loadStudentsForLogin()"></select>
-        <label style="display:block; text-align:left; font-weight:bold; margin-top:10px;">പേര് തിരഞ്ഞെടുക്കുക:</label>
-        <select id="studNameSelect"></select>
-        <button onclick="startStudentSession()">റിവിഷൻ തുടങ്ങുക 🚀</button>
-    </div>
-
-    <div class="main-content" id="revisionScreen">
-        <h1>📖 ഡെയിലി റിവിഷൻ ബുക്ക് 🔊</h1>
-        <p id="welcomeText" style="font-weight:bold; color:#f1c40f;"></p>
-        <div id="bookContainer"></div>
-    </div>
-
-    <div class="certificate-container" id="certificateScreen">
-        <div class="cert-title">📜 സർട്ടിഫിക്കറ്റ് 📜</div>
-        <div style="font-size: 12px; color: #7f8c8d; letter-spacing: 2px;">CERTIFICATE OF COMPLETION</div>
-        <div class="cert-body">
-            ഇതുവഴി സാക്ഷ്യപ്പെടുത്തുന്നു, മദ്രസയിലെ <br>
-            <span class="cert-highlight" id="certMadrasa"></span>-ൽ പഠിക്കുന്ന<br><br>
-            വിദ്യാർത്ഥി <span class="cert-highlight" id="certName"></span><br><br>
-            ഇന്നത്തെ ഓഡിയോ റിവിഷൻ പാഠഭാഗങ്ങൾ വിജയകരമായി പൂർത്തിയാക്കിയിരിക്കുന്നു.
-            <br><br>
-            ⏱️ എടുത്ത സമയം: <span class="cert-highlight" id="certTime" style="color:#c0392b;"></span>
+    <div class="container">
+        <h2>📚 ഡെയിലി റിവിഷൻ ബുക്ക് 🔊</h2>
+        
+        <div class="search-box">
+            <label>മദ്രസയുടെ പേര് (English):</label>
+            <input type="text" id="fetchMadrasa" placeholder="ഉദാ: Busthan">
+            <label>കുട്ടിയുടെ പേര് (English):</label>
+            <input type="text" id="fetchStudent" placeholder="ഉദാ: Zain">
+            <button onclick="loadStudentBook()">📖 പാഠം കാണുക</button>
         </div>
-        <div style="margin-top: 30px; font-weight: bold; border-top: 1px solid #ddd; padding-top: 10px; color: #b8860b;">🎉 അഭിനന്ദനങ്ങൾ! 🎉</div>
-        <div class="screenshot-notice">
-            📸 ദയവായി ഈ സ്ക്രീനിന്റെ സ്ക്രീൻഷോട്ട് (Screenshot) എടുത്ത് നിങ്ങളുടെ ഉസ്താദിന് അയച്ചുകൊടുക്കുക.
+
+        <div class="student-info" id="infoBar" style="display:none;">
+            👤 <b>വിദ്യാർത്ഥി:</b> <span id="lblStudent" style="color:#2ecc71;"></span><br>
+            🏫 <b>മദ്രസ:</b> <span id="lblMadrasa"></span>
+        </div>
+
+        <p id="statusMsg" class="no-data"></p>
+
+        <div class="image-wrapper" id="bookWrapper">
+            <img id="pageImage" src="" alt="Book Page">
+            <div id="zonesContainer"></div>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyBXSgalqZ3h6Dle6pzu2VMXYkCKM4X3Pis",
-            authDomain: "sond-book.firebaseapp.com",
-            projectId: "sond-book",
-            storageBucket: "sond-book.appspot.com",
-            messagingSenderId: "731880152541",
-            appId: "1:731880152541:web:da0e241383b850381dea34"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+        let currentAudio = null;
 
-        let bookPages = [];
-        let selectedMadrasa = "";
-        let selectedStudent = "";
-        let startTime = null;
-
-        function initLogin() {
-            db.collection("madrasas").onSnapshot(snapshot => {
-                const mSelect = document.getElementById('studMadrasaSelect');
-                mSelect.innerHTML = '<option value="">-- തിരഞ്ഞെടുക്കുക --</option>';
-                snapshot.forEach(doc => {
-                    let opt = document.createElement('option');
-                    opt.value = doc.id; opt.innerText = doc.id;
-                    mSelect.appendChild(opt);
-                });
-            });
-        }
-
-        function loadStudentsForLogin() {
-            let mName = document.getElementById('studMadrasaSelect').value;
-            const sSelect = document.getElementById('studNameSelect');
-            sSelect.innerHTML = '';
-            if(!mName) return;
+        async function loadStudentBook() {
+            let madrasa = document.getElementById('fetchMadrasa').value.trim();
+            let student = document.getElementById('fetchStudent').value.trim();
             
-            db.collection("madrasas").doc(mName).collection("students").onSnapshot(snapshot => {
-                snapshot.forEach(doc => {
-                    let opt = document.createElement('option');
-                    opt.value = doc.id; opt.innerText = doc.id;
-                    sSelect.appendChild(opt);
-                });
-            });
-        }
+            if(!madrasa || !student) {
+                alert("ദയവായി മദ്രസയുടെ പേരും കുട്ടിയുടെ പേരും ടൈപ്പ് ചെയ്യുക!");
+                return;
+            }
 
-        function startStudentSession() {
-            selectedMadrasa = document.getElementById('studMadrasaSelect').value;
-            selectedStudent = document.getElementById('studNameSelect').value;
-            if(!selectedMadrasa || !selectedStudent) return alert("ദയവായി വിവരങ്ങൾ തിരഞ്ഞെടുക്കുക!");
+            let statusMsg = document.getElementById('statusMsg');
+            let bookWrapper = document.getElementById('bookWrapper');
+            let infoBar = document.getElementById('infoBar');
+            let zonesContainer = document.getElementById('zonesContainer');
             
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('revisionScreen').style.display = 'block';
-            document.getElementById('welcomeText').innerText = `👤 വിദ്യാർത്ഥി: ${selectedStudent} (${selectedMadrasa})`;
+            statusMsg.innerText = "⏳ വിവരങ്ങൾ ശേഖരിക്കുന്നു...";
+            bookWrapper.style.display = 'none';
+            infoBar.style.display = 'none';
+            zonesContainer.innerHTML = '';
+
+            // 📂 ഗിറ്റ്ഹബിൽ നിങ്ങൾ അപ്‌ലോഡ് ചെയ്ത data ഫോൾഡറിൽ നിന്നും തനിയെ വിവരങ്ങൾ കണ്ടെത്തുന്നു
+            // നിങ്ങളുടെ സിസ്റ്റം ഓഫ്‌ലൈൻ ആയതുകൊണ്ട് തന്നെ നമുക്ക് ഇവിടെ പേജിന്റെ കൃത്യമായ ID അറിയാൻ പ്രയാസമാണ്.
+            // അതിനാൽ അഡ്മിൻ പാനൽ നിർമ്മിക്കുന്ന ഡാറ്റാ ഫയൽ എപ്പോഴും 'data_book.json' എന്ന ലളിതമായ പേരിൽ സേവ് ചെയ്യാൻ ഞാൻ അഡ്മിൻ കോഡ് മാറ്റിയിട്ടുണ്ട്.
             
-            startTime = new Date();
-            
-            // ഫയർബേസിൽ നിന്ന് എല്ലാ പേജുകളും തത്സമയം എടുക്കുന്നു
-            db.collection("pages").orderBy("timestamp", "asc").onSnapshot(snapshot => {
-                bookPages = [];
-                snapshot.forEach(doc => {
-                    let p = doc.data();
-                    p.completed = false; // ഓരോ ലോഗിനിലും പുതിയതായി തുടങ്ങാൻ
-                    bookPages.push(p);
-                });
-                renderBook();
-            });
-        }
+            let jsonUrl = `data/${madrasa}/${student}/data_book.json`;
 
-        function renderBook() {
-            const container = document.getElementById('bookContainer');
-            container.innerHTML = bookPages.length === 0 ? '<p style="color:white;">പാഠങ്ങൾ ഒന്നും ലഭ്യമാക്കിയിട്ടില്ല.</p>' : '';
-
-            bookPages.forEach((page, index) => {
-                let isLocked = false;
-                if (index > 0) {
-                    let previousPage = bookPages[index - 1];
-                    if (!previousPage.completed) isLocked = true;
-                }
-
-                let box = document.createElement('div');
-                box.className = 'page-box';
-                let pageNum = index + 1;
-                let statusBadge = page.completed ? '<span class="badge completed">✅ കഴിഞ്ഞു</span>' : '<span class="badge">📖 പഠിക്കുക</span>';
-                box.innerHTML = `<h3>📚 പാഠം ഭാഗം - പേജ് ${pageNum} ${statusBadge}</h3>`;
-
-                let content = document.createElement('div');
-                if(isLocked) content.className = 'locked';
-
-                let wrap = document.createElement('div');
-                wrap.className = 'img-wrap';
+            try {
+                let response = await fetch(jsonUrl);
+                if(!response.ok) throw new Error("ഫയൽ കണ്ടെത്താനായില്ല");
                 
-                let img = document.createElement('img');
-                img.src = page.image;
-                wrap.appendChild(img);
+                let pageData = await response.json();
+                
+                // വിവരങ്ങൾ സ്ക്രീനിൽ കാണിക്കുന്നു
+                document.getElementById('lblStudent').innerText = pageData.student;
+                document.getElementById('lblMadrasa').innerText = pageData.madrasa;
+                infoBar.style.display = 'block';
+                
+                // ചിത്രം സെറ്റ് ചെയ്യുന്നു
+                document.getElementById('pageImage').src = pageData.image;
+                bookWrapper.style.display = 'block';
+                statusMsg.innerText = "";
 
-                page.zones.forEach((zone) => {
-                    let zoneDiv = document.createElement('div');
-                    zoneDiv.className = 'word-zone';
-                    zoneDiv.style.left = zone.coords.left + '%';
-                    zoneDiv.style.top = zone.coords.top + '%';
-                    zoneDiv.style.width = zone.coords.width + '%';
-                    zoneDiv.style.height = zone.coords.height + '%';
-
-                    zoneDiv.onclick = function() {
-                        let audio = new Audio(zone.audioSrc);
-                        audio.play();
-                        if(!zone.clicked) {
-                            zone.clicked = true;
-                            checkStatus(page.id);
-                        }
+                // വാക്കുകളുടെ ടച്ച് സോണുകൾ ഉണ്ടാക്കുന്നു
+                pageData.zones.forEach(zone => {
+                    let box = document.createElement('div');
+                    box.className = 'word-touch-zone';
+                    box.style.left = zone.coords.left + '%';
+                    box.style.top = zone.coords.top + '%';
+                    box.style.width = zone.coords.width + '%';
+                    box.style.height = zone.coords.height + '%';
+                    
+                    // ക്ലിക്ക് ചെയ്യുമ്പോൾ ഓഡിയോ പ്ലേ ചെയ്യാനുള്ള ഫങ്ക്ഷൻ
+                    box.onclick = function() {
+                        if(currentAudio) { currentAudio.pause(); currentAudio.currentTime = 0; }
+                        currentAudio = new Audio(zone.audioSrc);
+                        currentAudio.play().catch(e => console.log("ഓഡിയോ പ്ലേ ചെയ്യാൻ കഴിഞ്ഞില്ല:", e));
                     };
-                    wrap.appendChild(zoneDiv);
+                    
+                    zonesContainer.appendChild(box);
                 });
 
-                content.appendChild(wrap);
-                box.appendChild(content);
-
-                if(isLocked) {
-                    let lock = document.createElement('div');
-                    lock.className = 'lock-text';
-                    lock.innerText = `🔒 മുമ്പത്തെ പേജ് പൂർത്തിയാക്കിയാൽ മാത്രമേ ഈ പേജ് തുറക്കൂ!`;
-                    box.appendChild(lock);
-                }
-                container.appendChild(box);
-            });
-        }
-
-        function checkStatus(pageId) {
-            let page = bookPages.find(p => p.id === pageId);
-            if(page.zones.every(z => z.clicked)) {
-                if (!page.completed) {
-                    page.completed = true;
-                    renderBook();
-                }
-            }
-            if(bookPages.length > 0 && bookPages.every(p => p.completed === true)) {
-                showCertificate();
+            } catch (error) {
+                statusMsg.innerText = "❌ ഈ കുട്ടിയുടെ പേരിൽ പാഠഭാഗങ്ങൾ ഒന്നും കണ്ടെത്തിയില്ല! (പേര് സ്പെല്ലിംഗ് കൃത്യമാണോ എന്ന് പരിശോധിക്കുക അല്ലെങ്കിൽ ഡാറ്റ ഫയൽ GitHub-ൽ അപ്‌ലോഡ് ചെയ്തിട്ടുണ്ടെന്ന് ഉറപ്പുവരുത്തുക).";
+                console.error(error);
             }
         }
-
-        function showCertificate() {
-            let endTime = new Date();
-            let timeDiff = (endTime - startTime) / 1000;
-            let minutes = Math.floor(timeDiff / 60);
-            let seconds = Math.floor(timeDiff % 60);
-
-            document.getElementById('revisionScreen').style.display = 'none';
-            document.getElementById('certificateScreen').style.display = 'block';
-            
-            document.getElementById('certMadrasa').innerText = selectedMadrasa;
-            document.getElementById('certName').innerText = selectedStudent;
-            document.getElementById('certTime').innerText = `${minutes} മിനിറ്റ് ${seconds} സെക്കൻഡ്`;
-        }
-
-        initLogin();
     </script>
 </body>
 </html>

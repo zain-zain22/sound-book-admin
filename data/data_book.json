@@ -1,0 +1,136 @@
+{
+  "pages": [
+    {
+      "image": "data/page_0_image.jpg",
+      "zones": [
+        {
+          "coords": {
+            "left": 36.17908206240376,
+            "top": 28.159346743055423,
+            "width": 32,
+            "height": 13
+          },
+          "audioSrc": "data/audio_global_0.mp3"
+        },
+        {
+          "coords": {
+            "left": 61.89398111441152,
+            "top": 43.60720485676091,
+            "width": 19,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_1.mp3"
+        },
+        {
+          "coords": {
+            "left": 39.755013253154246,
+            "top": 43.417243816654775,
+            "width": 19,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_2.mp3"
+        },
+        {
+          "coords": {
+            "left": 19.583094011548045,
+            "top": 42.7032671925911,
+            "width": 19,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_3.mp3"
+        },
+        {
+          "coords": {
+            "left": 62.44842239996122,
+            "top": 53.65090876156751,
+            "width": 19,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_4.mp3"
+        },
+        {
+          "coords": {
+            "left": 40.385385729454434,
+            "top": 53.65090876156751,
+            "width": 19,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_5.mp3"
+        },
+        {
+          "coords": {
+            "left": 20.21346648784824,
+            "top": 53.65090876156751,
+            "width": 19,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_6.mp3"
+        },
+        {
+          "coords": {
+            "left": 71.12177468666296,
+            "top": 64.59855033054393,
+            "width": 13,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_7.mp3"
+        },
+        {
+          "coords": {
+            "left": 56.9383939699086,
+            "top": 64.59855033054393,
+            "width": 13,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_8.mp3"
+        },
+        {
+          "coords": {
+            "left": 44.646130682054824,
+            "top": 64.12256591450148,
+            "width": 13,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_9.mp3"
+        },
+        {
+          "coords": {
+            "left": 30.777936203450565,
+            "top": 64.12256591450148,
+            "width": 13,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_10.mp3"
+        },
+        {
+          "coords": {
+            "left": 14.703438057795623,
+            "top": 64.12256591450148,
+            "width": 13,
+            "height": 8
+          },
+          "audioSrc": "data/audio_global_11.mp3"
+        },
+        {
+          "coords": {
+            "left": 53.1232077317585,
+            "top": 74.9741451476477,
+            "width": 20,
+            "height": 12
+          },
+          "audioSrc": "data/audio_global_12.mp3"
+        },
+        {
+          "coords": {
+            "left": 27.277936203450565,
+            "top": 74.26016852358401,
+            "width": 20,
+            "height": 12
+          },
+          "audioSrc": "data/audio_global_13.mp3"
+        }
+      ],
+      "hidden": false
+    }
+  ]
+}

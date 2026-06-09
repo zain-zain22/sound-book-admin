@@ -1,0 +1,130 @@
+{
+  "pages": [
+    {
+      "image": "data/page_0_image.jpg",
+      "zones": [
+        {
+          "coords": {
+            "left": 35.59168939650512,
+            "top": 31.797677694486424,
+            "width": 33,
+            "height": 16
+          },
+          "audioSrc": "data/audio_global_0.mp3"
+        },
+        {
+          "coords": {
+            "left": 37.76504168320686,
+            "top": 54.383032869216294,
+            "width": 40,
+            "height": 20
+          },
+          "audioSrc": "data/audio_global_1.mp3"
+        },
+        {
+          "coords": {
+            "left": 49.426932494760436,
+            "top": 83.47302062497253,
+            "width": 40,
+            "height": 17
+          },
+          "audioSrc": "data/audio_global_2.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_1_image.jpg",
+      "zones": [
+        {
+          "coords": {
+            "left": 62.91547101961228,
+            "top": -0.02819675562203905,
+            "width": 25,
+            "height": 14
+          },
+          "audioSrc": "data/audio_global_3.mp3"
+        },
+        {
+          "coords": {
+            "left": 40.222061872805305,
+            "top": -0.23167736169883124,
+            "width": 40,
+            "height": 14
+          },
+          "audioSrc": "data/audio_global_4.mp3"
+        },
+        {
+          "coords": {
+            "left": 12.040114201146494,
+            "top": 3.608365404312927,
+            "width": 24,
+            "height": 11
+          },
+          "audioSrc": "data/audio_global_5.mp3"
+        },
+        {
+          "coords": {
+            "left": 55.372491209210736,
+            "top": 66.63536424984646,
+            "width": 30,
+            "height": 19
+          },
+          "audioSrc": "data/audio_global_6.mp3"
+        },
+        {
+          "coords": {
+            "left": 19.441260060099687,
+            "top": 67.53068540580476,
+            "width": 30,
+            "height": 19
+          },
+          "audioSrc": "data/audio_global_7.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_2_image.jpg",
+      "zones": [
+        {
+          "coords": {
+            "left": 57.89398111441152,
+            "top": 46.86083134515126,
+            "width": 30,
+            "height": 19
+          },
+          "audioSrc": "data/audio_global_8.mp3"
+        },
+        {
+          "coords": {
+            "left": 14.083094011548045,
+            "top": 44.79448165637724,
+            "width": 30,
+            "height": 19
+          },
+          "audioSrc": "data/audio_global_9.mp3"
+        },
+        {
+          "coords": {
+            "left": 54.74211873291054,
+            "top": 71.87923385444128,
+            "width": 30,
+            "height": 19
+          },
+          "audioSrc": "data/audio_global_10.mp3"
+        },
+        {
+          "coords": {
+            "left": 22.277936203450565,
+            "top": 72.1236409572542,
+            "width": 30,
+            "height": 19
+          },
+          "audioSrc": "data/audio_global_11.mp3"
+        }
+      ],
+      "hidden": false
+    }
+  ]
+}

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>സൗണ്ട് ബുക്ക് ലേണിങ് ആപ്പ്</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f3f5; margin: 0; padding: 10px; text-align: center; }
+        .app-container { background: white; max-width: 500px; margin: 10px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        h1, h2, h3 { color: #2c3e50; margin-top: 5px; }
+        
+        select, input, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; font-weight: bold; cursor: pointer; }
+        input { cursor: text; text-align: center; background: #fff; }
+        
+        .btn-menu { color: white; border: none; transition: 0.2s; }
+        .btn-reading { background: #2ecc71; }
+        .btn-revision { background: #e67e22; }
+        .btn-activity { background: #9b59b6; }
+        .btn-menu:active { transform: scale(0.98); }
+
+        /* 📖 റീഡിങ് സെക്ഷൻ സ്റ്റൈൽസ് */
+        .reading-page-img { width: 100%; height: auto; display: block; }
+        .reading-container { position: relative; width: 100%; background: #000; margin-top: 10px; }
+        .click-zone { position: absolute; border: 1px transparent solid; cursor: pointer; }
+        .click-zone:active { background: rgba(52, 152, 219, 0.4); border-color: #3498db; }
+        .point-badge { background: #27ae60; color: white; padding: 5px 10px; border-radius: 4px; font-size: 14px; display: inline-block; margin-bottom: 10px; }
+
+        /* 🔒 ഓഡിയോ പ്ലേ ചെയ്യുമ്പോൾ ക്ലിക്ക് തടയാൻ */
+        .zones-disabled { pointer-events: none; opacity: 0.7; }
+
+        /* 🎯 ആക്ടിവിറ്റി ഗെയിം സ്റ്റൈൽസ് */
+        .speaker-btn { background: #2ecc71; color: white; font-size: 40px; width: 90px; height: 90px; border-radius: 50%; border: none; margin: 15px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 12px rgba(46, 204, 113, 0.4); }
+        .quiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .quiz-opt { background: #fff; border: 2px solid #bdc3c7; padding: 18px; font-size: 24px; font-family: 'Traditional Arabic', sans-serif; border-radius: 8px; direction: rtl; }
+        .game-status { font-size: 14px; font-weight: bold; color: #7f8c8d; margin-bottom: 10px; background: #eaedf1; padding: 8px; border-radius: 5px; }
+        .timer-badge { background: #34495e; color: white; padding: 5px 10px; border-radius: 4px; font-size: 14px; display: inline-block; margin-bottom: 10px; font-weight: bold; }
+
+        /* 🏆 സർട്ടിഫിക്കറ്റ് ഡിസൈൻ */
+        .certificate-box { border: 6px double #2ecc71; padding: 20px; background: #f4fbf7; border-radius: 8px; text-align: center; margin-top: 10px; transition: 0.3s; }
+        .badge-gold { font-size: 50px; }
+        .cert-table { width: 100%; margin: 15px 0; border-collapse: collapse; background: rgba(255,255,255,0.7); border-radius: 6px; overflow: hidden; }
+        .cert-table td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; font-weight: bold; color: #334155; }
+        .cert-table td:first-child { color: #64748b; width: 45%; }
+
+        .hidden { display: none !important; }
+        .back-home { background: #95a5a6; color: white; border: none; width: auto; padding: 8px 15px; font-size: 13px; margin-top: 20px; }
+
+        /* ✍️ ഡെവലപ്പർ ക്രെഡിറ്റ് സ്റ്റൈൽ */
+        .dev-footer { font-size: 11px; color: #7f8c8d; font-weight: bold; margin-top: 25px; border-top: 1px dashed #ddd; padding-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cert-footer { font-size: 12px; color: #555; font-weight: bold; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- 1. ലോഗിൻ സ്ക്രീൻ -->
+        <div id="loginScreen">
+            <h2>🏫 മദ്രസ സൗണ്ട് ബുക്ക്</h2>
+            
+            <label>മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
+            <select id="appMadrasaSelect" onchange="updateStudentDropdown()"></select>
+            
+            <label>കുട്ടിയുടെ പേര്:</label>
+            <select id="appStudentSelect" onchange="loadSavedPoints()"></select>
+            
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>ക്ലാസ്സ്:</label>
+                    <input type="text" id="appClassInput" placeholder="ഉദാ: 2 A">
+                </div>
+                <div style="flex: 1;">
+                    <label>പാർട്ട്:</label>
+                    <input type="text" id="appPartInput" placeholder="ഉദാ: ഭാഗം 1">
+                </div>
+            </div>
+            
+            <label>വിഷയം:</label>
+            <input type="text" id="appSubjectInput" placeholder="ഉദാ: ഖുർആൻ / അറബിക്">
+
+            <button class="btn-reading" style="background:#2ecc71; color:white;" onclick="goToMainMenu()">പ്രവേശിക്കുക 🚀</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <!-- 2. മെയിൻ മെനു സ്ക്രീൻ -->
+        <div id="mainMenuScreen" class="hidden">
+            <h3 id="welcomeText">👤 വിദ്യാർത്ഥി: </h3>
+            <div id="studentTotalPoints" class="point-badge">⭐ ഇന്നത്തെ റീഡിങ് പോയിന്റ്: 0</div>
+            <hr>
+            <button class="btn-menu btn-reading" onclick="startReadingSection()">📖 1. റീഡിങ് (അവസാന പാഠം)</button>
+            <button class="btn-menu btn-revision" onclick="startReverseRevision()">🔄 2. റിവേഴ്സ് റിവിഷൻ (ബുക്ക്)</button>
+            <button class="btn-menu btn-activity" onclick="startActivityGame()">🎯 3. റിവേഴ്സ് ആക്ടിവിറ്റി (ക്വിസ്)</button>
+            <button class="back-home" onclick="logout()">↩️ പുറത്തുകടക്കുക</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <!-- 3. റീഡിങ് സ്ക്രീൻ -->
+        <div id="readingPracticeScreen" class="hidden">
+            <h3 id="readingTitle">📖 ഇന്നത്തെ പുതിയ പാഠം</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <div class="point-badge" id="liveReadingPoints">ലഭിച്ച പോയിന്റ്: 0</div>
+                <div id="readingPageStatus" style="font-weight:bold; color:#3498db; font-size: 14px;">പേജ്: 1/1</div>
+            </div>
+            
+            <div class="reading-container" id="readingContainer">
+                <img id="readingImg" class="reading-page-img" src="" alt="Page">
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="readingNextPageBtn" style="background:#2ecc71; color:white; opacity: 0.5;" onclick="nextReadingPage()" disabled>അടുത്ത പേജ് (ലോക്ക് 🔒)</button>
+            </div>
+
+            <button class="back-home" onclick="showScreen('mainMenuScreen')">↩️ മെയിൻ മെനു</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <!-- 4. റിവിഷൻ ബുക്ക് സ്ക്രീൻ -->
+        <div id="revisionBookScreen" class="hidden">
+            <h3 id="revisionTitle">🔄 റിവേഴ്സ് റിവിഷൻ</h3>
+            <p id="revisionPageStatus" style="font-weight:bold; color:#e67e22;"></p>
+            
+            <div class="reading-container" id="revisionContainer">
+                <img id="revisionImg" class="reading-page-img" src="" alt="Page">
+            </div>
+            
+            <div style="display:flex; gap:10px; margin-top:10px;">
+                <button id="prevPageBtn" style="background:#7f8c8d; color:white;" onclick="changeRevisionPage(-1)">⏮️ മുൻപത്തെ പേജ്</button>
+                <button id="nextPageBtn" style="background:#2ecc71; color:white; opacity: 0.5;" onclick="changeRevisionPage(1)" disabled>അടുത്ത പേജ് (ലോക്ക് 🔒)</button>
+            </div>
+            <button class="back-home" onclick="showScreen('mainMenuScreen')">↩️ മെയിൻ മെനു</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <!-- 5. ആക്ടിവിറ്റി ക്വിസ് സ്ക്രീൻ -->
+        <div id="activityScreen" class="hidden">
+            <div class="game-status" id="gameStatusText">🎮 ലെവൽ ലോഡ് ചെയ്യുന്നു...</div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <div class="timer-badge" id="liveQuizTimer">⏱️ സമയം: 0 സെക്കൻഡ്</div>
+                <div style="background:#e74c3c; color:white; padding:5px 10px; border-radius:4px; font-size:14px; font-weight:bold;" id="liveQuizPenalty">
+                    ❌ തോറ്റത്: 0 തവണ
+                </div>
+            </div>
+            
+            <h2>🔊 കേട്ട് കണ്ടെത്തുക!</h2>
+            <button class="speaker-btn" id="quizSpeakerBtn" onclick="playQuizAudio()">🔊</button>
+            <div class="quiz-grid" id="quizOptionsContainer"></div>
+            
+            <button class="back-home" style="margin-top:25px;" onclick="stopActivityGameTimer()">🛑 ഗെയിം നിർത്തുക</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <!-- 6. സർട്ടിഫിക്കറ്റ് സ്ക്രീൻ -->
+        <div id="certificateScreen" class="hidden">
+            <div class="certificate-box" id="certBox">
+                <div class="badge-gold">🏆</div>
+                <h1 style="color:#27ae60; margin-bottom: 0;" id="certMainTitle">വിജയ സർട്ടിഫിക്കറ്റ്</h1>
+                
+                <table class="cert-table">
+                    <tr><td>👤 വിദ്യാർത്ഥി:</td><td id="cName">-</td></tr>
+                    <tr><td>🏫 മദ്രസ:</td><td id="cMadrasa">-</td></tr>
+                    <tr><td>📚 ക്ലാസ്സ് & പാർട്ട്:</td><td id="cClassPart">-</td></tr>
+                    <tr><td>📖 വിഷയം:</td><td id="cSubject">-</td></tr>
+                    <tr><td>📅 ഡേറ്റ് & ടൈം:</td><td id="cDateTime">-</td></tr>
+                    <tr><td>⏱️ കളിക്കാൻ എടുത്ത സമയം:</td><td id="cTimeSpent">-</td></tr>
+                    <tr><td>❌ തോറ്റ തവണകൾ:</td><td id="cTotalTries">-</td></tr>
+                </table>
+
+                <p style="font-size: 14px; line-height: 1.6; color:#555; font-weight: bold;" id="certBodyText"></p>
+                <h2 style="font-size: 34px; margin: 15px 0;" id="certScoreText">🎯 സ്കോർ: +0 പോയിന്റ്</h2>
+                
+                <p style="color:#e67e22; font-weight:bold; font-size:16px; margin-top:15px; border-top: 1px dashed #ccc; padding-top: 10px; margin-bottom: 5px;">
+                    📸 ഈ സ്ക്രീൻഷോട്ട് എടുത്ത് ഉസ്താദിന് അയച്ചു കൊടുക്കുക!
+                </p>
+
+                <!-- 📜 സർട്ടിഫിക്കറ്റിന്റെ അകത്തുള്ള ക്രെഡിറ്റ് -->
+                <div class="cert-footer">Developed by salmanul faris zaini mannarkkad | 9895993822</div>
+            </div>
+            
+            <button id="btnRepeatReading" class="btn-menu btn-reading hidden" onclick="startReadingSection()">🔄 പോയിന്റ് കൂട്ടാൻ വീണ്ടും ചെയ്യുക</button>
+            <button class="btn-menu btn-revision" style="background:#34495e;" onclick="showScreen('mainMenuScreen')">↩️ തിരികെ മെനുവിലേക്ക്</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+    </div>
+
+    <script>
+        let bookData = { pages: [], version: 1 }; 
+        let schoolData = {};
+        let currentStudent = "";
+        let audioPlayer = new Audio();
+        let studentPointsMemory = 0; 
+
+        // --- റീഡിങ് മൾട്ടി-പേജ് സ്റ്റേറ്റ് ---
+        let readingPagesList = [];
+        let currentReadingIdx = 0;
+        let currentReadingPageObj = null;
+        let readingTouchedWords = new Set(); 
+        let isAudioPlayingLock = false; 
+
+        // --- റിവിഷൻ ബുക്ക് സ്റ്റേറ്റ് ---
+        let revisionPagesList = []; 
+        let currentRevIdx = 0;
+        let revisionTouchedWords = new Set(); 
+
+        // --- ആക്ടിവിറ്റി ക്വിസ് സ്റ്റേറ്റ് ---
+        let quizWordsPool = []; 
+        let currentQuizWordIdx = 0; 
+        let targetWord = null;
+        let wrongAnswerFlag = false;
+        let quizPenaltyPoints = 0; 
+        
+        let gameTimerInterval = null;
+        let gameTotalSeconds = 0;
+
+        audioPlayer.addEventListener('play', () => {
+            isAudioPlayingLock = true;
+            document.getElementById('readingContainer').classList.add('zones-disabled');
+            document.getElementById('revisionContainer').classList.add('zones-disabled');
+            let qBtn = document.getElementById('quizOptionsContainer');
+            if(qBtn) qBtn.classList.add('zones-disabled');
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            isAudioPlayingLock = false;
+            document.getElementById('readingContainer').classList.remove('zones-disabled');
+            document.getElementById('revisionContainer').classList.remove('zones-disabled');
+            let qBtn = document.getElementById('quizOptionsContainer');
+            if(qBtn) qBtn.classList.remove('zones-disabled');
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            isAudioPlayingLock = false;
+            document.getElementById('readingContainer').classList.remove('zones-disabled');
+            document.getElementById('revisionContainer').classList.remove('zones-disabled');
+            let qBtn = document.getElementById('quizOptionsContainer');
+            if(qBtn) qBtn.classList.remove('zones-disabled');
+        });
+
+        async function loadAppData() {
+            try {
+                let res1 = await fetch('data/master_list.json?t=' + Date.now());
+                if(res1.ok) schoolData = await res1.json();
+                let res2 = await fetch('data/data_book.json?t=' + Date.now());
+                if(res2.ok) bookData = await res2.json();
+            } catch(e) { console.log(e); }
+            initMadrasaDropdown();
+        }
+
+        function initMadrasaDropdown() {
+            let select = document.getElementById('appMadrasaSelect');
+            select.innerHTML = '<option value="">-- മദ്രസ സെലക്ട് ചെയ്യുക --</option>';
+            Object.keys(schoolData).sort().forEach(m => {
+                let opt = document.createElement('option'); opt.value = m; opt.innerText = m; select.appendChild(opt);
+            });
+            updateStudentDropdown();
+        }
+
+        function updateStudentDropdown() {
+            let mSelect = document.getElementById('appMadrasaSelect').value;
+            let sSelect = document.getElementById('appStudentSelect'); sSelect.innerHTML = '';
+            if(!mSelect || !schoolData[mSelect]) return;
+            schoolData[mSelect].sort().forEach(s => {
+                let opt = document.createElement('option'); opt.value = s; opt.innerText = s; sSelect.appendChild(opt);
+            });
+            loadSavedPoints();
+        }
+
+        function loadSavedPoints() {
+            let madrasa = document.getElementById('appMadrasaSelect').value;
+            let student = document.getElementById('appStudentSelect').value;
+            
+            if (madrasa && student) {
+                let pointsKey = `points_${madrasa}_${student}`;
+                let dateKey = `last_date_${madrasa}_${student}`;
+                let versionKey = `last_version_${madrasa}_${student}`;
+
+                let todayDateStr = new Date().toDateString(); 
+                let savedDate = localStorage.getItem(dateKey);
+                let savedVersion = localStorage.getItem(versionKey);
+                
+                let currentBookVersion = bookData.version || 1;
+
+                if (savedDate !== todayDateStr || parseInt(savedVersion) !== currentBookVersion) {
+                    localStorage.setItem(pointsKey, 0);
+                    localStorage.setItem(dateKey, todayDateStr);
+                    localStorage.setItem(versionKey, currentBookVersion);
+                    studentPointsMemory = 0;
+                } else {
+                    let savedPoints = localStorage.getItem(pointsKey);
+                    studentPointsMemory = savedPoints ? parseInt(savedPoints) : 0;
+                }
+            } else {
+                studentPointsMemory = 0;
+            }
+        }
+
+        function savePointsToStorage() {
+            let madrasa = document.getElementById('appMadrasaSelect').value;
+            if (madrasa && currentStudent) {
+                let pointsKey = `points_${madrasa}_${currentStudent}`;
+                localStorage.setItem(pointsKey, studentPointsMemory);
+            }
+        }
+
+        function goToMainMenu() {
+            let student = document.getElementById('appStudentSelect').value;
+            if(!student) return alert("ദയവായി വിദ്യാർത്ഥിയെ തിരഞ്ഞെടുക്കുക!");
+            currentStudent = student;
+            
+            loadSavedPoints();
+
+            document.getElementById('welcomeText').innerText = `👤 വിദ്യാർത്ഥി: ${currentStudent}`;
+            document.getElementById('studentTotalPoints').innerText = `⭐ ഇന്നത്തെ റീഡിങ് പോയിന്റ്: ${studentPointsMemory}`;
+            showScreen('mainMenuScreen');
+        }
+
+        function logout() { currentStudent = ""; showScreen('loginScreen'); }
+
+        function showScreen(id) {
+            ['loginScreen', 'mainMenuScreen', 'readingPracticeScreen', 'revisionBookScreen', 'activityScreen', 'certificateScreen'].forEach(scr => {
+                document.getElementById(scr).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            audioPlayer.pause();
+            isAudioPlayingLock = false;
+            document.getElementById('btnRepeatReading').classList.add('hidden');
+        }
+
+        function startReadingSection() {
+            let livePages = bookData.pages.filter(p => !p.hidden);
+            if(livePages.length === 0) return alert("പാഠങ്ങൾ ഒന്നും ലഭ്യമല്ല!");
+            
+            let lastPageObj = livePages[livePages.length - 1];
+            let latestLessonNum = lastPageObj.lesson || 1;
+
+            readingPagesList = livePages.filter(p => (p.lesson || 1) === latestLessonNum).reverse();
+            
+            currentReadingIdx = 0;
+            document.getElementById('liveReadingPoints').innerText = `ലഭിച്ച പോയിന്റ്: ${studentPointsMemory}`;
+            
+            loadReadingPage();
+            showScreen('readingPracticeScreen');
+        }
+
+        function loadReadingPage() {
+            currentReadingPageObj = readingPagesList[currentReadingIdx];
+            readingTouchedWords.clear(); 
+            
+            document.getElementById('readingPageStatus').innerText = `പേജ്: ${currentReadingIdx + 1} / ${readingPagesList.length} (പാഠം ${currentReadingPageObj.lesson || 1})`;
+            document.getElementById('readingImg').src = currentReadingPageObj.image + '?t=' + Date.now();
+            
+            let nextBtn = document.getElementById('readingNextPageBtn');
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = "0.5";
+            if (currentReadingIdx === readingPagesList.length - 1) {
+                nextBtn.innerText = "ലോക്ക് ചെയ്തിരിക്കുന്നു 🔒";
+            } else {
+                nextBtn.innerText = "അടുത്ത പേജ് (ലോക്ക് 🔒)";
+            }
+
+            let container = document.getElementById('readingContainer');
+            removeOldZones(container);
+
+            currentReadingPageObj.zones.forEach((zone, index) => {
+                let div = document.createElement('div'); div.className = 'click-zone';
+                div.style.left = zone.coords.left + '%'; div.style.top = zone.coords.top + '%';
+                div.style.width = zone.coords.width + '%'; div.style.height = zone.coords.height + '%';
+                
+                div.onclick = function() {
+                    if(isAudioPlayingLock) return; 
+                    audioPlayer.src = zone.audioSrc + '?t=' + Date.now(); 
+                    audioPlayer.play();
+
+                    readingTouchedWords.add(index);
+
+                    if(readingTouchedWords.size === currentReadingPageObj.zones.length) {
+                        nextBtn.disabled = false;
+                        nextBtn.style.opacity = "1";
+                        if (currentReadingIdx === readingPagesList.length - 1) {
+                            nextBtn.innerText = "🏁 റീഡിങ് പൂർത്തിയാക്കുക";
+                        } else {
+                            nextBtn.innerText = "അടുത്ത പേജ് (പുറകോട്ട്) ⏭️";
+                        }
+                    }
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function nextReadingPage() {
+            if (currentReadingIdx < readingPagesList.length - 1) {
+                currentReadingIdx++;
+                loadReadingPage();
+            } else {
+                studentPointsMemory += 100;
+                savePointsToStorage();
+                showReadingCertificate();
+            }
+        }
+
+        function showReadingCertificate() {
+            setCertificateBaseDetails();
+            
+            let startLesson = readingPagesList[0].lesson || 1;
+            document.getElementById('certMainTitle').innerText = "🎉 റീഡിങ് പൂർത്തിയാക്കി";
+            document.getElementById('certBodyText').innerText = `ഇന്നത്തെ പുതിയ പാഠഭാഗമായ (പാഠം: ${startLesson})-ലെ മുഴുവൻ പേജുകളിലെയും എല്ലാ വാക്കുകളും കൃത്യമായി തൊട്ട് കേട്ട് വായിച്ചു പഠിച്ചിരിക്കുന്നു.`;
+            document.getElementById('certScoreText').style.color = "#2ecc71";
+            document.getElementById('certScoreText').innerText = `🏆 ഇന്നത്തെ റീഡിങ് പോയിന്റ്: ${studentPointsMemory}`;
+            
+            document.getElementById('cTimeSpent').innerText = "---";
+            document.getElementById('cTotalTries').innerText = "0 തവണ (റീഡിങ് സെക്ഷൻ)";
+            
+            let certBox = document.getElementById('certBox');
+            certBox.style.border = "6px double #3498db";
+            certBox.style.background = "#f4f9fc";
+            
+            showScreen('certificateScreen');
+            document.getElementById('btnRepeatReading').classList.remove('hidden');
+        }
+
+        function startReverseRevision() {
+            let allLivePages = bookData.pages.filter(p => !p.hidden);
+            if(allLivePages.length === 0) return alert("റിവിഷൻ ചെയ്യാൻ പേജുകൾ ഇല്ല!");
+
+            let lessonSet = new Set();
+            allLivePages.forEach(p => lessonSet.add(p.lesson || 1));
+            let allLessons = Array.from(lessonSet).sort((a, b) => a - b);
+
+            let activeLessons = [];
+            if (allLessons.length > 10) {
+                activeLessons = allLessons.slice(-10);
+            } else {
+                activeLessons = allLessons;
+            }
+
+            revisionPagesList = allLivePages.filter(p => activeLessons.includes(p.lesson || 1)).reverse();
+            
+            currentRevIdx = 0; 
+            loadRevisionPage(); 
+            showScreen('revisionBookScreen');
+        }
+
+        function loadRevisionPage() {
+            let page = revisionPagesList[currentRevIdx];
+            revisionTouchedWords.clear(); 
+
+            document.getElementById('revisionPageStatus').innerText = `📄 പാഠം: ${page.lesson || 1} (റിവിഷൻ പേജ്: ${currentRevIdx + 1}/${revisionPagesList.length})`;
+            document.getElementById('revisionImg').src = page.image + '?t=' + Date.now();
+            
+            let nextBtn = document.getElementById('nextPageBtn');
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = "0.5";
+            if (currentRevIdx === revisionPagesList.length - 1) {
+                nextBtn.innerText = "ലോക്ക് ചെയ്തിരിക്കുന്നു 🔒";
+            } else {
+                nextBtn.innerText = "അടുത്ത പേജ് (ലോക്ക് 🔒)";
+            }
+
+            let container = document.getElementById('revisionContainer');
+            removeOldZones(container);
+
+            page.zones.forEach((zone, index) => {
+                let div = document.createElement('div'); div.className = 'click-zone';
+                div.style.left = zone.coords.left + '%'; div.style.top = zone.coords.top + '%';
+                div.style.width = zone.coords.width + '%'; div.style.height = zone.coords.height + '%';
+                
+                div.onclick = function() {
+                    if(isAudioPlayingLock) return; 
+                    audioPlayer.src = zone.audioSrc + '?t=' + Date.now(); 
+                    audioPlayer.play();
+
+                    revisionTouchedWords.add(index);
+
+                    if(revisionTouchedWords.size === page.zones.length) {
+                        nextBtn.disabled = false;
+                        nextBtn.style.opacity = "1";
+                        if (currentRevIdx === revisionPagesList.length - 1) {
+                            nextBtn.innerText = "🏁 റിവിഷൻ പൂർത്തിയാക്കുക";
+                        } else {
+                            nextBtn.innerText = "അടുത്ത പേജ് (പുറകോട്ട്) ⏭️";
+                        }
+                    }
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function changeRevisionPage(dir) {
+            if(dir === -1) { 
+                if(currentRevIdx > 0) { currentRevIdx--; loadRevisionPage(); } 
+            } else {
+                if(currentRevIdx < revisionPagesList.length - 1) { 
+                    currentRevIdx++; 
+                    loadRevisionPage(); 
+                } else { 
+                    showRevisionBookCertificate(); 
+                }
+            }
+        }
+
+        function showRevisionBookCertificate() {
+            setCertificateBaseDetails();
+            
+            document.getElementById('certMainTitle').innerText = "🏆 റിവിഷൻ ഗ്രാൻഡ് സർട്ടിഫിക്കറ്റ്";
+            document.getElementById('certBodyText').innerText = `അവസാനത്തെ 10 പാഠഭാഗങ്ങളിലെ എല്ലാ വാക്കുകളും കൃത്യമായി തൊട്ട് കേട്ട് റിവിഷൻ ചെയ്ത് പൂർത്തിയാക്കിയിരിക്കുന്നു.`;
+            document.getElementById('certScoreText').style.color = "#e67e22";
+            document.getElementById('certScoreText').innerText = "🎖️ സ്റ്റാറ്റസ്: All Lessons Cleared!";
+            
+            document.getElementById('cTimeSpent').innerText = "---";
+            document.getElementById('cTotalTries').innerText = "0 തവണ (ബുക്ക് റിവിഷൻ)";
+            
+            let certBox = document.getElementById('certBox');
+            certBox.style.border = "6px double #e67e22";
+            certBox.style.background = "#fffbf5";
+            
+            showScreen('certificateScreen');
+        }
+
+        function startActivityGame() {
+            let allLivePages = bookData.pages.filter(p => !p.hidden && p.zones && p.zones.length > 0);
+            if(allLivePages.length === 0) return alert("ക്വിസ് ചെയ്യാൻ വാക്കുകൾ ഇല്ല!");
+
+            quizWordsPool = [];
+            let sortedPages = [...allLivePages].sort((a, b) => (b.lesson || 1) - (a.lesson || 1));
+            
+            sortedPages.forEach(p => {
+                p.zones.forEach(w => {
+                    if(w.text && w.text.trim() !== "") {
+                        quizWordsPool.push({
+                            text: w.text,
+                            audioSrc: w.audioSrc,
+                            lesson: p.lesson || 1
+                        });
+                    }
+                });
+            });
+
+            if(quizWordsPool.length === 0) return alert("ക്വിസ് ചോദ്യങ്ങൾക്കായി ടെക്സ്റ്റ് ടൈപ്പ് ചെയ്ത വാക്കുകൾ ഒന്നും കണ്ടെത്തിയില്ല!");
+
+            currentQuizWordIdx = 0; 
+            wrongAnswerFlag = false;
+            quizPenaltyPoints = 0; 
+            
+            gameTotalSeconds = 0;
+            document.getElementById('liveQuizTimer').innerText = `⏱️ സമയം: 0 സെക്കൻഡ്`;
+            document.getElementById('liveQuizPenalty').innerText = `❌ തോറ്റത്: 0 തവണ`;
+            
+            clearInterval(gameTimerInterval);
+            gameTimerInterval = setInterval(() => {
+                gameTotalSeconds++;
+                document.getElementById('liveQuizTimer').innerText = `⏱️ സമയം: ${gameTotalSeconds} സെക്കൻഡ്`;
+            }, 1000);
+
+            showScreen('activityScreen');
+            generateQuizQuestion();
+        }
+
+        function stopActivityGameTimer() {
+            clearInterval(gameTimerInterval);
+            showScreen('mainMenuScreen');
+        }
+
+        function generateQuizQuestion() {
+            if(currentQuizWordIdx >= quizWordsPool.length || currentQuizWordIdx < 0) {
+                showFinalQuizCertificate();
+                return;
+            }
+
+            targetWord = quizWordsPool[currentQuizWordIdx];
+            let quizOptions = [targetWord];
+            let filteredOthers = quizWordsPool.filter(w => w.text !== targetWord.text);
+            
+            filteredOthers.sort(() => 0.5 - Math.random());
+            for(let i=0; i<3; i++) { 
+                if(filteredOthers[i]) quizOptions.push(filteredOthers[i]); 
+            }
+            
+            while(quizOptions.length < 4 && quizWordsPool.length > 1) {
+                let randomWord = quizWordsPool[Math.floor(Math.random() * quizWordsPool.length)];
+                if(!quizOptions.some(o => o.text === randomWord.text)) {
+                    quizOptions.push(randomWord);
+                }
+            }
+            
+            quizOptions.sort(() => 0.5 - Math.random());
+
+            let statusMsg = wrongAnswerFlag ? 
+                `⚠️ തെറ്റിപ്പോയി! കളി ഒന്നാം ചോദ്യം മുതൽ വീണ്ടും തുടങ്ങുന്നു. <br><b>🎯 ചോദ്യം: ${currentQuizWordIdx + 1} / ${quizWordsPool.length} (പാഠം ${targetWord.lesson})</b>` : 
+                `🔄 റിവേഴ്സ് ക്വിസ് ചലഞ്ച്! <br><b>🎯 ചോദ്യം: ${currentQuizWordIdx + 1} / ${quizWordsPool.length} (പാഠം ${targetWord.lesson})</b>`;
+                
+            document.getElementById('gameStatusText').innerHTML = statusMsg;
+            document.getElementById('liveQuizPenalty').innerText = `❌ തോറ്റത്: ${quizPenaltyPoints} തവണ`;
+
+            let optionsContainer = document.getElementById('quizOptionsContainer');
+            optionsContainer.innerHTML = '';
+            quizOptions.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'quiz-opt'; btn.innerText = opt.text;
+                btn.onclick = () => {
+                    if(isAudioPlayingLock) return; 
+                    checkQuizAnswer(opt.text);
+                };
+                optionsContainer.appendChild(btn);
+            });
+
+            playQuizAudio();
+        }
+
+        function playQuizAudio() {
+            if(targetWord && targetWord.audioSrc) {
+                audioPlayer.src = targetWord.audioSrc + '?t=' + Date.now();
+                audioPlayer.play().catch(e => console.log(e));
+            }
+        }
+
+        function checkQuizAnswer(selectedText) {
+            audioPlayer.pause();
+            
+            if(selectedText === targetWord.text) {
+                alert("🎉 ശരിയാണ്! വളരെ മിടുക്കൻ.");
+                wrongAnswerFlag = false; 
+                currentQuizWordIdx++; 
+                generateQuizQuestion();
+            } else {
+                quizPenaltyPoints += 1; 
+                alert(`❌ അയ്യോ തെറ്റിപ്പോയി! കളി ഇനി ആദ്യത്തെ ചോദ്യം മുതൽ വീണ്ടും തുടങ്ങുന്നു!`);
+                wrongAnswerFlag = true;
+                currentQuizWordIdx = 0; 
+                generateQuizQuestion();
+            }
+        }
+
+        function removeOldZones(parent) {
+            let zones = parent.querySelectorAll('.click-zone');
+            zones.forEach(z => z.remove());
+        }
+
+        function setCertificateBaseDetails() {
+            let madrasa = document.getElementById('appMadrasaSelect').value;
+            let cls = document.getElementById('appClassInput').value || "---";
+            let prt = document.getElementById('appPartInput').value || "---";
+            let subj = document.getElementById('appSubjectInput').value || "---";
+            
+            let now = new Date();
+            let dateTimeStr = now.toLocaleDateString('ml-IN') + ' ' + now.toLocaleTimeString('ml-IN', {hour: '2-digit', minute:'2-digit'});
+
+            document.getElementById('cName').innerText = currentStudent;
+            document.getElementById('cMadrasa').innerText = madrasa;
+            document.getElementById('cClassPart').innerText = `${cls} (${prt})`;
+            document.getElementById('cSubject').innerText = subj;
+            document.getElementById('cDateTime').innerText = dateTimeStr;
+        }
+
+        function showFinalQuizCertificate() {
+            clearInterval(gameTimerInterval); 
+            setCertificateBaseDetails();
+            
+            let certBox = document.getElementById('certBox');
+            let certMainTitle = document.getElementById('certMainTitle');
+            
+            document.getElementById('certBodyText').innerText = `ആപ്പിൽ നൽകിയിട്ടുള്ള മുഴുവൻ പാഠങ്ങളിലെയും ആകെ ${quizWordsPool.length} വാക്കുകളും റിവേഴ്സ് ഓർഡറിൽ വിജയകരമായി കേട്ട് കണ്ടെത്തി ക്വിസ്സ് പൂർത്തിയാക്കിയിരിക്കുന്നു.`;
+            
+            document.getElementById('cTimeSpent').innerText = `${gameTotalSeconds} സെക്കൻഡ്`;
+            document.getElementById('cTotalTries').innerText = `${quizPenaltyPoints} തവണ`;
+            
+            // 🎯 പുതിയ ബാലൻസ്ഡ് പോയിന്റ് ഫോർമുല:
+            // ബേസ് പോയിന്റ്: 1000
+            // ഒരു തെറ്റിന് (തോൽവിക്ക്) 10 പോയിന്റ് കുറയുന്നു
+            // ഒരു സെക്കൻഡിന് 1 പോയിന്റ് കുറയുന്നു
+            let baseReward = 1000;
+            let penaltyDeduction = quizPenaltyPoints * 10;
+            let timeDeduction = gameTotalSeconds * 1;
+            let finalAppScore = baseReward - penaltyDeduction - timeDeduction;
+
+            if (finalAppScore < 0) finalAppScore = 0;
+
+            if (finalAppScore <= 500) {
+                certBox.style.border = "6px double #e67e22";
+                certBox.style.background = "#fffbf5";
+                certMainTitle.style.color = "#e67e22";
+                document.getElementById('certScoreText').innerHTML = `🎯 സ്കോർ: <span style="color:#e67e22; font-weight:bold;">+${finalAppScore} പോയിന്റ്</span>`;
+            } else {
+                certBox.style.border = "6px double #2ecc71";
+                certBox.style.background = "#f4fbf7";
+                certMainTitle.style.color = "#27ae60";
+                document.getElementById('certScoreText').innerHTML = `🎯 സ്കോർ: <span style="color:#2ecc71; font-weight:bold;">+${finalAppScore} പോയിന്റ്</span>`;
+            }
+
+            showScreen('certificateScreen');
+        }
+
+        loadAppData();
+    </script>
+</body>
+</html>

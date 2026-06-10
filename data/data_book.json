@@ -1,0 +1,326 @@
+{
+  "pages": [
+    {
+      "image": "data/page_0_image.jpg",
+      "lesson": 1,
+      "zones": [
+        {
+          "coords": {
+            "left": 36.222061872805305,
+            "top": 34.82846525682027,
+            "width": 33,
+            "height": 12
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_0.mp3"
+        },
+        {
+          "coords": {
+            "left": 39.34097287395734,
+            "top": 54.36975135077988,
+            "width": 40,
+            "height": 17
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_1.mp3"
+        },
+        {
+          "coords": {
+            "left": 49.111746256610346,
+            "top": 80.88508787164622,
+            "width": 40,
+            "height": 17
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_2.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_1_image.jpg",
+      "lesson": 1,
+      "zones": [
+        {
+          "coords": {
+            "left": 66.67621597221267,
+            "top": 2.2653836703754724,
+            "width": 20,
+            "height": 13
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_3.mp3"
+        },
+        {
+          "coords": {
+            "left": 43.0372481109554,
+            "top": 1.774087320179433,
+            "width": 20,
+            "height": 13
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_4.mp3"
+        },
+        {
+          "coords": {
+            "left": 14.670486677446686,
+            "top": 0.1055345672916097,
+            "width": 20,
+            "height": 13
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_5.mp3"
+        },
+        {
+          "coords": {
+            "left": 52.98137378031015,
+            "top": 68.40859627369838,
+            "width": 31,
+            "height": 17
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_6.mp3"
+        },
+        {
+          "coords": {
+            "left": 16.419770154898913,
+            "top": 67.55397405664324,
+            "width": 31,
+            "height": 17
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_7.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_2_image.jpg",
+      "lesson": 1,
+      "zones": [
+        {
+          "coords": {
+            "left": 56.44842239996122,
+            "top": 46.327733940850464,
+            "width": 31,
+            "height": 20
+          },
+          "text": "أَب",
+          "audioSrc": "data/audio_global_8.mp3"
+        },
+        {
+          "coords": {
+            "left": 14.528652725998334,
+            "top": 45.91645708305105,
+            "width": 31,
+            "height": 20
+          },
+          "text": "ا",
+          "audioSrc": "data/audio_global_9.mp3"
+        },
+        {
+          "coords": {
+            "left": 56.133236161811126,
+            "top": 70.51269924179945,
+            "width": 31,
+            "height": 20
+          },
+          "text": "أَ",
+          "audioSrc": "data/audio_global_10.mp3"
+        },
+        {
+          "coords": {
+            "left": 19.88681877454998,
+            "top": 71.84582855447385,
+            "width": 31,
+            "height": 20
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_11.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_3_image.jpg",
+      "lesson": 2,
+      "zones": [
+        {
+          "coords": {
+            "left": 34.92836553985598,
+            "top": 28.498238459296523,
+            "width": 40,
+            "height": 16
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_12.mp3"
+        },
+        {
+          "coords": {
+            "left": 47.535815065859865,
+            "top": 50.04128492745455,
+            "width": 40,
+            "height": 17
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_13.mp3"
+        },
+        {
+          "coords": {
+            "left": 57.62177468666296,
+            "top": 70.73303483134345,
+            "width": 40,
+            "height": 17
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_14.mp3"
+        },
+        {
+          "coords": {
+            "left": 67.34956825891442,
+            "top": 89.5618198509399,
+            "width": 30,
+            "height": 10
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_15.mp3"
+        },
+        {
+          "coords": {
+            "left": 8.409741724846299,
+            "top": 89.70961547621208,
+            "width": 30,
+            "height": 10
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_16.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_4_image.jpg",
+      "lesson": 2,
+      "zones": [
+        {
+          "coords": {
+            "left": 64.76360863811131,
+            "top": 9.420867639523413,
+            "width": 15,
+            "height": 10
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_17.mp3"
+        },
+        {
+          "coords": {
+            "left": 47.42836553985598,
+            "top": 9.80735849982748,
+            "width": 15,
+            "height": 10
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_18.mp3"
+        },
+        {
+          "coords": {
+            "left": 32.61461234680143,
+            "top": 10.451506630057379,
+            "width": 15,
+            "height": 10
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_19.mp3"
+        },
+        {
+          "coords": {
+            "left": 15.909741724846299,
+            "top": 9.67852896387996,
+            "width": 15,
+            "height": 20
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_20.mp3"
+        },
+        {
+          "coords": {
+            "left": 58.14469763695928,
+            "top": 74.76186364268364,
+            "width": 20,
+            "height": 18
+          },
+          "text": "ا",
+          "audioSrc": "data/audio_global_21.mp3"
+        },
+        {
+          "coords": {
+            "left": 26.332377489000272,
+            "top": 74.23737967440724,
+            "width": 20,
+            "height": 18
+          },
+          "text": "ء",
+          "audioSrc": "data/audio_global_22.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_5_image.jpg",
+      "lesson": 2,
+      "zones": [
+        {
+          "coords": {
+            "left": 56.90544258955967,
+            "top": 24.636162119143684,
+            "width": 20,
+            "height": 20
+          },
+          "text": "أُمّ",
+          "audioSrc": "data/audio_global_23.mp3"
+        },
+        {
+          "coords": {
+            "left": 47.76504168320686,
+            "top": 52.84033655135713,
+            "width": 20,
+            "height": 20
+          },
+          "text": "أُ",
+          "audioSrc": "data/audio_global_24.mp3"
+        },
+        {
+          "coords": {
+            "left": 22.865328869349206,
+            "top": 53.282155129447084,
+            "width": 20,
+            "height": 20
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_25.mp3"
+        },
+        {
+          "coords": {
+            "left": 48.08022792135695,
+            "top": 75.59397014870918,
+            "width": 20,
+            "height": 20
+          },
+          "text": "أَ",
+          "audioSrc": "data/audio_global_26.mp3"
+        },
+        {
+          "coords": {
+            "left": 22.23495639304901,
+            "top": 74.48942463045552,
+            "width": 20,
+            "height": 20
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_27.mp3"
+        }
+      ],
+      "hidden": false
+    }
+  ]
+}

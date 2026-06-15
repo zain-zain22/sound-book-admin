@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>സൗണ്ട് ബുക്ക് ലേണിങ് ആപ്പ്</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f3f5; margin: 0; padding: 10px; text-align: center; }
+        .app-container { background: white; max-width: 500px; margin: 10px auto; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); min-height: 85vh; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        h1, h2, h3 { color: #2c3e50; margin-top: 5px; }
+        
+        select, input, button { width: 100%; padding: 14px; margin: 10px 0; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; font-weight: bold; cursor: pointer; }
+        input { cursor: text; text-align: center; background: #fff; }
+        
+        .btn-menu { color: white; border: none; transition: 0.2s; }
+        .btn-revision { background: #e67e22; width: 100%; padding: 15px; font-size: 18px; }
+        .btn-menu:active { transform: scale(0.98); }
+
+        /* 📖 റിവിഷൻ സെക്ഷൻ സ്റ്റൈൽസ് */
+        .reading-page-img { width: 100%; height: auto; display: block; }
+        .reading-container { position: relative; width: 100%; background: #000; margin-top: 10px; }
+        
+        /* 🎯 ഓട്ടോമാറ്റിക് വാക്ക് ഹൈലൈറ്റ് ബോക്സ് */
+        .highlight-box { position: absolute; border: 3px solid #e74c3c; background: rgba(231, 76, 60, 0.25); pointer-events: none; transition: all 0.2s ease-in-out; display: none; box-shadow: 0 0 8px #e74c3c; }
+        .point-badge { background: #e67e22; color: white; padding: 5px 10px; border-radius: 4px; font-size: 14px; display: inline-block; margin-bottom: 10px; }
+
+        /* 🔒 ഓഡിയോ പ്ലേ ചെയ്യുമ്പോൾ ഉള്ള അവസ്ഥ */
+        .zones-disabled { pointer-events: none; opacity: 0.7; }
+        .btn-lock { background: #bdc3c7 !important; color: #7f8c8d !important; cursor: not-allowed !important; opacity: 0.6; }
+
+        /* 🎯 ആക്ടിവിറ്റി ഗെയിം സ്റ്റൈൽസ് */
+        .speaker-btn { background: #2ecc71; color: white; font-size: 40px; width: 90px; height: 90px; border-radius: 50%; border: none; margin: 15px auto; display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 12px rgba(46, 204, 113, 0.4); }
+        .quiz-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px; }
+        .quiz-opt { background: #fff; border: 2px solid #bdc3c7; padding: 18px; font-size: 24px; font-family: 'Traditional Arabic', sans-serif; border-radius: 8px; direction: rtl; }
+        .game-status { font-size: 14px; font-weight: bold; color: #7f8c8d; margin-bottom: 10px; background: #eaedf1; padding: 8px; border-radius: 5px; }
+        .timer-badge { background: #34495e; color: white; padding: 5px 10px; border-radius: 4px; font-size: 14px; display: inline-block; margin-bottom: 10px; font-weight: bold; }
+
+        /* 🏆 സർട്ടിഫിക്കറ്റ് ഡിസൈൻ */
+        .certificate-box { border: 6px double #2ecc71; padding: 20px; background: #f4fbf7; border-radius: 8px; text-align: center; margin-top: 10px; transition: 0.3s; }
+        .badge-gold { font-size: 50px; }
+        .cert-table { width: 100%; margin: 15px 0; border-collapse: collapse; background: rgba(255,255,255,0.7); border-radius: 6px; overflow: hidden; }
+        .cert-table td { padding: 10px; border: 1px solid #ddd; text-align: left; font-size: 14px; font-weight: bold; color: #334155; }
+        .cert-table td:first-child { color: #64748b; width: 45%; }
+
+        .hidden { display: none !important; }
+        .back-home { background: #95a5a6; color: white; border: none; width: auto; padding: 8px 15px; font-size: 13px; margin-top: 20px; }
+
+        /* ✍️ ഡെവലപ്പർ ക്രെഡിറ്റ് സ്റ്റൈൽ */
+        .dev-footer { font-size: 11px; color: #7f8c8d; font-weight: bold; margin-top: 25px; border-top: 1px dashed #ddd; padding-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .cert-footer { font-size: 12px; color: #555; font-weight: bold; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <div id="loginScreen">
+            <h2>🏫 മദ്രസ സൗണ്ട് ബുക്ക്</h2>
+            
+            <label>മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
+            <select id="appMadrasaSelect" onchange="updateStudentDropdown()"></select>
+            
+            <label>കുട്ടിയുടെ പേര്:</label>
+            <select id="appStudentSelect" onchange="loadSavedPoints()"></select>
+            
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>ക്ലാസ്സ്:</label>
+                    <input type="text" id="appClassInput" placeholder="ഉദാ: 2 A">
+                </div>
+                <div style="flex: 1;">
+                    <label>പാർട്ട്:</label>
+                    <input type="text" id="appPartInput" placeholder="ഉദാ: ഭാഗം 1">
+                </div>
+            </div>
+            
+            <label>വിഷയം:</label>
+            <input type="text" id="appSubjectInput" placeholder="ഉദാ: ഖുർആൻ / അറബിക്">
+
+            <button class="btn-revision" style="background:#2ecc71; color:white;" onclick="goToMainMenu()">പ്രവേശിക്കുക 🚀</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <div id="mainMenuScreen" class="hidden">
+            <h3 id="welcomeText">👤 വിദ്യാർത്ഥി: </h3>
+            <div id="studentTotalPoints" class="point-badge">🔄 റിവിഷൻ ചെയ്യാൻ തയാറാവുക</div>
+            <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
+            
+            <button class="btn-menu btn-revision" onclick="startReverseRevision()">📖 പഠനം തുടരുക (റിവിഷൻ & ക്വിസ്)</button>
+            
+            <button class="back-home" onclick="logout()">🗑️ ലോഗൗട്ട് ചെയ്യുക</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <div id="revisionBookScreen" class="hidden">
+            <h3 id="revisionTitle">🔄 റിവേഴ്സ് റിവിഷൻ</h3>
+            <p id="revisionPageStatus" style="font-weight:bold; color:#e67e22; margin-bottom: 5px;"></p>
+            
+            <div class="reading-container" id="revisionContainer">
+                <img id="revisionImg" class="reading-page-img" src="" alt="Page">
+                <div class="highlight-box" id="wordHighlightBox"></div>
+            </div>
+            
+            <div style="margin-top:15px;">
+                <button id="nextWordBtn" style="background:#2ecc71; color:white; padding:15px; font-size:18px;" onclick="stepToNextWord()">അടുത്ത വാക്ക് ➡️</button>
+            </div>
+            <button class="back-home" onclick="showScreen('mainMenuScreen')"> MyMainMenu</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <div id="activityScreen" class="hidden">
+            <div class="game-status" id="gameStatusText">🎮 ലെവൽ ലോഡ് ചെയ്യുന്നു...</div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                <div class="timer-badge" id="liveQuizTimer">⏱️ സമയം: 0 സെക്കൻഡ്</div>
+                <div style="background:#e74c3c; color:white; padding:5px 10px; border-radius:4px; font-size:14px; font-weight:bold;" id="liveQuizPenalty">
+                    ❌ തെറ്റിയത്: 0 തവണ
+                </div>
+            </div>
+            
+            <h2>🔊 കേട്ട് കണ്ടെത്തുക!</h2>
+            <button class="speaker-btn" id="quizSpeakerBtn" onclick="playQuizAudio()">🔊</button>
+            <div class="quiz-grid" id="quizOptionsContainer"></div>
+            
+            <button class="back-home" style="margin-top:25px;" onclick="stopActivityGameTimer()">🛑 ഗെയിം നിർത്തുക</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+        <div id="certificateScreen" class="hidden">
+            <div class="certificate-box" id="certBox">
+                <div class="badge-gold">🏆</div>
+                <h1 style="color:#27ae60; margin-bottom: 0;" id="certMainTitle">വിജയ സർട്ടിഫിക്കറ്റ്</h1>
+                
+                <table class="cert-table">
+                    <tr><td>👤 വിദ്യാർത്ഥി:</td><td id="cName">-</td></tr>
+                    <tr><td>🏫 മദ്രസ:</td><td id="cMadrasa">-</td></tr>
+                    <tr><td>📚 ക്ലാസ്സ് & പാർട്ട്:</td><td id="cClassPart">-</td></tr>
+                    <tr><td>📖 വിഷയം:</td><td id="cSubject">-</td></tr>
+                    <tr><td>📅 ഡേറ്റ് & ടൈം:</td><td id="cDateTime">-</td></tr>
+                    <tr><td>⏱️ എടുത്ത സമയം:</td><td id="cTimeSpent">-</td></tr>
+                    <tr><td>❌ തോറ്റ തവണകൾ:</td><td id="cTotalTries">-</td></tr>
+                </table>
+
+                <p style="font-size: 14px; line-height: 1.6; color:#555; font-weight: bold;" id="certBodyText"></p>
+                <h2 style="font-size: 34px; margin: 15px 0;" id="certScoreText">🎯 സ്കോർ: +0 പോയിന്റ്</h2>
+                
+                <p style="color:#e67e22; font-weight:bold; font-size:16px; margin-top:15px; border-top: 1px dashed #ccc; padding-top: 10px; margin-bottom: 5px;">
+                    📸 ഈ സ്ക്രീൻഷോട്ട് എടുത്ത് ഉസ്താദിന് അയച്ചു കൊടുക്കുക!
+                </p>
+
+                <div class="cert-footer">Developed by salmanul faris zaini mannarkkad | 9895993822</div>
+            </div>
+            
+            <button class="btn-menu btn-revision" style="background:#34495e; width:100%;" onclick="showScreen('mainMenuScreen')">↩️ തിരികെ മെനുവിലേക്ക്</button>
+            
+            <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
+        </div>
+
+    </div>
+
+    <script>
+        let bookData = { pages: [], version: 1 }; 
+        let schoolData = {};
+        let currentStudent = "";
+        let audioPlayer = new Audio();
+        let studentPointsMemory = 0; 
+
+        // --- റിവിഷൻ ബുക്ക് സ്റ്റേറ്റ് ---
+        let revisionPagesList = []; 
+        let currentRevIdx = 0;
+        let currentZoneIdx = 0; // 📍 പേജിലെ നിലവിലെ വാക്കിന്റെ ഇൻഡക്സ്
+        let isWordAudioFinished = false; // ഓഡിയോ തീർന്നു എന്ന് ഉറപ്പാക്കാൻ
+
+        // --- ആക്ടിവിറ്റി ക്വിസ് സ്റ്റേറ്റ് ---
+        let quizWordsPool = []; 
+        let currentQuizWordIdx = 0; 
+        let targetWord = null;
+        let wrongAnswerFlag = false;
+        let quizPenaltyPoints = 0; 
+        
+        let gameTimerInterval = null;
+        let gameTotalSeconds = 0;
+
+        // ഓഡിയോ പ്ലേ ചെയ്യുമ്പോൾ ബട്ടൺ ലോക്ക് ചെയ്യുന്ന സിസ്റ്റം
+        audioPlayer.addEventListener('play', () => {
+            disableNextWordButton(true);
+            let qBtn = document.getElementById('quizOptionsContainer');
+            if(qBtn) qBtn.classList.add('zones-disabled');
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            isWordAudioFinished = true;
+            disableNextWordButton(false); // ഓഡിയോ കഴിഞ്ഞാൽ ബട്ടൺ അൺലോക്ക് ചെയ്യും
+            let qBtn = document.getElementById('quizOptionsContainer');
+            if(qBtn) qBtn.classList.remove('zones-disabled');
+        });
+
+        audioPlayer.addEventListener('pause', () => {
+            let qBtn = document.getElementById('quizOptionsContainer');
+            if(qBtn) qBtn.classList.remove('zones-disabled');
+        });
+
+        function disableNextWordButton(status) {
+            let btn = document.getElementById('nextWordBtn');
+            if(!btn) return;
+            if(status) {
+                btn.disabled = true;
+                btn.classList.add('btn-lock');
+                btn.innerText = "🔒 ഓഡിയോ കേൾക്കൂ...";
+            } else {
+                btn.disabled = false;
+                btn.classList.remove('btn-lock');
+                btn.innerText = "അടുത്ത വാക്ക് ➡️";
+                
+                // പേജിലെ ലാസ്റ്റ് വാക്കാണെങ്കിൽ ബട്ടൺ ടെക്സ്റ്റ് മാറ്റുക
+                let page = revisionPagesList[currentRevIdx];
+                if(page && currentZoneIdx === page.zones.length - 1) {
+                    if (currentRevIdx === revisionPagesList.length - 1) {
+                        btn.innerText = "🎯 ക്വിസ്സിലേക്ക് പ്രവേശിക്കുക 🚀";
+                    } else {
+                        btn.innerText = "അടുത്ത പേജിലേക്ക് ⏭️";
+                    }
+                }
+            }
+        }
+
+        async function loadAppData() {
+            try {
+                let res1 = await fetch('data/master_list.json?t=' + Date.now());
+                if(res1.ok) schoolData = await res1.json();
+                let res2 = await fetch('data/data_book.json?t=' + Date.now());
+                if(res2.ok) bookData = await res2.json();
+            } catch(e) { console.log(e); }
+            initMadrasaDropdown();
+        }
+
+        function initMadrasaDropdown() {
+            let select = document.getElementById('appMadrasaSelect');
+            select.innerHTML = '<option value="">-- മദ്രസ സെലക്ട് ചെയ്യുക --</option>';
+            Object.keys(schoolData).sort().forEach(m => {
+                let opt = document.createElement('option'); opt.value = m; opt.innerText = m; select.appendChild(opt);
+            });
+            updateStudentDropdown();
+        }
+
+        function updateStudentDropdown() {
+            let mSelect = document.getElementById('appMadrasaSelect').value;
+            let sSelect = document.getElementById('appStudentSelect'); sSelect.innerHTML = '';
+            if(!mSelect || !schoolData[mSelect]) return;
+            schoolData[mSelect].sort().forEach(s => {
+                let opt = document.createElement('option'); opt.value = s; opt.innerText = s; sSelect.appendChild(opt);
+            });
+            loadSavedPoints();
+        }
+
+        function loadSavedPoints() {
+            let madrasa = document.getElementById('appMadrasaSelect').value;
+            let student = document.getElementById('appStudentSelect').value;
+            
+            if (madrasa && student) {
+                let pointsKey = `points_${madrasa}_${student}`;
+                let savedPoints = localStorage.getItem(pointsKey);
+                studentPointsMemory = savedPoints ? parseInt(savedPoints) : 0;
+            } else {
+                studentPointsMemory = 0;
+            }
+        }
+
+        function savePointsToStorage() {
+            let madrasa = document.getElementById('appMadrasaSelect').value;
+            if (madrasa && currentStudent) {
+                let pointsKey = `points_${madrasa}_${currentStudent}`;
+                localStorage.setItem(pointsKey, studentPointsMemory);
+            }
+        }
+
+        function goToMainMenu() {
+            let student = document.getElementById('appStudentSelect').value;
+            if(!student) return alert("ദയവായി വിദ്യാർത്ഥിയെ തിരഞ്ഞെടുക്കുക!");
+            currentStudent = student;
+            
+            loadSavedPoints();
+
+            document.getElementById('welcomeText').innerText = `👤 വിദ്യാർത്ഥി: ${currentStudent}`;
+            showScreen('mainMenuScreen');
+        }
+
+        function logout() { currentStudent = ""; showScreen('loginScreen'); }
+
+        function showScreen(id) {
+            ['loginScreen', 'mainMenuScreen', 'revisionBookScreen', 'activityScreen', 'certificateScreen'].forEach(scr => {
+                document.getElementById(scr).classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            audioPlayer.pause();
+        }
+
+        // 🔄 റിവിഷൻ ലോഡ് ചെയ്യുന്ന ഭാഗം
+        function startReverseRevision() {
+            let allLivePages = bookData.pages.filter(p => !p.hidden);
+            if(allLivePages.length === 0) return alert("റിവിഷൻ ചെയ്യാൻ പേജുകൾ ഇല്ല!");
+
+            let lessonSet = new Set();
+            allLivePages.forEach(p => lessonSet.add(p.lesson || 1));
+            let allLessons = Array.from(lessonSet).sort((a, b) => a - b);
+
+            let activeLessons = [];
+            if (allLessons.length > 10) {
+                activeLessons = allLessons.slice(-10); // ലാസ്റ്റ് 10 പാഠങ്ങൾ
+            } else {
+                activeLessons = allLessons;
+            }
+
+            revisionPagesList = allLivePages.filter(p => activeLessons.includes(p.lesson || 1)).reverse();
+            
+            currentRevIdx = 0; 
+            currentZoneIdx = 0;
+            loadRevisionPage(); 
+            showScreen('revisionBookScreen');
+        }
+
+        function loadRevisionPage() {
+            let page = revisionPagesList[currentRevIdx];
+            if(!page || !page.zones || page.zones.length === 0) {
+                // സോണുകൾ ഇല്ലെങ്കിൽ അടുത്ത പേജിലേക്ക് പോകും
+                stepToNextPage();
+                return;
+            }
+
+            document.getElementById('revisionPageStatus').innerText = `📄 പാഠം: ${page.lesson || 1} (റിവിഷൻ പേജ്: ${currentRevIdx + 1}/${revisionPagesList.length})`;
+            document.getElementById('revisionImg').src = page.image + '?t=' + Date.now();
+            
+            currentZoneIdx = 0; // ആദ്യ വാക്ക് മുതൽ തുടങ്ങുന്നു
+            
+            // ചിത്രം പൂർണ്ണമായി ലോഡ് ആയാൽ മാത്രം ഹൈലൈറ്റ് കാണിക്കുക
+            document.getElementById('revisionImg').onload = function() {
+                playAndHighlightWord();
+            };
+            // ക്യാഷിൽ നിന്ന് ലോഡായാൽ വർക്ക് ചെയ്യാൻ വേണ്ടി
+            if(document.getElementById('revisionImg').complete) {
+                playAndHighlightWord();
+            }
+        }
+
+        // 🟥 വാക്ക് ഹൈലൈറ്റ് ചെയ്യുകയും ഓഡിയോ പ്ലേ ചെയ്യുകയും ചെയ്യുന്ന ഫങ്ക്ഷൻ
+        function playAndHighlightWord() {
+            let page = revisionPagesList[currentRevIdx];
+            let zone = page.zones[currentZoneIdx];
+            let box = document.getElementById('wordHighlightBox');
+
+            if(!zone) return;
+
+            isWordAudioFinished = false;
+            disableNextWordButton(true); // ബട്ടൺ ലോക്ക് ചെയ്യുക
+
+            // കോർഡിനേറ്റ്സ് അനുസരിച്ച് ബോക്സ് സെറ്റ് ചെയ്യുക
+            box.style.left = zone.coords.left + '%';
+            box.style.top = zone.coords.top + '%';
+            box.style.width = zone.coords.width + '%';
+            box.style.height = zone.coords.height + '%';
+            box.style.display = 'block';
+
+            // ഓഡിയോ പ്ലേ ചെയ്യുക
+            audioPlayer.src = zone.audioSrc + '?t=' + Date.now();
+            audioPlayer.play().catch(e => {
+                console.log("Audio play deferred or failed", e);
+                isWordAudioFinished = true;
+                disableNextWordButton(false); // ഓഡിയോ പ്ലേ ആയില്ലെങ്കിൽ സ്കിപ്പ് തടയാതിരിക്കാൻ
+            });
+        }
+
+        // ➡️ നെക്സ്റ്റ് ബട്ടൺ അമർത്തുമ്പോൾ സംഭവിക്കുന്നത്
+        function stepToNextWord() {
+            if(!isWordAudioFinished) return; // വായിച്ചു തീരുന്നതിന് മുൻപ് പോകാൻ അനുവദിക്കില്ല 🔒
+
+            let page = revisionPagesList[currentRevIdx];
+            
+            if(currentZoneIdx < page.zones.length - 1) {
+                // പേജിൽ അടുത്ത വാക്ക് ഉണ്ടെങ്കിൽ അങ്ങോട്ട് പോവുക
+                currentZoneIdx++;
+                playAndHighlightWord();
+            } else {
+                // പേജിലെ വാക്കുകൾ കഴിഞ്ഞാൽ അടുത്ത പേജിലേക്ക് ഓട്ടോമാറ്റിക് പോകുക
+                stepToNextPage();
+            }
+        }
+
+        function stepToNextPage() {
+            if(currentRevIdx < revisionPagesList.length - 1) {
+                currentRevIdx++;
+                loadRevisionPage();
+            } else {
+                // 🏁 മുഴുവൻ റിവിഷനും തീർന്നാൽ നേരിട്ട് ആക്ടിവിറ്റി ക്വിസ്സിലേക്ക് പോകുന്നു
+                document.getElementById('wordHighlightBox').style.display = 'none';
+                startActivityGame();
+            }
+        }
+
+        // 🎯 ക്വിസ് ആക്ടിവിറ്റി സെക്ഷൻ
+        function startActivityGame() {
+            let allLivePages = bookData.pages.filter(p => !p.hidden && p.zones && p.zones.length > 0);
+            if(allLivePages.length === 0) return alert("ക്വിസ് ചെയ്യാൻ വാക്കുകൾ ഇല്ല!");
+
+            quizWordsPool = [];
+            let sortedPages = [...allLivePages].sort((a, b) => (b.lesson || 1) - (a.lesson || 1));
+            
+            sortedPages.forEach(p => {
+                p.zones.forEach(w => {
+                    if(w.text && w.text.trim() !== "") {
+                        quizWordsPool.push({
+                            text: w.text,
+                            audioSrc: w.audioSrc,
+                            lesson: p.lesson || 1
+                        });
+                    }
+                });
+            });
+
+            if(quizWordsPool.length === 0) {
+                alert("ക്വിസ് ചോദ്യങ്ങൾക്കായി ടെക്സ്റ്റ് നൽകിയ വാക്കുകൾ ഒന്നും ഇല്ല! അതിനാൽ റിവിഷൻ പൂർത്തിയാക്കി ഹോമിലേക്ക് പോകുന്നു.");
+                showScreen('mainMenuScreen');
+                return;
+            }
+
+            currentQuizWordIdx = 0; 
+            wrongAnswerFlag = false;
+            quizPenaltyPoints = 0; 
+            
+            gameTotalSeconds = 0;
+            document.getElementById('liveQuizTimer').innerText = `⏱️ സമയം: 0 സെക്കൻഡ്`;
+            document.getElementById('liveQuizPenalty').innerText = `❌ തെറ്റിയത്: 0 തവണ`;
+            
+            clearInterval(gameTimerInterval);
+            gameTimerInterval = setInterval(() => {
+                gameTotalSeconds++;
+                document.getElementById('liveQuizTimer').innerText = `⏱️ സമയം: ${gameTotalSeconds} സെക്കൻഡ്`;
+            }, 1000);
+
+            showScreen('activityScreen');
+            generateQuizQuestion();
+        }
+
+        function stopActivityGameTimer() {
+            clearInterval(gameTimerInterval);
+            showScreen('mainMenuScreen');
+        }
+
+        function generateQuizQuestion() {
+            if(currentQuizWordIdx >= quizWordsPool.length || currentQuizWordIdx < 0) {
+                showFinalQuizCertificate();
+                return;
+            }
+
+            targetWord = quizWordsPool[currentQuizWordIdx];
+            let quizOptions = [targetWord];
+            let filteredOthers = quizWordsPool.filter(w => w.text !== targetWord.text);
+            
+            filteredOthers.sort(() => 0.5 - Math.random());
+            for(let i=0; i<3; i++) { 
+                if(filteredOthers[i]) quizOptions.push(filteredOthers[i]); 
+            }
+            
+            while(quizOptions.length < 4 && quizWordsPool.length > 1) {
+                let randomWord = quizWordsPool[Math.floor(Math.random() * quizWordsPool.length)];
+                if(!quizOptions.some(o => o.text === randomWord.text)) {
+                    quizOptions.push(randomWord);
+                }
+            }
+            
+            quizOptions.sort(() => 0.5 - Math.random());
+
+            let statusMsg = `🎯 ചോദ്യം: ${currentQuizWordIdx + 1} / ${quizWordsPool.length} (പാഠം ${targetWord.lesson})`;
+            document.getElementById('gameStatusText').innerHTML = statusMsg;
+            document.getElementById('liveQuizPenalty').innerText = `❌ തെറ്റിയത്: ${quizPenaltyPoints} തവണ`;
+
+            let optionsContainer = document.getElementById('quizOptionsContainer');
+            optionsContainer.innerHTML = '';
+            quizOptions.forEach(opt => {
+                let btn = document.createElement('button');
+                btn.className = 'quiz-opt'; btn.innerText = opt.text;
+                btn.onclick = () => {
+                    if(audioPlayer.currentTime > 0 && !audioPlayer.paused && !audioPlayer.ended) {
+                        // ഓഡിയോ ഓടിക്കൊണ്ടിരിക്കുമ്പോൾ ക്ലിക്ക് തടയാൻ
+                        return;
+                    }
+                    checkQuizAnswer(opt.text);
+                };
+                optionsContainer.appendChild(btn);
+            });
+
+            playQuizAudio();
+        }
+
+        function playQuizAudio() {
+            if(targetWord && targetWord.audioSrc) {
+                audioPlayer.src = targetWord.audioSrc + '?t=' + Date.now();
+                audioPlayer.play().catch(e => console.log(e));
+            }
+        }
+
+        // ⚠️ ക്വിസ് ഉത്തരം പരിശോധിക്കുന്ന ഭാഗം
+        function checkQuizAnswer(selectedText) {
+            audioPlayer.pause();
+            
+            if(selectedText === targetWord.text) {
+                alert("🎉 ശരിയാണ്! വളരെ മിടുക്കൻ.");
+                currentQuizWordIdx++; 
+                generateQuizQuestion();
+            } else {
+                // 🛑 ഉത്തരം തെറ്റിയാൽ - ടൈമർ നിർത്തുക, ആദ്യ സ്ക്രീനിലേക്ക് (ലോഗിൻ) മടങ്ങുക!
+                quizPenaltyPoints += 1; 
+                clearInterval(gameTimerInterval);
+                alert(`❌ അയ്യോ തെറ്റിപ്പോയി! നിബന്ധന പ്രകാരം കളി തോറ്റിരിക്കുന്നു. ഇനി ആദ്യത്തെ സ്ക്രീനിൽ നിന്ന് പേര് സെലക്ട് ചെയ്ത് വീണ്ടും തുടങ്ങുക!`);
+                
+                logout(); // പേര് സെലക്ട് ചെയ്യുന്ന ഭാഗത്തേക്ക് മാറ്റുന്നു
+            }
+        }
+
+        function setCertificateBaseDetails() {
+            let madrasa = document.getElementById('appMadrasaSelect').value;
+            let cls = document.getElementById('appClassInput').value || "---";
+            let prt = document.getElementById('appPartInput').value || "---";
+            let subj = document.getElementById('appSubjectInput').value || "---";
+            
+            let now = new Date();
+            let dateTimeStr = now.toLocaleDateString('ml-IN') + ' ' + now.toLocaleTimeString('ml-IN', {hour: '2-digit', minute:'2-digit'});
+
+            document.getElementById('cName').innerText = currentStudent;
+            document.getElementById('cMadrasa').innerText = madrasa;
+            document.getElementById('cClassPart').innerText = `${cls} (${prt})`;
+            document.getElementById('cSubject').innerText = subj;
+            document.getElementById('cDateTime').innerText = dateTimeStr;
+        }
+
+        function showFinalQuizCertificate() {
+            clearInterval(gameTimerInterval); 
+            setCertificateBaseDetails();
+            
+            let certBox = document.getElementById('certBox');
+            
+            document.getElementById('certBodyText').innerText = `ആപ്പിൽ നൽകിയിട്ടുള്ള മുഴുവൻ പാഠങ്ങളിലെയും ആകെ ${quizWordsPool.length} വാക്കുകളും റിവിഷൻ പൂർത്തിയാക്കിയ ശേഷം വിജയകരമായി കേട്ട് കണ്ടെത്തി ക്വിസ്സ് വിജയിച്ചിരിക്കുന്നു.`;
+            
+            document.getElementById('cTimeSpent').innerText = `${gameTotalSeconds} സെക്കൻഡ്`;
+            document.getElementById('cTotalTries').innerText = `${quizPenaltyPoints} തവണ`;
+            
+            // 🎯 പോയിന്റ് ഫോർമുല: 1000 ബേസ്. ഓരോ സെക്കൻഡിനും 1 വീതം കുറയും, ഓരോ തെറ്റിനും 10 വീതം.
+            let baseReward = 1000;
+            let penaltyDeduction = quizPenaltyPoints * 10;
+            let timeDeduction = gameTotalSeconds * 1;
+            let finalAppScore = baseReward - penaltyDeduction - timeDeduction;
+
+            if (finalAppScore < 0) finalAppScore = 0;
+
+            // പോയിന്റ് മെമ്മറിയിലേക്ക് സേവ് ചെയ്യുക
+            studentPointsMemory = finalAppScore;
+            savePointsToStorage();
+
+            certBox.style.border = "6px double #2ecc71";
+            certBox.style.background = "#f4fbf7";
+            document.getElementById('certScoreText').innerHTML = `🎯 ലഭിച്ച സ്കോർ: <span style="color:#2ecc71; font-weight:bold;">+${finalAppScore} പോയിന്റ്</span>`;
+
+            showScreen('certificateScreen');
+        }
+
+        loadAppData();
+    </script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>സൗണ്ട് ബുക്ക് - അഡ്വാൻസ്ഡ് അഡ്മിൻ (GitHub Auto-Sync)</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
+        .admin-box { background: white; max-width: 500px; margin: 10px auto; padding: 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: left; }
+        h2, h4 { text-align: center; color: #2c3e50; margin-top: 5px; }
+        .section { background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ddd; }
+        input[type="text"], select, input[type="file"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .arabic-input { direction: rtl; font-size: 20px; font-family: 'Traditional Arabic', 'Courier New', sans-serif; text-align: right; border: 2px solid #2ecc71 !important; }
+        .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; }
+        .image-container img { display: block; width: 100%; height: auto; pointer-events: none; }
+        
+        /* 🟥 റീസൈസ് ചെയ്യാൻ പറ്റുന്ന പുതിയ ബോക്സ് സ്റ്റൈൽ */
+        .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; }
+        /* 📐 ബോക്സിന് താഴെ വലതുഭാഗത്ത് വരുന്ന റീസൈസ് ഹാൻഡിൽ */
+        .resize-handle { position: absolute; width: 14px; height: 14px; background: #e74c3c; right: -7px; bottom: -7px; cursor: se-resize; border-radius: 50%; border: 2px solid white; z-index: 10; }
+        
+        button { color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin: 5px 0; font-weight: bold; width: 100%; font-size: 14px; }
+        .btn-blue { background: #3498db; width: 100%; padding: 12px; }
+        .btn-green { background: #2ecc71; width: 100%; padding: 12px; }
+        .btn-orange { background: #e67e22; width: 100%; padding: 12px; }
+        .btn-record { background: #e74c3c; width: 100%; padding: 12px; }
+        .btn-stop { background: #2c3e50; display: none; width: 100%; padding: 12px; }
+        .btn-danger { background: #e74c3c; padding: 5px 10px; font-size: 12px; width: auto; display: inline-block; margin-left: 5px; }
+        .btn-action { background: #f39c12; padding: 5px 10px; font-size: 12px; width: auto; display: inline-block; }
+        .status-text { font-weight: bold; color: #e74c3c; text-align: center; margin: 5px 0; }
+        #audioPlayback { margin-top: 5px; display: none; width: 100%; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); color: white; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; z-index: 9999; }
+        .page-badge { background: #34495e; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; float: right; }
+        .manage-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+        .hidden-page { opacity: 0.5; background: #f1f2f6; }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loadingOverlay" style="flex-direction: column;">
+        <span id="loadText">📦 GitHub-ൽ നിന്ന് പഴയ ഡാറ്റകൾ ശേഖക്കുന്നു...</span>
+    </div>
+
+    <div class="admin-box" style="border-top: 4px solid #34495e;">
+        <h2>🔑 GitHub കോൺഫിഗറേഷൻ</h2>
+        <label>GitHub Personal Access Token:</label>
+        <input type="password" id="ghToken" placeholder="ghp_xxxxxxxxxxxx എന്ന് തുടങ്ങുന്ന ടോക്കൺ ഇവിടെ നൽകുക" onchange="saveTokenToLocal()">
+        <p style="font-size: 11px; color: #7f8c8d; margin: 0;">(ഈ ടോക്കൺ താങ്കളുടെ ബ്രൗസറിൽ സുരക്ഷിതമായി സേവ് ആയിരിക്കും.)</p>
+    </div>
+    
+    <div class="admin-box">
+        <h2>🏫 മദ്രസ & വിദ്യാർത്ഥി മാനേജ്‌മെന്റ്</h2>
+        <p id="syncStatus" style="color: #27ae60; font-weight: bold; text-align: center; margin: 0; font-size: 13px;">🔄 ഗിറ്റ്ഹബ്ബ് സിങ്ക് ലോഡ് ചെയ്യുന്നു...</p>
+        
+        <div class="section">
+            <h4>1. മദ്രസകൾ നിയന്ത്രിക്കുക:</h4>
+            <input type="text" id="madrasaName" placeholder="മദ്രസയുടെ പേര് എഴുതുക">
+            <button class="btn-blue" onclick="addMadrasaData()">➕ മദ്രസ ലിസ്റ്റിലേക്ക് ചേർക്കുക</button>
+            <div id="madrasaManageList" style="margin-top: 10px; max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px; border-radius: 4px;"></div>
+        </div>
+        
+        <div class="section">
+            <h4>2. കുട്ടികളുടെ പേര് നിയന്ത്രിക്കുക:</h4>
+            <label>മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
+            <select id="madrasaSelect" onchange="loadStudentManageList()"></select>
+            <input type="text" id="studentName" placeholder="കുട്ടിയുടെ പേര് എഴുതുക">
+            <button class="btn-green" onclick="addStudentData()">➕ കുട്ടിയെ ലിസ്റ്റിലേക്ക് ചേർക്കുക</button>
+            <div id="studentManageList" style="margin-top: 10px; max-height: 150px; overflow-y: auto; background: #f9f9f9; padding: 5px; border-radius: 4px;"></div>
+        </div>
+    </div>
+    
+    <div class="admin-box" style="border-top: 4px solid #e67e22;">
+        <h2>📖 പാഠപുസ്തകം നിർമ്മിക്കുക <span class="page-badge" id="pageNumberBadge">ആകെ പേജുകൾ: 0</span> </h2>
+        
+        <div class="section" style="background: #fff3e0; border-color: #ffe0b2;">
+            <h4>📚 നിലവിലുള്ള പേജുകളുടെ ലിസ്റ്റ്:</h4>
+            <div id="existingPagesList" style="max-height: 150px; overflow-y: auto; background: #fff; padding: 5px; border-radius: 4px; border: 1px solid #ffcc80;"></div>
+        </div>
+        
+        <div class="section">
+            <h4>🆕 പുതിയ പേജ് ചേർക്കുക:</h4>
+            <input type="file" id="imageUploader" accept="image/*">
+            
+            <div id="mappingSection" style="display:none;">
+                <div style="background: #e8f4fd; padding: 10px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #bce0fd;">
+                    <label style="font-weight: bold; color: #2980b9;">📚 ഈ പേജ് ഏത് പാഠത്തിന്റെ ഭാഗമാണ്? (Lesson Number):</label>
+                    <input type="number" id="lessonNum" value="1" min="1">
+                </div>
+                
+                <p style="color: #2c3e50; font-weight: bold; text-align:center; font-size:13px;">📱 ചിത്രത്തിൽ ക്ലിക്ക് ചെയ്ത ശേഷം വശങ്ങളിൽ പിടിച്ച് വലിച്ച് (Drag) സൈസ് ക്രമീകരിക്കുക:</p>
+                <div class="image-container" id="imageContainer" mousedown="onContainerMouseDown(event)" touchstart="onContainerTouchStart(event)">
+                    <img id="bookImg" src="" alt="Book Page">
+                    <div class="selection-box" id="selectionBox">
+                        <div class="resize-handle" id="resizeHandle"></div>
+                    </div>
+                </div>
+                
+                <div style="background: #ebfcf2; padding: 10px; border-radius: 4px; margin: 10px 0; border: 1px solid #c3f3d7;">
+                    <label style="font-weight: bold; color: #27ae60; display:block; text-align:left;">✍️ ഈ വാക്കിന്റെ അറബിക് ടെക്സ്റ്റ് (ഓപ്ഷണൽ - ക്വിസ്സിന് വേണ്ടി):</label>
+                    <input type="text" id="arabicText" class="arabic-input" placeholder="ڪَتَبَ (ആവശ്യമെങ്കിൽ മാത്രം)">
+                </div>
+                
+                <button type="button" class="btn-record" id="startBtn" onclick="startRecording()">🎤 റെക്കോർഡിംഗ് തുടങ്ങുക</button>
+                <button type="button" class="btn-stop" id="stopBtn" onclick="stopRecording()">🛑 റെക്കോർഡിംഗ് നിർത്തുക</button>
+                <p class="status-text" id="recordStatus"></p>
+                <audio id="audioPlayback" controls></audio>
+                
+                <button type="button" class="btn-blue" onclick="saveWordZone()">💾 ഈ വാക്ക് ലിങ്ക് ചെയ്യുക</button>
+                <h4 id="zoneCount" style="color: #7f8c8d; text-align:center; margin: 5px 0;">(0 വാക്കുകൾ ചേർത്തു)</h4>
+                
+                <button type="button" class="btn-orange" style="margin-top:15px;" onclick="addNextPageToMemory()">➕ ഈ പേജ് സേവ് ചെയ്ത് ലിസ്റ്റിലേക്ക് മാറ്റുക</button>
+            </div>
+        </div>
+        
+        <hr style="margin: 20px 0; border: 1px dashed #ccc;">
+        <button class="btn-green" style="font-size:16px; width: 100%; padding: 15px;" onclick="publishToGitHubDirectly()">🚀 പുതിയ മാറ്റങ്ങൾ നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യുക</button>
+        <h4 id="totalAddedPagesText" style="color: #27ae60; text-align:center; margin-top:5px;">(നിലവിൽ 0 പേജുകൾ തയാറായിട്ടുണ്ട്)</h4>
+    </div>
+
+    <script>
+        // 🛠️ GitHub വിവരങ്ങൾ
+        const GH_USER = "zain-zain22";
+        const GH_REPO = "sound-book-admin";
+        const GH_BRANCH = "main";
+
+        let masterSchoolData = {};
+        let allPagesMemory = [];
+        let currentZones = [];
+        let currentAudioBlobs = [];
+        let selectedImageFile = null;
+
+        // ബോക്സിന്റെ അളവുകൾ കൈകാര്യം ചെയ്യാനുള്ള വേരിയബിളുകൾ
+        let pctLeft = 0, pctTop = 0;
+        let pctWidth = 15, pctHeight = 6; // സ്റ്റാർട്ടിങ് സൈസ്
+        let isResizing = false;
+
+        window.onload = function() {
+            if(localStorage.getItem('gh_token')) {
+                document.getElementById('ghToken').value = localStorage.getItem('gh_token');
+            }
+            loadOldDataFromGitHub();
+        }
+
+        function saveTokenToLocal() {
+            let tok = document.getElementById('ghToken').value.trim();
+            localStorage.setItem('gh_token', tok);
+        }
+
+        async function loadOldDataFromGitHub() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+            try {
+                let res1 = await fetch('data/master_list.json?t=' + Date.now());
+                if(res1.ok) masterSchoolData = await res1.json();
+            } catch (e) {}
+            try {
+                let res2 = await fetch('data/data_book.json?t=' + Date.now());
+                if(res2.ok) {
+                    let oldBook = await res2.json();
+                    if(oldBook && Array.isArray(oldBook.pages)) {
+                        allPagesMemory = oldBook.pages;
+                    }
+                }
+            } catch(e) {}
+            loadDropdowns();
+            loadMadrasaManageList();
+            loadStudentManageList();
+            renderExistingPagesList();
+            document.getElementById('syncStatus').innerText = "✅ ഗിറ്റ്ഹബ്ബ് ഡാറ്റ സിങ്ക് പൂർത്തിയായി!";
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function loadDropdowns() {
+            const m1 = document.getElementById('madrasaSelect');
+            m1.innerHTML = '';
+            Object.keys(masterSchoolData).sort().forEach(madrasa => {
+                let opt = document.createElement('option');
+                opt.value = madrasa;
+                opt.innerText = madrasa;
+                m1.appendChild(opt);
+            });
+        }
+
+        function loadMadrasaManageList() {
+            let container = document.getElementById('madrasaManageList');
+            container.innerHTML = '';
+            Object.keys(masterSchoolData).sort().forEach(m => {
+                let div = document.createElement('div');
+                div.className = 'manage-item';
+                div.innerHTML = `<span>🏫 ${m}</span> <button class="btn-danger" onclick="deleteMadrasa('${m}')">🗑️</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function addMadrasaData() {
+            let name = document.getElementById('madrasaName').value.trim();
+            if(!name) return alert("പേര് നൽകുക!");
+            if(masterSchoolData[name]) return alert("ഈ മദ്രസ നിലവിലുണ്ട്!");
+            masterSchoolData[name] = [];
+            document.getElementById('madrasaName').value = '';
+            loadDropdowns();
+            loadMadrasaManageList();
+        }
+
+        function deleteMadrasa(name) {
+            if(confirm(`തീർച്ചയായും ${name} മദ്രസയും ഒഴിവാക്കണോ?`)) {
+                delete masterSchoolData[name];
+                loadDropdowns();
+                loadMadrasaManageList();
+                loadStudentManageList();
+            }
+        }
+
+        function loadStudentManageList() {
+            let container = document.getElementById('studentManageList');
+            container.innerHTML = '';
+            let madrasa = document.getElementById('madrasaSelect').value;
+            if(!madrasa || !masterSchoolData[madrasa]) return;
+            masterSchoolData[madrasa].sort().forEach(student => {
+                let div = document.createElement('div');
+                div.className = 'manage-item';
+                div.innerHTML = `<span>👤 ${student}</span> <button class="btn-danger" onclick="deleteStudent('${madrasa}', '${student}')">🗑️</button>`;
+                container.appendChild(div);
+            });
+        }
+
+        function addStudentData() {
+            let madrasa = document.getElementById('madrasaSelect').value;
+            let student = document.getElementById('studentName').value.trim();
+            if(!madrasa) return alert("ആദ്യം മദ്രസ തിരഞ്ഞെടുക്കുക!");
+            if(!student) return alert("പേര് എഴുതുക!");
+            if(masterSchoolData[madrasa].includes(student)) return alert("ഈ കുട്ടി നിലവിലുണ്ട്!");
+            masterSchoolData[madrasa].push(student);
+            document.getElementById('studentName').value = '';
+            loadStudentManageList();
+        }
+
+        function deleteStudent(madrasa, student) {
+            if(confirm(`തീർച്ചയായും ${student} എന്ന കുട്ടിയെ ഒഴിവാക്കണോ?`)) {
+                masterSchoolData[madrasa] = masterSchoolData[madrasa].filter(s => s !== student);
+                loadStudentManageList();
+            }
+        }
+
+        function renderExistingPagesList() {
+            let container = document.getElementById('existingPagesList');
+            container.innerHTML = '';
+            if(allPagesMemory.length === 0) {
+                container.innerHTML = '<p style="font-size:12px; color:#999; text-align:center;">പേജുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
+                return;
+            }
+            allPagesMemory.forEach((page, idx) => {
+                let div = document.createElement('div');
+                div.className = 'manage-item' + (page.hidden ? ' hidden-page' : '');
+                let pageNum = idx + 1;
+                let lessonNum = page.lesson || 1;
+                div.innerHTML = `
+                    <div><b>പേജ് ${pageNum}</b> <span style="color:#3498db;">(പാഠം: ${lessonNum})</span></div>
+                    <div>
+                        <button class="btn-action" onclick="toggleHidePage(${idx})">${page.hidden ? '🔓 Show' : '👁️ Hide'}</button>
+                        <button class="btn-danger" onclick="deletePage(${idx})">🗑️ Delete</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('pageNumberBadge').innerText = `ആകെ പേജുകൾ: ${allPagesMemory.length}`;
+            document.getElementById('totalAddedPagesText').innerText = `(നിലവിൽ ${allPagesMemory.length} പേജുകൾ തയാറായിട്ടുണ്ട്)`;
+            if(allPagesMemory.length > 0) {
+                document.getElementById('lessonNum').value = allPagesMemory[allPagesMemory.length - 1].lesson || 1;
+            }
+        }
+
+        function toggleHidePage(index) {
+            allPagesMemory[index].hidden = !allPagesMemory[index].hidden;
+            renderExistingPagesList();
+        }
+
+        function deletePage(index) {
+            if(confirm(`തീർച്ചയായും പേജ് ${index + 1} ഡിലീറ്റ് ചെയ്യണോ?`)) {
+                allPagesMemory.splice(index, 1);
+                renderExistingPagesList();
+            }
+        }
+
+        let mediaRecorder;
+        let audioChunks = [];
+        const imageUploader = document.getElementById('imageUploader');
+        const bookImg = document.getElementById('bookImg');
+        const selectionBox = document.getElementById('selectionBox');
+        const imgContainer = document.getElementById('imageContainer');
+
+        imageUploader.addEventListener('change', function(e) {
+            selectedImageFile = e.target.files[0];
+            if(!selectedImageFile) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                bookImg.onload = function() {
+                    document.getElementById('mappingSection').style.display = 'block';
+                    selectionBox.style.display = 'none';
+                    pctWidth = 15; pctHeight = 6; // സൈസ് റീസെറ്റ് ചെയ്യുന്നു
+                }
+                bookImg.src = event.target.result;
+            }
+            reader.readAsDataURL(selectedImageFile);
+        });
+
+        // 🟥 റീസൈസബിൾ ബോക്സ് ഇവന്റുകൾ (Mouse & Touch) 🟥
+        function onContainerMouseDown(e) {
+            if (e.target.id === 'resizeHandle') {
+                e.preventDefault();
+                isResizing = true;
+                window.addEventListener('mousemove', onWindowMouseMove);
+                window.addEventListener('mouseup', onWindowMouseUp);
+            } else {
+                createNewBox(e.clientX, e.clientY);
+            }
+        }
+
+        function onWindowMouseMove(e) {
+            if (!isResizing) return;
+            resizeBoxProcess(e.clientX, e.clientY);
+        }
+
+        function onWindowMouseUp() {
+            isResizing = false;
+            window.removeEventListener('mousemove', onWindowMouseMove);
+            window.removeEventListener('mouseup', onWindowMouseUp);
+        }
+
+        function onContainerTouchStart(e) {
+            if (e.target.id === 'resizeHandle') {
+                e.preventDefault();
+                isResizing = true;
+                window.addEventListener('touchmove', onWindowTouchMove, { passive: false });
+                window.addEventListener('touchend', onWindowTouchEnd);
+            } else {
+                let touch = e.touches[0];
+                createNewBox(touch.clientX, touch.clientY);
+            }
+        }
+
+        function onWindowTouchMove(e) {
+            if (!isResizing) return;
+            e.preventDefault();
+            let touch = e.touches[0];
+            resizeBoxProcess(touch.clientX, touch.clientY);
+        }
+
+        function onWindowTouchEnd() {
+            isResizing = false;
+            window.removeEventListener('touchmove', onWindowTouchMove);
+            window.removeEventListener('touchend', onWindowTouchEnd);
+        }
+
+        function createNewBox(clientX, clientY) {
+            const rect = imgContainer.getBoundingClientRect();
+            let clickX = clientX - rect.left;
+            let clickY = clientY - rect.top;
+            
+            pctLeft = ((clickX / rect.width) * 100) - (pctWidth / 2);
+            pctTop = ((clickY / rect.height) * 100) - (pctHeight / 2);
+            
+            if(pctLeft < 0) pctLeft = 0;
+            if(pctTop < 0) pctTop = 0;
+
+            drawSelectionBox();
+        }
+
+        function resizeBoxProcess(clientX, clientY) {
+            const rect = imgContainer.getBoundingClientRect();
+            let currentXpct = ((clientX - rect.left) / rect.width) * 100;
+            let currentYpct = ((clientY - rect.top) / rect.height) * 100;
+            
+            let newWidth = currentXpct - pctLeft;
+            let newHeight = currentYpct - pctTop;
+            
+            if (newWidth > 3) pctWidth = newWidth;
+            if (newHeight > 2) pctHeight = newHeight;
+            
+            drawSelectionBox();
+        }
+
+        function drawSelectionBox() {
+            selectionBox.style.left = pctLeft + '%';
+            selectionBox.style.top = pctTop + '%';
+            selectionBox.style.width = pctWidth + '%';
+            selectionBox.style.height = pctHeight + '%';
+            selectionBox.style.display = 'block';
+        }
+
+        // --- റെക്കോർഡിംഗ് ലോജിക് ---
+        function startRecording() {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.start();
+                audioChunks = [];
+                mediaRecorder.addEventListener("dataavailable", event => audioChunks.push(event.data));
+                mediaRecorder.addEventListener("stop", () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
+                    currentAudioBlobs.push(audioBlob);
+                    document.getElementById('audioPlayback').src = URL.createObjectURL(audioBlob);
+                    document.getElementById('audioPlayback').style.display = 'block';
+                });
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('stopBtn').style.display = 'block';
+                document.getElementById('recordStatus').innerText = "🔴 റെക്കോർഡ് ചെയ്യുന്നു...";
+            }).catch(() => alert("മൈക്ക് ഓൺ ചെയ്യുക!"));
+        }
+
+        function stopRecording() {
+            mediaRecorder.stop();
+            document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
+        }
+
+        function saveWordZone() {
+            let arabic = document.getElementById('arabicText').value.trim(); 
+            
+            if (selectionBox.style.display === 'none') return alert("ചിത്രത്തിൽ തൊടുക!");
+            if (currentAudioBlobs.length === 0 || currentAudioBlobs.length <= currentZones.length) return alert("ഓഡിയോ റെക്കോർഡ് ചെയ്യുക!");
+            
+            let isTextAlreadyExists = false;
+            if (arabic !== "") {
+                allPagesMemory.forEach(page => {
+                    if (page.zones && Array.isArray(page.zones)) {
+                        page.zones.forEach(zone => {
+                            if (zone.text && zone.text.trim() === arabic) {
+                                isTextAlreadyExists = true;
+                            }
+                        });
+                    }
+                });
+                
+                currentZones.forEach(zone => {
+                    if (zone.text && zone.text.trim() === arabic) {
+                        isTextAlreadyExists = true;
+                    }
+                });
+            }
+
+            if (isTextAlreadyExists) {
+                arabic = ""; 
+                alert("⚠️ ഈ വാക്ക് നിലവിലുള്ള പാഠങ്ങളിൽ നൽകിയിട്ടുള്ളതാണ്! അതിനാൽ ഇതിന്റെ ടെക്സ്റ്റ് ഒഴിവാക്കി ഓഡിയോ റെക്കോർഡ് മാത്രം വിജയകരമായി ലിങ്ക് ചെയ്യുന്നു.");
+            }
+            
+            currentZones.push({ 
+                coords: { left: pctLeft, top: pctTop, width: pctWidth, height: pctHeight }, 
+                text: arabic, 
+                localAudioIndex: currentAudioBlobs.length - 1 
+            });
+            
+            document.getElementById('zoneCount').innerText = `(${currentZones.length} വാക്കുകൾ ചേർത്തു)`;
+            document.getElementById('audioPlayback').style.display = 'none';
+            document.getElementById('recordStatus').innerText = "";
+            document.getElementById('arabicText').value = ""; 
+            selectionBox.style.display = 'none';
+            if (!isTextAlreadyExists) {
+                alert("🎯 വാക്ക് വിജയകരമായി ലിങ്ക് ചെയ്തു!");
+            }
+        }
+
+        function addNextPageToMemory() {
+            let lesson = parseInt(document.getElementById('lessonNum').value);
+            if(!lesson || lesson < 1) return alert("ദയവായി ശരിയായ പാഠം നമ്പർ നൽകുക!");
+            if(!selectedImageFile || currentZones.length === 0) return alert("ചിത്രവും വാക്കും ചേർക്കുക!");
+            
+            allPagesMemory.push({
+                isNewPage: true,
+                imageFile: selectedImageFile,
+                lesson: lesson,
+                zones: currentZones,
+                audioBlobs: currentAudioBlobs,
+                hidden: false
+            });
+            alert(`ഈ പേജ് വിജയകരമായി പാഠം ${lesson}-ലേക്ക് മാറ്റി!`);
+            currentZones = [];
+            currentAudioBlobs = [];
+            selectedImageFile = null;
+            document.getElementById('imageUploader').value = '';
+            document.getElementById('mappingSection').style.display = 'none';
+            document.getElementById('zoneCount').innerText = "(0 വാക്കുകൾ ചേർത്തു)";
+            renderExistingPagesList();
+        }
+
+        async function fetchFileAsBlob(url) {
+            let response = await fetch(url + '?t=' + Date.now());
+            if (!response.ok) throw new Error(`ഫയൽ ലഭ്യമല്ല: ${url}`);
+            return await response.blob();
+        }
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        }
+
+        async function uploadToGitHubAPI(path, blobData, token) {
+            const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${path}`;
+            const base64Content = await blobToBase64(blobData);
+            
+            let sha = null;
+            try {
+                let checkRes = await fetch(url, {
+                    headers: { "Authorization": `token ${token}` }
+                });
+                if(checkRes.ok) {
+                    let checkData = await checkRes.json();
+                    sha = checkData.sha;
+                }
+            } catch(e) {}
+
+            let bodyObj = {
+                message: `Admin auto-update: ${path}`,
+                content: base64Content,
+                branch: GH_BRANCH
+            };
+            if(sha) bodyObj.sha = sha;
+
+            let res = await fetch(url, {
+                method: "PUT",
+                headers: {
+                    "Authorization": `token ${token}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(bodyObj)
+            });
+
+            if(!res.ok) {
+                let errText = await res.text();
+                throw new Error(`GitHub Upload Failed for ${path}: ${errText}`);
+            }
+        }
+
+        // 🚀 GitHub Direct Auto-Sync ലോജിക്
+        async function publishToGitHubDirectly() {
+            let token = document.getElementById('ghToken').value.trim();
+            if(!token) return alert("ദയവായി ആദ്യം താങ്കളുടെ GitHub ടോക്കൺ മുകളിൽ നൽകുക!");
+            if(allPagesMemory.length === 0) return alert("കുറഞ്ഞത് ഒരു പേജ് എങ്കിലും ഉണ്ടാകണം!");
+            
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.style.display = 'flex';
+            
+            try {
+                document.getElementById('loadText').innerText = "📝 മദ്രസ ലിസ്റ്റ് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യുന്നു...";
+                let masterBlob = new Blob([JSON.stringify(masterSchoolData, null, 2)], {type: "application/json"});
+                await uploadToGitHubAPI("data/master_list.json", masterBlob, token);
+
+                let pagesJsonArray = [];
+                let globalAudioIdx = 0;
+                
+                for(let p = 0; p < allPagesMemory.length; p++) {
+                    let pageItem = allPagesMemory[p];
+                    let zipImgName = `page_${p}_image.jpg`;
+                    
+                    document.getElementById('loadText').innerText = `📸 പേജ് ${p + 1} ചിത്രങ്ങൾ അപ്‌ലോഡ് ചെയ്യുന്നു...`;
+
+                    if(pageItem.isNewPage) {
+                        await uploadToGitHubAPI(`data/${zipImgName}`, pageItem.imageFile, token);
+                    } else {
+                        zipImgName = pageItem.image.split('/').pop().split('?')[0];
+                    }
+                    
+                    let updatedZones = [];
+                    for(let z = 0; z < pageItem.zones.length; z++) {
+                        let zoneItem = pageItem.zones[z];
+                        let zipAudioName = `audio_global_${globalAudioIdx}.mp3`;
+                        
+                        if(pageItem.isNewPage) {
+                            document.getElementById('loadText').innerText = `🎙️ പേജ് ${p + 1} - ഓഡിയോ ${z + 1} അപ്‌ലോഡ് ചെയ്യുന്നു...`;
+                            let audioBlob = pageItem.audioBlobs[zoneItem.localAudioIndex];
+                            await uploadToGitHubAPI(`data/${zipAudioName}`, audioBlob, token);
+                        } else {
+                            zipAudioName = zoneItem.audioSrc.split('/').pop().split('?')[0];
+                        }
+                        globalAudioIdx++;
+                        
+                        updatedZones.push({
+                            coords: zoneItem.coords,
+                            text: zoneItem.text || "", 
+                            audioSrc: `data/${zipAudioName}`
+                        });
+                    }
+                    
+                    pagesJsonArray.push({
+                        image: `data/${zipImgName}`,
+                        lesson: pageItem.lesson || 1,
+                        zones: updatedZones,
+                        hidden: pageItem.hidden ? true : false
+                    });
+                }
+                
+                document.getElementById('loadText').innerText = "📖 പാഠപുസ്തക വിവരങ്ങൾ അപ്ഡേറ്റ് ചെയ്യുന്നു...";
+                let currentTimestamp = Date.now(); 
+                let finalBookDataObject = {
+                    version: currentTimestamp, 
+                    pages: pagesJsonArray
+                };
+                let bookBlob = new Blob([JSON.stringify(finalBookDataObject, null, 2)], {type: "application/json"});
+                await uploadToGitHubAPI("data/data_book.json", bookBlob, token);
+
+                overlay.style.display = 'none';
+                alert("🎉 വിജയകരം! എല്ലാ മാറ്റങ്ങളും നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യപ്പെട്ടു. കുട്ടികളുടെ ആപ്പിൽ മാറ്റങ്ങൾ ഉടൻ തന്നെ പ്രതിഫലിക്കും.");
+                window.location.reload();
+
+            } catch (error) {
+                console.error(error);
+                overlay.style.display = 'none';
+                alert("❌ അപ്‌ലോഡ് പരാജയപ്പെട്ടു! വിശദവിവരം: " + error.message);
+            }
+        }
+    </script>
+</body>
+</html>

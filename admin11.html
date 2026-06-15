@@ -12,13 +12,15 @@
         .section { background: #f9f9f9; padding: 12px; border-radius: 6px; margin-bottom: 15px; border: 1px solid #ddd; }
         input[type="text"], select, input[type="file"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         .arabic-input { direction: rtl; font-size: 20px; font-family: 'Traditional Arabic', 'Courier New', sans-serif; text-align: right; border: 2px solid #2ecc71 !important; }
-        .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; }
-        .image-container img { display: block; width: 100%; height: auto; pointer-events: none; }
+        
+        /* 📸 ഇമേജ് കണ്ടെയ്നർ സ്റ്റൈൽ */
+        .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+        .image-container img { display: block; width: 100%; height: auto; }
         
         /* 🟥 റീസൈസ് ചെയ്യാൻ പറ്റുന്ന പുതിയ ബോക്സ് സ്റ്റൈൽ */
         .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; }
         /* 📐 ബോക്സിന് താഴെ വലതുഭാഗത്ത് വരുന്ന റീസൈസ് ഹാൻഡിൽ */
-        .resize-handle { position: absolute; width: 14px; height: 14px; background: #e74c3c; right: -7px; bottom: -7px; cursor: se-resize; border-radius: 50%; border: 2px solid white; z-index: 10; }
+        .resize-handle { position: absolute; width: 16px; height: 16px; background: #e74c3c; right: -8px; bottom: -8px; cursor: se-resize; border-radius: 50%; border: 2px solid white; z-index: 10; }
         
         button { color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin: 5px 0; font-weight: bold; width: 100%; font-size: 14px; }
         .btn-blue { background: #3498db; width: 100%; padding: 12px; }
@@ -87,8 +89,10 @@
                     <input type="number" id="lessonNum" value="1" min="1">
                 </div>
                 
-                <p style="color: #2c3e50; font-weight: bold; text-align:center; font-size:13px;">📱 ചിത്രത്തിൽ ക്ലിക്ക് ചെയ്ത ശേഷം വശങ്ങളിൽ പിടിച്ച് വലിച്ച് (Drag) സൈസ് ക്രമീകരിക്കുക:</p>
-                <div class="image-container" id="imageContainer" mousedown="onContainerMouseDown(event)" touchstart="onContainerTouchStart(event)">
+                <p style="color: #2c3e50; font-weight: bold; text-align:center; font-size:13px;">📱 ചിത്രത്തിൽ ക്ലിക്ക് ചെയ്ത ശേഷം ചുവന്ന വട്ടത്തിൽ (Handle) പിടിച്ച് വലിച്ച് സൈസ് മാറ്റുക:</p>
+                
+                <!-- 📸 ഈ ഭാഗത്തെ ഇവന്റുകൾ കൂടുതൽ കൃത്യതയുള്ളതാക്കി മാറ്റി -->
+                <div class="image-container" id="imageContainer" onmousedown="onContainerAction(event)" ontouchstart="onContainerAction(event)">
                     <img id="bookImg" src="" alt="Book Page">
                     <div class="selection-box" id="selectionBox">
                         <div class="resize-handle" id="resizeHandle"></div>
@@ -118,7 +122,6 @@
     </div>
 
     <script>
-        // 🛠️ GitHub വിവരങ്ങൾ
         const GH_USER = "zain-zain22";
         const GH_REPO = "sound-book-admin";
         const GH_BRANCH = "main";
@@ -129,9 +132,8 @@
         let currentAudioBlobs = [];
         let selectedImageFile = null;
 
-        // ബോക്സിന്റെ അളവുകൾ കൈകാര്യം ചെയ്യാനുള്ള വേരിയബിളുകൾ
         let pctLeft = 0, pctTop = 0;
-        let pctWidth = 15, pctHeight = 6; // സ്റ്റാർട്ടിങ് സൈസ്
+        let pctWidth = 15, pctHeight = 6; 
         let isResizing = false;
 
         window.onload = function() {
@@ -228,7 +230,7 @@
             let student = document.getElementById('studentName').value.trim();
             if(!madrasa) return alert("ആദ്യം മദ്രസ തിരഞ്ഞെടുക്കുക!");
             if(!student) return alert("പേര് എഴുതുക!");
-            if(masterSchoolData[madrasa].includes(student)) return alert("ഈ കുട്ടി നിലവിലുണ്ട്!");
+            if(masterSchoolData[madrasa].includes(student)) return alert("ഈ куട്ടി നിലവിലുണ്ട്!");
             masterSchoolData[madrasa].push(student);
             document.getElementById('studentName').value = '';
             loadStudentManageList();
@@ -296,62 +298,50 @@
                 bookImg.onload = function() {
                     document.getElementById('mappingSection').style.display = 'block';
                     selectionBox.style.display = 'none';
-                    pctWidth = 15; pctHeight = 6; // സൈസ് റീസെറ്റ് ചെയ്യുന്നു
+                    pctWidth = 15; pctHeight = 6; 
                 }
                 bookImg.src = event.target.result;
             }
             reader.readAsDataURL(selectedImageFile);
         });
 
-        // 🟥 റീസൈസബിൾ ബോക്സ് ഇവന്റുകൾ (Mouse & Touch) 🟥
-        function onContainerMouseDown(e) {
+        // 🟥 മെച്ചപ്പെടുത്തിയ മൗസ്/ടച്ച് ഇവന്റ് ലോജിക് 🟥
+        function onContainerAction(e) {
+            e.stopPropagation();
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
             if (e.target.id === 'resizeHandle') {
                 e.preventDefault();
                 isResizing = true;
-                window.addEventListener('mousemove', onWindowMouseMove);
-                window.addEventListener('mouseup', onWindowMouseUp);
+                window.addEventListener('mousemove', onWindowMove);
+                window.addEventListener('mouseup', onWindowEnd);
+                window.addEventListener('touchmove', onWindowMove, { passive: false });
+                window.addEventListener('touchend', onWindowEnd);
             } else {
-                createNewBox(e.clientX, e.clientY);
+                createNewBox(clientX, clientY);
             }
         }
 
-        function onWindowMouseMove(e) {
+        function onWindowMove(e) {
             if (!isResizing) return;
-            resizeBoxProcess(e.clientX, e.clientY);
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            
+            if(e.type === 'touchmove') e.preventDefault(); 
+            resizeBoxProcess(clientX, clientY);
         }
 
-        function onWindowMouseUp() {
+        function onWindowEnd() {
             isResizing = false;
-            window.removeEventListener('mousemove', onWindowMouseMove);
-            window.removeEventListener('mouseup', onWindowMouseUp);
-        }
-
-        function onContainerTouchStart(e) {
-            if (e.target.id === 'resizeHandle') {
-                e.preventDefault();
-                isResizing = true;
-                window.addEventListener('touchmove', onWindowTouchMove, { passive: false });
-                window.addEventListener('touchend', onWindowTouchEnd);
-            } else {
-                let touch = e.touches[0];
-                createNewBox(touch.clientX, touch.clientY);
-            }
-        }
-
-        function onWindowTouchMove(e) {
-            if (!isResizing) return;
-            e.preventDefault();
-            let touch = e.touches[0];
-            resizeBoxProcess(touch.clientX, touch.clientY);
-        }
-
-        function onWindowTouchEnd() {
-            isResizing = false;
-            window.removeEventListener('touchmove', onWindowTouchMove);
-            window.removeEventListener('touchend', onWindowTouchEnd);
+            window.removeEventListener('mousemove', onWindowMove);
+            window.removeEventListener('mouseup', onWindowEnd);
+            window.removeEventListener('touchmove', onWindowMove);
+            window.removeEventListener('touchend', onWindowEnd);
         }
 
         function createNewBox(clientX, clientY) {
+            if(!clientX || !clientY) return;
             const rect = imgContainer.getBoundingClientRect();
             let clickX = clientX - rect.left;
             let clickY = clientY - rect.top;
@@ -361,11 +351,14 @@
             
             if(pctLeft < 0) pctLeft = 0;
             if(pctTop < 0) pctTop = 0;
+            if(pctLeft + pctWidth > 100) pctLeft = 100 - pctWidth;
+            if(pctTop + pctHeight > 100) pctTop = 100 - pctHeight;
 
             drawSelectionBox();
         }
 
         function resizeBoxProcess(clientX, clientY) {
+            if(!clientX || !clientY) return;
             const rect = imgContainer.getBoundingClientRect();
             let currentXpct = ((clientX - rect.left) / rect.width) * 100;
             let currentYpct = ((clientY - rect.top) / rect.height) * 100;
@@ -373,8 +366,8 @@
             let newWidth = currentXpct - pctLeft;
             let newHeight = currentYpct - pctTop;
             
-            if (newWidth > 3) pctWidth = newWidth;
-            if (newHeight > 2) pctHeight = newHeight;
+            if (newWidth > 3 && (pctLeft + newWidth <= 100)) pctWidth = newWidth;
+            if (newHeight > 2 && (pctTop + newHeight <= 100)) pctHeight = newHeight;
             
             drawSelectionBox();
         }
@@ -387,7 +380,7 @@
             selectionBox.style.display = 'block';
         }
 
-        // --- റെക്കോർഡിംഗ് ലോജിക് ---
+        // --- റെക്കോർഡിംഗ് ഭാഗം ---
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 mediaRecorder = new MediaRecorder(stream);
@@ -534,7 +527,6 @@
             }
         }
 
-        // 🚀 GitHub Direct Auto-Sync ലോജിക്
         async function publishToGitHubDirectly() {
             let token = document.getElementById('ghToken').value.trim();
             if(!token) return alert("ദയവായി ആദ്യം താങ്കളുടെ GitHub ടോക്കൺ മുകളിൽ നൽകുക!");
@@ -602,7 +594,7 @@
                 await uploadToGitHubAPI("data/data_book.json", bookBlob, token);
 
                 overlay.style.display = 'none';
-                alert("🎉 വിജയകരം! എല്ലാ മാറ്റങ്ങളും നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യപ്പെട്ടു. കുട്ടികളുടെ ആപ്പിൽ മാറ്റങ്ങൾ ഉടൻ തന്നെ പ്രതിഫലിക്കും.");
+                alert("🎉 വിജയകരം! എല്ലാ മാറ്റങ്ങളും നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യപ്പെട്ടു.");
                 window.location.reload();
 
             } catch (error) {

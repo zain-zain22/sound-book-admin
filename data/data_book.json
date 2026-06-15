@@ -1,5 +1,5 @@
 {
-  "version": 1781107512039,
+  "version": 1781534091746,
   "pages": [
     {
       "image": "data/page_0_image.jpg",
@@ -319,6 +319,257 @@
           },
           "text": "",
           "audioSrc": "data/audio_global_27.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_6_image.jpg",
+      "lesson": 3,
+      "zones": [
+        {
+          "coords": {
+            "left": 29.741506892101913,
+            "top": 34.85218941273395,
+            "width": 40.101906587938714,
+            "height": 15.045581078270445
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_28.mp3"
+        },
+        {
+          "coords": {
+            "left": 18.52644012041604,
+            "top": 53.429982462741386,
+            "width": 63.23562630012039,
+            "height": 17.572811454255394
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_29.mp3"
+        },
+        {
+          "coords": {
+            "left": 53.7645029754851,
+            "top": 75.25674154333866,
+            "width": 39.320327022765255,
+            "height": 16.225264071487587
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_30.mp3"
+        },
+        {
+          "coords": {
+            "left": 65.94232074967762,
+            "top": 91.45827576838415,
+            "width": 25.880397779171467,
+            "height": 8.541724231615845
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_31.mp3"
+        },
+        {
+          "coords": {
+            "left": 4.678437841167755,
+            "top": 91.39123577166896,
+            "width": 31.701061760280552,
+            "height": 7.183691839851548
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_32.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_7_image.jpg",
+      "lesson": 3,
+      "zones": [
+        {
+          "coords": {
+            "left": 70.05111418210143,
+            "top": 1.4334367235600078,
+            "width": 10.098341198721542,
+            "height": 12.251774110877623
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_33.mp3"
+        },
+        {
+          "coords": {
+            "left": 59.33478208499812,
+            "top": 7.872909487797095,
+            "width": 10.098341198721542,
+            "height": 12.251774110877623
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_34.mp3"
+        },
+        {
+          "coords": {
+            "left": 48.933636226044925,
+            "top": 1.8724921433510922,
+            "width": 10.098341198721542,
+            "height": 12.251774110877623
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_35.mp3"
+        },
+        {
+          "coords": {
+            "left": 37.27174541449134,
+            "top": 6.472115546377582,
+            "width": 10.098341198721542,
+            "height": 12.251774110877623
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_36.mp3"
+        },
+        {
+          "coords": {
+            "left": 25.60985460293776,
+            "top": 2.7087871679659123,
+            "width": 10.098341198721542,
+            "height": 12.251774110877623
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_37.mp3"
+        },
+        {
+          "coords": {
+            "left": 14.893522505834461,
+            "top": 7.141151697665721,
+            "width": 10.098341198721542,
+            "height": 12.251774110877623
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_38.mp3"
+        },
+        {
+          "coords": {
+            "left": 64.75623416037178,
+            "top": 71.52074974629991,
+            "width": 23.839963623681797,
+            "height": 16.25443548774811
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_39.mp3"
+        },
+        {
+          "coords": {
+            "left": 40.48689382281432,
+            "top": 71.98071208660257,
+            "width": 23.839963623681797,
+            "height": 16.25443548774811
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_40.mp3"
+        },
+        {
+          "coords": {
+            "left": 11.804946151155498,
+            "top": 72.4406744269052,
+            "width": 23.839963623681797,
+            "height": 16.25443548774811
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_41.mp3"
+        }
+      ],
+      "hidden": false
+    },
+    {
+      "image": "data/page_8_image.jpg",
+      "lesson": 3,
+      "zones": [
+        {
+          "coords": {
+            "left": 62.12011716467433,
+            "top": 21.582395274989704,
+            "width": 26.5907077098759,
+            "height": 17.89129863331302
+          },
+          "text": "إِنَاء",
+          "audioSrc": "data/audio_global_42.mp3"
+        },
+        {
+          "coords": {
+            "left": 55.903750764808535,
+            "top": 46.245973054173874,
+            "width": 23.264128602102666,
+            "height": 12.895182763442328
+          },
+          "text": "إِ",
+          "audioSrc": "data/audio_global_43.mp3"
+        },
+        {
+          "coords": {
+            "left": 23.754754473498647,
+            "top": 47.44535584569151,
+            "width": 23.264128602102666,
+            "height": 12.895182763442328
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_44.mp3"
+        },
+        {
+          "coords": {
+            "left": 64.54627283352025,
+            "top": 64.89947945827129,
+            "width": 16.065044085482327,
+            "height": 9.4476733778301
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_45.mp3"
+        },
+        {
+          "coords": {
+            "left": 42.48323616301347,
+            "top": 65.15319508600959,
+            "width": 16.065044085482327,
+            "height": 9.4476733778301
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_46.mp3"
+        },
+        {
+          "coords": {
+            "left": 18.529082063606104,
+            "top": 65.15319508600959,
+            "width": 16.065044085482327,
+            "height": 9.4476733778301
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_47.mp3"
+        },
+        {
+          "coords": {
+            "left": 63.91590035722005,
+            "top": 79.8687014948301,
+            "width": 16.065044085482327,
+            "height": 9.4476733778301
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_48.mp3"
+        },
+        {
+          "coords": {
+            "left": 42.16804992486337,
+            "top": 80.37613275030668,
+            "width": 16.065044085482327,
+            "height": 9.4476733778301
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_49.mp3"
+        },
+        {
+          "coords": {
+            "left": 16.637964634705522,
+            "top": 79.6149858670918,
+            "width": 16.065044085482327,
+            "height": 9.4476733778301
+          },
+          "text": "",
+          "audioSrc": "data/audio_global_50.mp3"
         }
       ],
       "hidden": false

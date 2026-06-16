@@ -50,9 +50,11 @@
         .dev-footer { font-size: 11px; color: #7f8c8d; font-weight: bold; margin-top: 25px; border-top: 1px dashed #ddd; padding-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
         .cert-footer { font-size: 12px; color: #555; font-weight: bold; margin-top: 15px; border-top: 1px solid #ccc; padding-top: 8px; }
 
-        /* ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് ആനിമേഷൻ ഡിസ്‌പ്ലേ ബോക്‌സ് സ്റ്റൈൽ */
-        .hw-anim-box { position: absolute; background: white; border: 2px solid #8e44ad; box-shadow: 0 4px 12px rgba(0,0,0,0.25); border-radius: 8px; display: none; z-index: 99; overflow: hidden; pointer-events: none; }
-        .hw-anim-svg { width: 100%; height: 100%; background: #fafafa; }
+        /* ✍️ ക്വിസ് ശരിയാകുമ്പോൾ വരാനുള്ള ഹാൻഡ്‌റൈറ്റിംഗ് പോപ്പ്അപ്പ് പ്ലെയർ */
+        .quiz-hw-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 999; }
+        .quiz-hw-player { background: white; width: 90%; max-width: 400px; padding: 20px; border-radius: 15px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); animation: popIn 0.3s ease-out; }
+        .quiz-hw-svg { width: 100%; height: 220px; background: #fafafa; border: 2px dashed #9b59b6; border-radius: 10px; margin-top: 15px; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
@@ -71,7 +73,7 @@
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
                     <label>ക്ലാസ്സ്:</label>
-                    <input type="text" id="appClassInput" placeholder="ഉദാ: 2 A">
+                    <input text="text" id="appClassInput" placeholder="ഉദാ: 2 A">
                 </div>
                 <div style="flex: 1;">
                     <label>പാർട്ട്:</label>
@@ -106,11 +108,6 @@
             <div class="reading-container" id="revisionContainer">
                 <img id="revisionImg" class="reading-page-img" src="" alt="Page">
                 <div class="highlight-box" id="wordHighlightBox"></div>
-                
-                <!-- ✍️ ആനിമേഷൻ കാണിക്കാനുള്ള ബോക്സ് -->
-                <div class="hw-anim-box" id="hwAnimOverlay">
-                    <svg class="hw-anim-svg" id="hwAnimSvg" viewBox="0 0 2000 2000"></svg>
-                </div>
             </div>
             
             <div style="margin-top:15px;">
@@ -136,6 +133,14 @@
             <div class="quiz-grid" id="quizOptionsContainer"></div>
             
             <button class="back-home" style="margin-top:25px;" onclick="stopActivityGameTimer()">🛑 ഗെയിം നിർത്തുക</button>
+            
+            <div id="quizHwOverlay" class="quiz-hw-overlay hidden">
+                <div class="quiz-hw-player">
+                    <h2 style="color: #2ecc71; margin: 0;">🎉 ശരിയാണ്! വളരെ മിടുക്കൻ.</h2>
+                    <p style="color: #7f8c8d; font-size: 14px; margin: 5px 0 0 0;">ഈ വാക്ക് എഴുതുന്നത് എങ്ങനെയെന്ന് നോക്കൂ:</p>
+                    <svg class="quiz-hw-svg" id="quizHwSvg" viewBox="0 0 2000 2000"></svg>
+                </div>
+            </div>
             
             <div class="dev-footer">Developed by salmanul faris zaini mannarkkad<br>9895993822</div>
         </div>
@@ -195,7 +200,7 @@
         let gameTimerInterval = null;
         let gameTotalSeconds = 0;
 
-        // --- ഹാൻഡ്‌റൈറ്റിംഗ് ആനിമേഷൻ ടൈമർ വേരിയബിൾ ---
+        // --- ഹാൻഡ്‌റൈറ്റിംഗ് ടൈമർ വേരിയബിൾ ---
         let hwAnimTimers = [];
 
         audioPlayer.addEventListener('play', () => {
@@ -308,7 +313,7 @@
             });
             document.getElementById(id).classList.remove('hidden');
             audioPlayer.pause();
-            clearHwAnimation(); // സ്ക്രീൻ മാറുമ്പോൾ റൺ ചെയ്യുന്ന ആനിമേഷനുകൾ കളയുന്നു
+            clearHwAnimation(); 
 
             if (id === 'revisionBookScreen' || id === 'activityScreen') {
                 document.body.style.overflow = "hidden";
@@ -363,17 +368,14 @@
             }
         }
 
-        // ✍️ പഴയ ആനിമേഷൻ ടൈമറുകളും ഡ്രോയിംഗുകളും ക്ലിയർ ചെയ്യുന്ന ഫങ്ക്ഷൻ
         function clearHwAnimation() {
             hwAnimTimers.forEach(t => clearTimeout(t));
             hwAnimTimers = [];
-            document.getElementById('hwAnimSvg').innerHTML = "";
-            document.getElementById('hwAnimOverlay').style.display = "none";
+            document.getElementById('quizHwSvg').innerHTML = "";
+            document.getElementById('quizHwOverlay').classList.add('hidden');
         }
 
         function playAndHighlightWord() {
-            clearHwAnimation(); // പുതിയത് തുടങ്ങുന്നതിന് മുൻപ് പഴയത് ക്ലിയർ ചെയ്യുന്നു
-
             let page = revisionPagesList[currentRevIdx];
             let zone = page.zones[currentZoneIdx];
             let box = document.getElementById('wordHighlightBox');
@@ -389,77 +391,11 @@
             box.style.height = zone.coords.height + '%';
             box.style.display = 'block';
 
-            // ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് ഡാറ്റ ലഭ്യമാണെങ്കിൽ അത് ആനിമേറ്റ് ചെയ്തു കാണിക്കുന്നു
-            if (zone.writingPaths && Array.isArray(zone.writingPaths) && zone.writingPaths.length > 0) {
-                animateHandwriting(zone.writingPaths, zone.coords);
-            }
-
             audioPlayer.src = zone.audioSrc + '?t=' + Date.now();
             audioPlayer.play().catch(e => {
                 console.log("Audio play deferred or failed", e);
                 isWordAudioFinished = true;
                 disableNextWordButton(false); 
-            });
-        }
-
-        // ✍️ അഡ്മിൻ പാനലിലെ സ്ട്രോക്കുകൾ അതേപടി ഇവിടെ ലൈവ് ആയി വരച്ചു കാണിക്കുന്ന ആനിമേഷൻ എഞ്ചിൻ
-        function animateHandwriting(pathsData, coords) {
-            const overlay = document.getElementById('hwAnimOverlay');
-            const svg = document.getElementById('hwAnimSvg');
-            svg.innerHTML = ""; // SVG ക്ലിയർ ചെയ്യുക
-
-            // ആനിമേഷൻ ബോക്സിന്റെ സ്ഥാനം സെറ്റ് ചെയ്യുക (വാക്കിന് തൊട്ടു മുകളിലായി വലിയ വലിപ്പത്തിൽ കാണിക്കാൻ)
-            let boxWidth = Math.max(160, coords.width * 3.5); 
-            let boxHeight = Math.max(100, coords.height * 4.5);
-            let boxLeft = coords.left + (coords.width / 2) - (boxWidth / 2);
-            let boxTop = coords.top - boxHeight - 2; // വാക്കിന്റെ തൊട്ടുമുകളിൽ
-
-            if (boxLeft < 1) boxLeft = 1;
-            if (boxLeft + boxWidth > 99) boxLeft = 99 - boxWidth;
-            if (boxTop < 1) boxTop = coords.top + coords.height + 2; // മുകളിൽ സ്ഥലമില്ലെങ്കിൽ താഴെ കാണിക്കും
-
-            overlay.style.width = boxWidth + '%';
-            overlay.style.height = boxHeight + '%';
-            overlay.style.left = boxLeft + '%';
-            overlay.style.top = boxTop + '%';
-            overlay.style.display = "block";
-
-            let globalDelay = 100; // ആനിമേഷൻ സ്റ്റാർട്ട് ഡിലേ
-
-            pathsData.forEach((stroke) => {
-                if (!stroke || stroke.length === 0) return;
-
-                // ഒരു ഗ്രൂപ്പ് ഉണ്ടാക്കുന്നു (നിബ് സ്റ്റൈൽ കിട്ടാൻ വേണ്ടി)
-                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                const nibSize = 20; // ഫിക്സഡ് നിബ് തിക്ക്നെസ്സ്
-                let pathsList = [];
-
-                for (let i = 0; i < nibSize; i++) {
-                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    let offset = i - (nibSize / 2);
-                    p.setAttribute("transform", `translate(${offset * 0.4}, ${-offset})`);
-                    p.setAttribute("stroke", "#8e44ad"); // കുട്ടികൾക്ക് ഭംഗിയായി കാണാൻ വയലറ്റ് കളർ
-                    p.setAttribute("stroke-width", "1.5");
-                    p.setAttribute("fill", "none");
-                    p.setAttribute("stroke-linecap", "butt");
-                    p.setAttribute("d", `M ${stroke[0].x} ${stroke[0].y}`);
-                    group.appendChild(p);
-                    pathsList.push(p);
-                }
-                svg.appendChild(group);
-
-                // ഓരോ സ്ട്രോക്കിലെയും പോയിന്റുകൾ ഒന്നൊന്നായി വരക്കുന്നു
-                for (let j = 1; j < stroke.length; j++) {
-                    let pt = stroke[j];
-                    let t = setTimeout(() => {
-                        pathsList.forEach(p => {
-                            p.setAttribute("d", p.getAttribute("d") + ` L ${pt.x} ${pt.y}`);
-                        });
-                    }, globalDelay);
-                    hwAnimTimers.push(t);
-                    globalDelay += 12; // വരയ്ക്കുന്ന വേഗത (കുറച്ചാൽ സ്പീഡ് കൂടും)
-                }
-                globalDelay += 150; // അടുത്ത അക്ഷരത്തിലേക്ക് കടക്കുന്നതിന് മുൻപുള്ള ചെറിയ ഗ്യാപ്പ്
             });
         }
 
@@ -481,7 +417,6 @@
                 currentRevIdx++;
                 loadRevisionPage();
             } else {
-                clearHwAnimation();
                 document.getElementById('wordHighlightBox').style.display = 'none';
                 startActivityGame();
             }
@@ -492,15 +427,17 @@
             if(allLivePages.length === 0) return alert("ക്വിസ് ചെയ്യാൻ വാക്കുകൾ ഇല്ല!");
 
             quizWordsPool = [];
-            let sortedPages = [...allLivePages].sort((a, b) => (b.lesson || 1) - (a.lesson || 1));
             
+            // ക്വിസ്സിൽ അഡ്മിൻ പാനലിലെ ആനിമേഷൻ ഡാറ്റയുള്ള വാക്കുകൾ റെഫറൻസിനായി പാസ്സ് ചെയ്യുന്നു
+            let sortedPages = [...allLivePages].sort((a, b) => (b.lesson || 1) - (a.lesson || 1));
             sortedPages.forEach(p => {
                 p.zones.forEach(w => {
                     if(w.text && w.text.trim() !== "") {
                         quizWordsPool.push({
                             text: w.text,
                             audioSrc: w.audioSrc,
-                            lesson: p.lesson || 1
+                            lesson: p.lesson || 1,
+                            writingPaths: w.writingPaths || null // ഹാൻഡ്‌റൈറ്റിംഗ് സ്ട്രോക്കുകൾ
                         });
                     }
                 });
@@ -587,13 +524,72 @@
             }
         }
 
+        // ✍️ ശരിയുത്തരം നൽകുമ്പോൾ പോപ്പ്അപ്പിൽ ഹാൻഡ്‌റൈറ്റിംഗ് ആനിമേറ്റ് ചെയ്യുന്ന മെത്തേഡ്
+        function animateQuizHandwriting(pathsData) {
+            const overlay = document.getElementById('quizHwOverlay');
+            const svg = document.getElementById('quizHwSvg');
+            svg.innerHTML = ""; 
+            overlay.classList.remove('hidden');
+
+            let globalDelay = 300; 
+
+            pathsData.forEach((stroke) => {
+                if (!stroke || stroke.length === 0) return;
+
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const nibSize = 20; 
+                let pathsList = [];
+
+                for (let i = 0; i < nibSize; i++) {
+                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    let offset = i - (nibSize / 2);
+                    p.setAttribute("transform", `translate(${offset * 0.4}, ${-offset})`);
+                    p.setAttribute("stroke", "#9b59b6"); // ആകർഷകമായ പർപ്പിൾ നിറം
+                    p.setAttribute("stroke-width", "1.5");
+                    p.setAttribute("fill", "none");
+                    p.setAttribute("stroke-linecap", "butt");
+                    p.setAttribute("d", `M ${stroke[0].x} ${stroke[0].y}`);
+                    group.appendChild(p);
+                    pathsList.push(p);
+                }
+                svg.appendChild(group);
+
+                for (let j = 1; j < stroke.length; j++) {
+                    let pt = stroke[j];
+                    let t = setTimeout(() => {
+                        pathsList.forEach(p => {
+                            p.setAttribute("d", p.getAttribute("d") + ` L ${pt.x} ${pt.y}`);
+                        });
+                    }, globalDelay);
+                    hwAnimTimers.push(t);
+                    globalDelay += 10; 
+                }
+                globalDelay += 150; 
+            });
+
+            // ⏱️ ആനിമേഷൻ പൂർത്തിയായ ശേഷം പ്ലെയർ തനിയെ ക്ലോസ് ചെയ്ത് അടുത്ത ചോദ്യത്തിലേക്ക് പോകാൻ
+            let closeTimer = setTimeout(() => {
+                clearHwAnimation();
+                currentQuizWordIdx++; 
+                generateQuizQuestion();
+            }, globalDelay + 1000); // എഴുതിക്കഴിഞ്ഞ ശേഷം 1 സെക്കൻഡ് നിർത്തി കാണിക്കും
+            
+            hwAnimTimers.push(closeTimer);
+        }
+
         function checkQuizAnswer(selectedText) {
             audioPlayer.pause();
             
             if(selectedText === targetWord.text) {
-                alert("🎉 ശരിയാണ്! വളരെ മിടുക്കൻ.");
-                currentQuizWordIdx++; 
-                generateQuizQuestion();
+                // ✍️ വാക്കിന് ഹാൻഡ്‌റൈറ്റിംഗ് ഡാറ്റ ലഭ്യമാണെങ്കിൽ ആനിമേഷൻ പ്ലെയർ കാണിക്കും
+                if (targetWord.writingPaths && Array.isArray(targetWord.writingPaths) && targetWord.writingPaths.length > 0) {
+                    animateQuizHandwriting(targetWord.writingPaths);
+                } else {
+                    // അഥവാ ഡാറ്റ നൽകിയിട്ടില്ലെങ്കിൽ പഴയത് പോലെ മെസ്സേജ് കാണിച്ച് അടുത്ത ചോദ്യത്തിലേക്ക് പോകും
+                    alert("🎉 ശരിയാണ്! വളരെ മിടുക്കൻ.");
+                    currentQuizWordIdx++; 
+                    generateQuizQuestion();
+                }
             } else {
                 quizPenaltyPoints += 1; 
                 clearInterval(gameTimerInterval);

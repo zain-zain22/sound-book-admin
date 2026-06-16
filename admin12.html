@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>സൗണ്ട് ബുക്ക് - അഡ്വാൻസ്ഡ് അഡ്മിൻ (GitHub Auto-Sync)</title>
+    <title>സൗണ്ട് ബുക്ക് - അഡ്വാന്‍സ്ഡ് അഡ്മിന്‍ (GitHub Auto-Sync)</title>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; padding: 10px; background: #eef2f3; text-align: center; margin: 0; }
@@ -13,11 +13,11 @@
         input[type="text"], select, input[type="file"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         .arabic-input { direction: rtl; font-size: 20px; font-family: 'Traditional Arabic', 'Courier New', sans-serif; text-align: right; border: 2px solid #2ecc71 !important; }
         
-        /* 📸 ഇമേജ് കണ്ടെയ്നർ സ്റ്റൈൽ */
+        /* 📸 ഇമേജ് കണ്ടെയ്നര്‍ സ്റ്റൈല്‍ */
         .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; cursor: crosshair; }
         .image-container img { display: block; width: 100%; height: auto; }
         
-        /* 🟥 റീസൈസ് ചെയ്യാൻ പറ്റുന്ന പുതിയ ബോക്സ് സ്റ്റൈൽ */
+        /* 🟥 റീസൈസ് ചെയ്യാന്‍ പറ്റുന്ന പുതിയ ബോക്സ് സ്റ്റൈല്‍ */
         .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; }
         .resize-handle { position: absolute; width: 16px; height: 16px; background: #e74c3c; right: -8px; bottom: -8px; cursor: se-resize; border-radius: 50%; border: 2px solid white; z-index: 10; }
         
@@ -38,7 +38,7 @@
 
         /* ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് മോഡൽ വിൻഡോ സ്റ്റൈൽ */
         .hw-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; overflow: hidden; touch-action: none; }
-        #hw-toolbar { position: absolute; top: 0; left: 0; right: 0; background: white; padding: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        #hw-toolbar { position: absolute; top: 0; left: 0; right: 0; background: white; padding: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 10001; }
         #hw-viewport { width: 100vw; height: 100vh; position: relative; background: #f0f0f0; }
         #hw-content { position: absolute; width: 2000px; height: 2000px; background: white; top: 50%; left: 50%; margin-top: -1000px; margin-left: -1000px; border: 2px dashed #ccc; }
         #hw-trace-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 250px; color: rgba(220, 220, 220, 0.5); pointer-events: none; font-family: serif; direction: rtl; }
@@ -49,7 +49,7 @@
 </head>
 <body>
     <div class="loading-overlay" id="loadingOverlay" style="flex-direction: column;">
-        <span id="loadText">📦 GitHub-ൽ നിന്ന് പഴയ ഡാറ്റകൾ ശേഖക്കുന്നു...</span>
+        <span id="loadText">📦 GitHub-ല്‍ നിന്ന് പഴയ ഡാറ്റകള്‍ ശേഖരിക്കുന്നു...</span>
     </div>
 
     <div class="admin-box" style="border-top: 4px solid #34495e;">
@@ -71,7 +71,7 @@
         </div>
         
         <div class="section">
-            <h4>2. കുട്ടίωνെ പേര് നിയന്ത്രിക്കുക:</h4>
+            <h4>2. കുട്ടികളുടെ പേര് നിയന്ത്രിക്കുക:</h4>
             <label>മദ്രസ തിരഞ്ഞെടുക്കുക:</label>
             <select id="madrasaSelect" onchange="loadStudentManageList()"></select>
             <input type="text" id="studentName" placeholder="കുട്ടിയുടെ പേര് എഴുതുക">
@@ -164,7 +164,7 @@
         let currentZones = [];
         let currentAudioBlobs = [];
         let selectedImageFile = null;
-        let currentHwPaths = null; // നിലവിലെ വാക്കിന്റെ ഹാൻഡ്‌റൈറ്റിംഗ് സ്ട്രോക്കുകൾ സൂക്ഷിക്കാൻ
+        let currentHwPaths = null; 
 
         let pctLeft = 0, pctTop = 0;
         let pctWidth = 15, pctHeight = 6; 
@@ -176,8 +176,8 @@
         const hwTraceText = document.getElementById("hw-trace-text");
         const hwThickness = document.getElementById("hwThickness");
         let hwDrawing = false;
-        let hwStrokes = []; // താല്ക്കാലിക പാത്ത് ഒബ്ജക്റ്റുകൾ
-        let rawPathData = []; // കുട്ടികളുടെ ആപ്പിലേക്ക് അയക്കാൻ പാത്ത് കോർഡിനേറ്റുകൾ
+        let hwStrokes = []; 
+        let rawPathData = []; 
 
         window.onload = function() {
             if(localStorage.getItem('gh_token')) {
@@ -426,23 +426,31 @@
             document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
         }
 
-        // ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് ബോർഡ് കൺട്രോളുകൾ
+        // ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് ബോർഡ് കൺട്രോളുകൾ (മൊബൈൽ ഒപ്റ്റിമൈസ് ചെയ്തത്)
         function openHandwritingModal() {
             let text = document.getElementById('arabicText').value.trim();
             hwTraceText.innerText = text ? text : "ڪَتَبَ";
             clearHwBoard();
             hwModal.style.display = "block";
+            
+            // മൊബൈലിൽ ബാക്ക്ഗ്രൗണ്ട് പേജ് സ്ക്രോൾ ചെയ്യുന്നത് പൂർണ്ണമായി തടയുന്നു
+            document.body.style.overflow = "hidden";
+            document.body.style.position = "fixed";
         }
 
         function closeHandwritingModal(saveData) {
             if(saveData && rawPathData.length > 0) {
-                currentHwPaths = JSON.parse(JSON.stringify(rawPathData)); // കോപ്പി ചെയ്യുന്നു
+                currentHwPaths = JSON.parse(JSON.stringify(rawPathData)); 
                 document.getElementById('hwStatusText').innerText = `✅ ഹാൻഡ്‌റൈറ്റിംഗ് സ്ട്രോക്കുകൾ റെക്കോർഡ് ചെയ്തു (${currentHwPaths.length} Lines)`;
             } else if (!saveData) {
                 currentHwPaths = null;
                 document.getElementById('hwStatusText').innerText = "";
             }
             hwModal.style.display = "none";
+            
+            // ബോർഡ് ക്ലോസ് ചെയ്യുമ്പോൾ നോർമൽ സ്ക്രോളിംഗ് തിриകെ നൽകുന്നു
+            document.body.style.overflow = "auto";
+            document.body.style.position = "static";
         }
 
         function clearHwBoard() {
@@ -459,18 +467,21 @@
         function initHandwritingEngine() {
             function getHwCoords(e) {
                 const rect = hwBoard.getBoundingClientRect();
-                let clientX = e.clientX || (e.touches && e.touches[0].clientX);
-                let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+                let clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+                let clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
                 return { x: Math.round(clientX - rect.left), y: Math.round(clientY - rect.top) };
             }
 
             function handleStart(e) {
-                e.preventDefault(); hwDrawing = true;
+                // ബട്ടണുകളിൽ തൊടുമ്പോൾ ഡ്രോയിംഗ് സ്റ്റാർട്ട് ചെയ്യാതിരിക്കാൻ
+                if (e.target.closest('#hw-toolbar')) return;
+                
+                e.preventDefault(); 
+                hwDrawing = true;
                 const c = getHwCoords(e);
                 const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
                 const nibSize = parseInt(hwThickness.value);
                 
-                // കിത്താബ് സ്റ്റൈൽ കാലിഗ്രാഫി ചരിവ് നൽകാൻ മൾട്ടി-പാത്ത് രീതി
                 for(let i = 0; i < nibSize; i++) {
                     let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
                     let offset = i - (nibSize/2);
@@ -492,6 +503,8 @@
                 e.preventDefault();
                 const c = getHwCoords(e);
                 const currentGroup = hwStrokes[hwStrokes.length - 1];
+                if (!currentGroup) return;
+                
                 const paths = currentGroup.querySelectorAll("path");
                 paths.forEach(p => {
                     p.setAttribute("d", p.getAttribute("d") + ` L ${c.x} ${c.y}`);
@@ -530,12 +543,11 @@
                 alert("⚠️ ഈ വാക്ക് നിലവിലുള്ള പാഠങ്ങളിൽ നൽകിയിട്ടുള്ളതാണ്! അതിനാൽ ഇതിന്റെ ടെക്സ്റ്റ് ഒഴിവാക്കി ഓഡിയോ റെക്കോർഡ് മാത്രം വിജയകരമായി ലിങ്ക് ചെയ്യുന്നു.");
             }
             
-            // ✍️ അനിമേഷൻ പാത്ത് ഡാറ്റ കൂടി സോണിലേക്ക് ചേർക്കുന്നു
             currentZones.push({ 
                 coords: { left: pctLeft, top: pctTop, width: pctWidth, height: pctHeight }, 
                 text: arabic, 
                 localAudioIndex: currentAudioBlobs.length - 1,
-                writingPaths: currentHwPaths ? currentHwPaths : null // സ്ട്രോക്ക് ഡാറ്റ
+                writingPaths: currentHwPaths ? currentHwPaths : null 
             });
             
             document.getElementById('zoneCount').innerText = `(${currentZones.length} വാക്കുകൾ ചേർത്തു)`;
@@ -544,7 +556,7 @@
             document.getElementById('arabicText').value = ""; 
             document.getElementById('hwStatusText').innerText = "";
             selectionBox.style.display = 'none';
-            currentHwPaths = null; // റീസെറ്റ്
+            currentHwPaths = null; 
             if (!isTextAlreadyExists) alert("🎯 വാക്ക് വിജയകരമായി ലിങ്ക് ചെയ്തു!");
         }
 
@@ -639,7 +651,7 @@
                             coords: zoneItem.coords,
                             text: zoneItem.text || "", 
                             audioSrc: `data/${zipAudioName}`,
-                            writingPaths: zoneItem.writingPaths || null // ക്വിസ്സിനും ഹാൻഡ്‌റൈറ്റിംഗിനും കുട്ടികൾക്ക് ലഭ്യമാകും
+                            writingPaths: zoneItem.writingPaths || null 
                         });
                     }
                     

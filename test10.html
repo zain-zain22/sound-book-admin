@@ -614,7 +614,7 @@
                         movePencil(pt.x, pt.y, svg, container, pencil);
                     }, globalDelay);
                     hwAnimTimers.push(t);
-                    globalDelay += 32; // 🐌 ആനിമേഷൻ സ്പീഡ് കുറച്ചത്
+                    globalDelay += 50; // 🐌 ആനിമേഷൻ സ്പീഡ് കുറച്ചത്
                 }
                 globalDelay += 350; 
             });
@@ -650,8 +650,8 @@
             let localY = screenPt.y - containerRect.top;
 
             // കൈയിലെ പെൻസിൽ തുമ്പ് കൃത്യമായി വരിയിൽ മുട്ടാൻ -15px ലെഫ്റ്റും -75px ടോപ്പും സെറ്റ് ചെയ്തു
-            pencilElem.style.left = (localX - 15) + 'px';
-            pencilElem.style.top = (localY - 75) + 'px';
+            pencilElem.style.left = (localX - 24) + 'px';
+            pencilElem.style.top = (localY - 33) + 'px';
         }
 
         function checkQuizAnswer(selectedText) {

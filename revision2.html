@@ -166,6 +166,7 @@
             document.getElementById(id).classList.add('active-screen');
         }
 
+        // 📅 ഓരോ ദിവസവും ലോക്ക് സിസ്റ്റം കൃത്യമായി വർക്ക് ചെയ്യാൻ തീയതിയും പേരും ചേർത്തുള്ള കീ ഉണ്ടാക്കുന്നു
         function getTodayLockKey(studentName) {
             let today = new Date().toISOString().split('T')[0];
             return `lock_${studentName}_${today}`;
@@ -285,8 +286,8 @@
             handImg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "hand.png");
             handImg.setAttribute("width", "140");
             handImg.setAttribute("height", "140");
-            handImg.setAttribute("x", pathPoints[0].x + 33); // 👈 ട്യൂൺ ചെയ്ത പൊസിഷൻ അപ്‌ഡേറ്റ് ചെയ്തു
-            handImg.setAttribute("y", pathPoints[0].y + 50); // 👈 ട്യൂൺ ചെയ്ത പൊസിഷൻ അപ്‌ഡേറ്റ് ചെയ്തു
+            handImg.setAttribute("x", pathPoints[0].x - 33); // 👈 ആവശ്യപ്പെട്ടതുപോലെ മൈനസ് വാല്യൂ ആക്കി
+            handImg.setAttribute("y", pathPoints[0].y - 50); // 👈 ആവശ്യപ്പെട്ടതുപോലെ മൈനസ് വാല്യൂ ആക്കി
             svg.appendChild(handImg);
 
             let ptIdx = 1;
@@ -301,8 +302,8 @@
                 let currPt = pathPoints[ptIdx];
                 let dString = ` L ${currPt.x} ${currPt.y}`;
                 paths.forEach(p => p.setAttribute("d", p.getAttribute("d") + dString));
-                handImg.setAttribute("x", currPt.x + 33); // 👈 ട്യൂൺ ചെയ്ത പൊസിഷൻ അപ്‌ഡേറ്റ് ചെയ്തു
-                handImg.setAttribute("y", currPt.y + 50); // 👈 ട്യൂൺ ചെയ്ത പൊസിഷൻ അപ്‌ഡേറ്റ് ചെയ്തു
+                handImg.setAttribute("x", currPt.x - 33); // 👈 ഇവിടെയും മൈനസ് വാല്യൂ ആക്കി
+                handImg.setAttribute("y", currPt.y - 50); // 👈 ഇവിടെയും മൈനസ് വാല്യൂ ആക്കി
                 ptIdx++;
             }, speed);
         }
@@ -313,14 +314,13 @@
                 alert("🎯 ഈ പേജ് കഴിഞ്ഞു! അടുത്ത പേജിലേക്ക് പോകാം.");
                 loadRevisionPage();
             } else {
-                // റിവിഷൻ പൂർത്തിയായതായി ലോക്കൽ സ്റ്റോറേജിൽ രേഖപ്പെടുത്തുന്നു
+                // ഇന്നത്തെ ദിവസത്തേക്ക് റിവിഷൻ കഴിഞ്ഞതായി മെമ്മറിയിൽ ലോക്ക് മാറ്റുന്നു
                 localStorage.setItem(getTodayLockKey(currentStudent), "true");
                 
                 alert("🎉 വലിയൊരു കൈയടി! ഇന്നത്തെ റിവിഷൻ പൂർത്തിയായിരിക്കുന്നു. ഇനി നിനക്ക് ക്വിസ്സ് ഗെയിം കളിക്കാം 🎮");
                 
                 let quizLink = "https://zain-zain22.github.io/sound-book-admin/quize.html"; 
                 
-                // റീഡിങ് സ്ക്രീനിലെ ബട്ടൺ നേരിട്ട് ക്വിസ്സ് ലിങ്ക് ബട്ടൺ ആക്കി മാറ്റുന്നു
                 let btn = document.getElementById('nextWordBtn');
                 if(btn) {
                     btn.disabled = false;
@@ -331,7 +331,6 @@
                     };
                 }
                 
-                // മെയിൻ മെനു അപ്‌ഡേറ്റ് ചെയ്ത് ബട്ടൺ അൺലോക്ക് ആക്കുന്നു
                 updateMenuButtons();
             }
         }

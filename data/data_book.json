@@ -1,5 +1,5 @@
 {
-  "version": 1781620270087,
+  "version": 1781662264602,
   "pages": [
     {
       "image": "data/page_0_image.jpg",
@@ -39,6 +39,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -101,6 +102,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -152,6 +154,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -214,6 +217,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -287,6 +291,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -349,6 +354,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -411,6 +417,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -517,6 +524,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -623,6 +631,7 @@
           "writingPaths": null
         }
       ],
+      "readingPaths": null,
       "hidden": false
     },
     {
@@ -1860,6 +1869,7 @@
           ]
         }
       ],
+      "readingPaths": null,
       "hidden": false
     }
   ]

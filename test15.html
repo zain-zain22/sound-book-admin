@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>സൗണ്ട് ബുക്ക് - സമ്പൂർണ്ണ പതിപ്പ്</title>
+    <style>
+        /* സ്റ്റൈലുകൾ ഇവിടെ നൽകുന്നു */
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; margin: 0; padding: 10px; text-align: center; }
+        .screen { display: none; background: white; max-width: 500px; margin: 20px auto; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .active { display: block; }
+        button { width: 100%; padding: 15px; margin: 10px 0; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+        .btn-green { background: #2ecc71; }
+        .btn-purple { background: #9b59b6; }
+        .book-container { width: 100%; background: #000; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+        .book-img { width: 100%; height: auto; }
+        .quiz-opt { background: #fff; border: 2px solid #bdc3c7; padding: 18px; font-size: 24px; margin: 5px; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- ലോഗിൻ സ്ക്രീൻ -->
+    <div id="loginScreen" class="screen active">
+        <h1>📖 സൗണ്ട് ബുക്ക്</h1>
+        <select id="madrasaSelect"></select>
+        <select id="studentSelect"></select>
+        <button class="btn-green" onclick="enterApp()">തുടങ്ങുക 🚀</button>
+    </div>
+
+    <!-- മെയിൻ മെനു -->
+    <div id="menuScreen" class="screen">
+        <h2 id="welcomeText"></h2>
+        <button class="btn-purple" onclick="startRevision()">📖 റിവിഷൻ പ്ലേ ചെയ്യുക</button>
+        <button id="quizBtn" class="btn-green" onclick="startQuiz()" disabled>🎮 ക്വിസ്സ് ഗെയിം (Lock 🔒)</button>
+    </div>
+
+    <!-- റിവിഷൻ സ്ക്രീൻ -->
+    <div id="revisionScreen" class="screen">
+        <div class="book-container">
+            <img id="revImg" class="book-img" src="" alt="Page">
+        </div>
+        <button class="btn-green" onclick="nextWord()">അടുത്ത വാക്ക് ➡️</button>
+    </div>
+
+    <!-- ക്വിസ്സ് സ്ക്രീൻ -->
+    <div id="quizScreen" class="screen">
+        <h2>🔊 കേട്ട് കണ്ടെത്തുക</h2>
+        <button class="btn-purple" onclick="playAudio()">🔊 ശബ്ദം കേൾക്കുക</button>
+        <div id="quizOptions"></div>
+    </div>
+
+    <script>
+        // ഡാറ്റാ ലോഡിംഗും ഫംഗ്‌ഷനുകളും ഇവിടെ വരുന്നു
+        function enterApp() {
+            document.getElementById('loginScreen').classList.remove('active');
+            document.getElementById('menuScreen').classList.add('active');
+        }
+
+        function startRevision() {
+            document.getElementById('menuScreen').classList.remove('active');
+            document.getElementById('revisionScreen').classList.add('active');
+        }
+
+        function startQuiz() {
+            document.getElementById('menuScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+        }
+
+        // ഇവിടെ ഡാറ്റാ ലോഡിംഗ്, ഓഡിയോ പ്ലേയിംഗ്, ആനിമേഷൻ തുടങ്ങിയ ലോജിക് ചേർക്കാം
+    </script>
+</body>
+</html>
+

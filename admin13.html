@@ -13,15 +13,15 @@
         input[type="text"], select, input[type="file"], input[type="number"], input[type="password"] { width: 100%; padding: 10px; margin: 5px 0 10px 0; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
         .arabic-input { direction: rtl; font-size: 20px; font-family: 'Traditional Arabic', 'Courier New', sans-serif; text-align: right; border: 2px solid #2ecc71 !important; }
         
-        /* 📸 ഇമേജ് കണ്ടെയ്നര്‍ സ്റ്റൈല്‍ */
+        /* 📸 ഇമേജ് കണ്ടെയ്നര്‍ സ്റ്റൈല്‍ (റീഡിങ് മോഡ് ഡ്രോയിംഗിനായി) */
         .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; }
         .image-container img { display: block; width: 100%; height: auto; }
         
-        /* ✍️ ചിത്രത്തിന് മുകളിൽ നേരിട്ട് വരയ്ക്കാനുള്ള എസ്‌വിജി ബോർഡ് */
-        #pageDrawBoard { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; display: none; cursor: crosshair; }
+        /* 📖 കുട്ടികളുടെ റീഡിങ് ടൈമിന് നേരിട്ട് വരയ്ക്കാനുള്ള എസ്‌വിജി ബോർഡ് */
+        #pageDrawBoard { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; z-index: 5; }
         
-        /* 🟥 റീസൈസ് ചെയ്യാന്‍ പറ്റുന്ന സെലക്ഷൻ ബോക്സ് സ്റ്റൈല്‍ */
-        .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; cursor: move; }
+        /* 🟥 റീസൈസ് ചെയ്യാന്‍ പറ്റുന്ന സെലクション ബോക്സ് സ്റ്റൈല്‍ */
+        .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; cursor: move; z-index: 4; }
         .resize-handle { position: absolute; width: 16px; height: 16px; background: #e74c3c; right: -8px; bottom: -8px; cursor: se-resize; border-radius: 50%; border: 2px solid white; z-index: 10; }
         
         button { color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin: 5px 0; font-weight: bold; width: 100%; font-size: 14px; }
@@ -32,16 +32,25 @@
         .btn-stop { background: #2c3e50; display: none; width: 100%; padding: 12px; }
         .btn-danger { background: #e74c3c; padding: 5px 10px; font-size: 12px; width: auto; display: inline-block; margin-left: 5px; }
         .btn-action { background: #f39c12; padding: 5px 10px; font-size: 12px; width: auto; display: inline-block; }
+        
+        /* 🟪 പർപ്പിൾ ബട്ടൺ സ്റ്റൈൽ */
+        .btn-purple { background: #9b59b6; width: 100%; padding: 12px; margin: 5px 0; font-size: 14px; }
+
+        /* 🎪 ക്വിസ്സ് ഹാൻഡ്‌റൈറ്റിംഗിനുള്ള മോഡൽ പോപ്പ്അപ്പ് വിൻഡോ */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center; padding: 15px; }
+        .modal-content { background: white; padding: 15px; border-radius: 8px; width: 100%; max-width: 450px; text-align: center; position: relative; }
+        .modal-close { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: #333; font-weight: bold; }
+        
+        /* ക്വിസ്സ് ഡ്രോയിംഗ് ബോർഡ് */
+        .quiz-canvas-container { border: 2px solid #9b59b6; background: #fff; width: 100%; margin: 10px 0; position: relative; height: 280px; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        #quizDrawBoard { width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+
         .status-text { font-weight: bold; color: #e74c3c; text-align: center; margin: 5px 0; }
         #audioPlayback { margin-top: 5px; display: none; width: 100%; }
         .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); color: white; justify-content: center; align-items: center; font-size: 20px; font-weight: bold; z-index: 9999; }
         .page-badge { background: #34495e; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; float: right; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
         .hidden-page { opacity: 0.5; background: #f1f2f6; }
-        
-        .mode-container { display: flex; gap: 5px; margin-bottom: 10px; }
-        .mode-btn { background: #7f8c8d; flex: 1; padding: 10px; font-size: 13px; }
-        .mode-btn.active { background: #2c3e50; border: 2px solid #fff; }
     </style>
 </head>
 <body>
@@ -49,6 +58,7 @@
         <span id="loadText">📦 GitHub-ല്‍ നിന്ന് പഴയ ഡാറ്റകള്‍ ശേഖരിക്കുന്നു...</span>
     </div>
 
+    <!-- 🔑 ഗിറ്റ്ഹബ്ബ് കോൺഫിഗറേഷൻ -->
     <div class="admin-box" style="border-top: 4px solid #34495e;">
         <h2>🔑 GitHub കോൺഫിഗറേഷൻ</h2>
         <label>GitHub Personal Access Token:</label>
@@ -56,6 +66,7 @@
         <p style="font-size: 11px; color: #7f8c8d; margin: 0;">(ഈ ടോക്കൺ താങ്കളുടെ ബ്രൗസറിൽ സുരക്ഷിതമായി സേവ് ആയിരിക്കും.)</p>
     </div>
     
+    <!-- 🏫 മദ്രസ മാനേജ്‌മെന്റ് -->
     <div class="admin-box">
         <h2>🏫 മദ്രസ & വിദ്യാർത്ഥി മാനേജ്‌മെന്റ്</h2>
         <p id="syncStatus" style="color: #27ae60; font-weight: bold; text-align: center; margin: 0; font-size: 13px;">🔄 ഗിറ്റ്ഹബ്ബ് സിങ്ക് ലോഡ് ചെയ്യുന്നു...</p>
@@ -77,6 +88,7 @@
         </div>
     </div>
     
+    <!-- 📖 പാഠപുസ്തകം നിർമ്മിക്കുക -->
     <div class="admin-box" style="border-top: 4px solid #e67e22;">
         <h2>📖 പാഠപുസ്തകം നിർമ്മിക്കുക <span class="page-badge" id="pageNumberBadge">ആകെ പേജുകൾ: 0</span> </h2>
         
@@ -95,33 +107,32 @@
                     <input type="number" id="lessonNum" value="1" min="1">
                 </div>
                 
-                <!-- 🛠️ മോഡ് സെലക്ഷൻ ടൂളുകൾ -->
-                <div class="mode-container">
-                    <button type="button" id="btnModeBox" class="mode-btn active" onclick="switchToolMode('BOX')">🟥 1. ടച്ച് ബോക്സ് സെറ്റ് ചെയ്യുക</button>
-                    <button type="button" id="btnModeDraw" class="mode-btn" onclick="switchToolMode('DRAW')">✍️ 2. വാക്കിന് മേൽ വട്ടം വരയ്ക്കുക</button>
-                </div>
-                
-                <div style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center; justify-content: center;">
-                    <button type="button" id="btnClearDrawBtn" style="background:#7f8c8d; padding:5px; font-size:11px; display:none; width:auto;" onclick="clearDrawBoard()">❌ വരകൾ മാറ്റുക</button>
-                    <span id="drawStatusText" style="font-size:12px; color:#e67e22; font-weight:bold;"></span>
-                </div>
-                
-                <!-- 📸 ഇമേജ് കണ്ടെയ്നർ (ചിത്രവും എസ്‌വിജിയും ഒന്നിച്ച്) -->
+                <!-- 📸 ഇമേജ് കണ്ടെയ്നർ (കുട്ടികളുടെ റീഡിങ് ടൈം വരകൾ ഇവിടെ നേരിട്ട് ചെയ്യാം) -->
+                <div style="font-size: 11px; color: #2c3e50; font-weight: bold; text-align: left; margin-bottom: 3px;">📖 റീഡിങ് ടൈം വരകൾ ചിത്രത്തിന് മുകളിൽ നേരിട്ട് വരയ്ക്കുക:</div>
                 <div class="image-container" id="imageContainer" onmousedown="onContainerAction(event)" ontouchstart="onContainerAction(event)">
                     <img id="bookImg" src="" alt="Book Page">
                     
-                    <!-- വരയ്ക്കാനുള്ള കാൻവാസ് (ഇത് ചിത്രത്തിന് മുകളിലാണ്) -->
+                    <!-- ✍️ റീഡിങ് ടൈം ഡ്രോയിംഗ് കാൻവാസ് (എപ്പോഴും ലഭ്യമാണ്) -->
                     <svg id="pageDrawBoard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
                     
                     <div class="selection-box" id="selectionBox">
                         <div class="resize-handle" id="resizeHandle"></div>
                     </div>
                 </div>
-                
-                <div style="background: #ebfcf2; padding: 10px; border-radius: 4px; margin: 10px 0; border: 1px solid #c3f3d7;">
+
+                <div style="display: flex; gap: 5px; margin: 3px 0 10px 0; align-items: center; justify-content: space-between;">
+                    <button type="button" style="background:#7f8c8d; padding:4px; font-size:11px; width:auto; margin:0;" onclick="clearReadingDrawBoard()">❌ റീഡിങ് വരകൾ മാറ്റുക</button>
+                    <span id="readingDrawStatus" style="font-size:11px; color:#2980b9; font-weight:bold;"></span>
+                </div>
+
+                <div style="background: #ebfcf2; padding: 10px; border-radius: 4px; margin: 5px 0; border: 1px solid #c3f3d7;">
                     <label style="font-weight: bold; color: #27ae60; display:block; text-align:left;">✍️ ഈ വാക്കിന്റെ അറബിക് ടെക്സ്റ്റ്:</label>
                     <input type="text" id="arabicText" class="arabic-input" placeholder="ڪَتَبَ">
                 </div>
+
+                <!-- 🟪 പർപ്പിൾ ബട്ടൺ (ക്വിസ്സിനുള്ള ഹാൻഡ്‌റൈറ്റിംഗ് പോപ്പ്അപ്പ് വിൻഡോ തുറക്കും) -->
+                <button type="button" id="btnHandwritingToggle" class="btn-purple" onclick="openQuizModal()">✍️ ഈ വാക്കിന് ഹാൻഡ്‌റൈറ്റിംഗ് റെക്കോർഡ് ചെയ്യുക</button>
+                <div id="quizStatusText" style="font-size:12px; color:#9b59b6; font-weight:bold; text-align:center; margin-bottom:10px;"></div>
                 
                 <button type="button" class="btn-record" id="startBtn" onclick="startRecording()">🎤 ഓഡിയോ റെക്കോർഡിംഗ് തുടങ്ങുക</button>
                 <button type="button" class="btn-stop" id="stopBtn" onclick="stopRecording()">🛑 റെക്കോർഡിംഗ് നിർത്തുക</button>
@@ -140,6 +151,24 @@
         <h4 id="totalAddedPagesText" style="color: #27ae60; text-align:center; margin-top:5px;">(നിലവിൽ 0 പേജുകൾ തയാറായിട്ടുണ്ട്)</h4>
     </div>
 
+    <!-- 🎪 ക്വിസ്സ് ഹാൻഡ്‌റൈറ്റിംഗ് റെക്കോർഡ് ചെയ്യാനുള്ള പോപ്പ്അപ്പ് വിൻഡോ (Modal) -->
+    <div id="quizModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeQuizModal()">&times;</span>
+            <h3 style="color:#9b59b6; margin-top:0;">📝 ക്വിസ്സ് ഹാൻഡ്‌റൈറ്റിംഗ് റെക്കോർഡർ</h3>
+            <p style="font-size:12px; color:#7f8c8d; margin:0;">താഴെ കാണുന്ന ബോക്സിൽ വാക്ക് എഴുതുക. ഇത് കുട്ടികൾക്ക് ക്വിസ്സ് മോഡിൽ ലഭ്യമാകും.</p>
+            
+            <div class="quiz-canvas-container">
+                <svg id="quizDrawBoard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+            </div>
+            
+            <div style="display:flex; gap:10px;">
+                <button type="button" style="background:#e74c3c;" onclick="clearQuizDrawBoard()">❌ മായ്ക്കുക</button>
+                <button type="button" style="background:#2ecc71;" onclick="saveQuizDrawing()">✅ റെക്കോർഡ് ചെയ്യുക</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const GH_USER = "zain-zain22";
         const GH_REPO = "sound-book-admin";
@@ -151,10 +180,14 @@
         let currentAudioBlobs = [];
         let selectedImageFile = null;
         
-        let currentToolMode = "BOX"; // BOX അല്ലെങ്കിൽ DRAW
-        let currentHwPaths = null; 
-        let rawPathData = []; 
-        let hwDrawing = false;
+        // റീഡിങ് ടൈം ഡ്രോയിംഗ് വേരിയബിളുകൾ
+        let readingPaths = [];
+        let isReadingDrawing = false;
+
+        // ക്വിസ്സ് ഹാൻഡ്‌റൈറ്റിംഗ് വേരിയബിളുകൾ
+        let quizPaths = [];
+        let isQuizDrawing = false;
+        let savedQuizPathsForZone = null;
 
         let pctLeft = 0, pctTop = 0;
         let pctWidth = 15, pctHeight = 6; 
@@ -162,6 +195,7 @@
 
         const imgContainer = document.getElementById('imageContainer');
         const pageDrawBoard = document.getElementById('pageDrawBoard');
+        const quizDrawBoard = document.getElementById('quizDrawBoard');
         const selectionBox = document.getElementById('selectionBox');
         const bookImg = document.getElementById('bookImg');
 
@@ -170,7 +204,8 @@
                 document.getElementById('ghToken').value = localStorage.getItem('gh_token');
             }
             loadOldDataFromGitHub();
-            initDirectDrawingEngine();
+            initReadingDrawingEngine();
+            initQuizDrawingEngine();
         }
 
         function saveTokenToLocal() {
@@ -180,10 +215,7 @@
 
         async function loadOldDataFromGitHub() {
             document.getElementById('loadingOverlay').style.display = 'flex';
-            try {
-                let res1 = await fetch('data/master_list.json?t=' + Date.now());
-                if(res1.ok) masterSchoolData = await res1.json();
-            } catch (e) {}
+            try { let res1 = await fetch('data/master_list.json?t=' + Date.now()); if(res1.ok) masterSchoolData = await res1.json(); } catch (e) {}
             try {
                 let res2 = await fetch('data/data_book.json?t=' + Date.now());
                 if(res2.ok) {
@@ -193,26 +225,20 @@
                     }
                 }
             } catch(e) {}
-            loadDropdowns();
-            loadMadrasaManageList();
-            loadStudentManageList();
-            renderExistingPagesList();
+            loadDropdowns(); loadMadrasaManageList(); loadStudentManageList(); renderExistingPagesList();
             document.getElementById('syncStatus').innerText = "✅ ഗിറ്റ്ഹബ്ബ് ഡാറ്റ സിങ്ക് പൂർത്തിയായി!";
             document.getElementById('loadingOverlay').style.display = 'none';
         }
 
         function loadDropdowns() {
-            const m1 = document.getElementById('madrasaSelect');
-            m1.innerHTML = '';
+            const m1 = document.getElementById('madrasaSelect'); m1.innerHTML = '';
             Object.keys(masterSchoolData).sort().forEach(madrasa => {
-                let opt = document.createElement('option');
-                opt.value = madrasa; opt.innerText = madrasa; m1.appendChild(opt);
+                let opt = document.createElement('option'); opt.value = madrasa; opt.innerText = madrasa; m1.appendChild(opt);
             });
         }
 
         function loadMadrasaManageList() {
-            let container = document.getElementById('madrasaManageList');
-            container.innerHTML = '';
+            let container = document.getElementById('madrasaManageList'); container.innerHTML = '';
             Object.keys(masterSchoolData).sort().forEach(m => {
                 let div = document.createElement('div'); div.className = 'manage-item';
                 div.innerHTML = `<span>🏫 ${m}</span> <button class="btn-danger" onclick="deleteMadrasa('${m}')">🗑️</button>`;
@@ -224,8 +250,7 @@
             let name = document.getElementById('madrasaName').value.trim();
             if(!name) return alert("പേര് നൽകുക!");
             if(masterSchoolData[name]) return alert("ഈ മദ്രസ നിലവിലുണ്ട്!");
-            masterSchoolData[name] = [];
-            document.getElementById('madrasaName').value = '';
+            masterSchoolData[name] = []; document.getElementById('madrasaName').value = '';
             loadDropdowns(); loadMadrasaManageList();
         }
 
@@ -236,8 +261,7 @@
         }
 
         function loadStudentManageList() {
-            let container = document.getElementById('studentManageList');
-            container.innerHTML = '';
+            let container = document.getElementById('studentManageList'); container.innerHTML = '';
             let madrasa = document.getElementById('madrasaSelect').value;
             if(!madrasa || !masterSchoolData[madrasa]) return;
             masterSchoolData[madrasa].sort().forEach(student => {
@@ -253,8 +277,7 @@
             if(!madrasa) return alert("ആദ്യം മദ്രസ തിരഞ്ഞെടുക്കുക!");
             if(!student) return alert("പേര് എഴുതുക!");
             if(masterSchoolData[madrasa].includes(student)) return alert("ഈ കുട്ടി നിലവിലുണ്ട്!");
-            masterSchoolData[madrasa].push(student);
-            document.getElementById('studentName').value = '';
+            masterSchoolData[madrasa].push(student); document.getElementById('studentName').value = '';
             loadStudentManageList();
         }
 
@@ -266,15 +289,12 @@
         }
 
         function renderExistingPagesList() {
-            let container = document.getElementById('existingPagesList');
-            container.innerHTML = '';
+            let container = document.getElementById('existingPagesList'); container.innerHTML = '';
             if(allPagesMemory.length === 0) {
-                container.innerHTML = '<p style="font-size:12px; color:#999; text-align:center;">പേജുകൾ ഒന്നും ലഭ്യമല്ല.</p>';
-                return;
+                container.innerHTML = '<p style="font-size:12px; color:#999; text-align:center;">പേജുകൾ ഒന്നും ലഭ്യമല്ല.</p>'; return;
             }
             allPagesMemory.forEach((page, idx) => {
-                let div = document.createElement('div');
-                div.className = 'manage-item' + (page.hidden ? ' hidden-page' : '');
+                let div = document.createElement('div'); div.className = 'manage-item' + (page.hidden ? ' hidden-page' : '');
                 let pageNum = idx + 1; let lessonNum = page.lesson || 1;
                 div.innerHTML = `
                     <div><b>പേജ് ${pageNum}</b> <span style="color:#3498db;">(പാഠം: ${lessonNum})</span></div>
@@ -287,230 +307,214 @@
             });
             document.getElementById('pageNumberBadge').innerText = `ആകെ പേജുകൾ: ${allPagesMemory.length}`;
             document.getElementById('totalAddedPagesText').innerText = `(നിലവിൽ ${allPagesMemory.length} പേജുകൾ തയാറായിട്ടുണ്ട്)`;
-            if(allPagesMemory.length > 0) {
-                document.getElementById('lessonNum').value = allPagesMemory[allPagesMemory.length - 1].lesson || 1;
+            if(allPagesMemory.length > 0) { document.getElementById('lessonNum').value = allPagesMemory[allPagesMemory.length - 1].lesson || 1; }
+        }
+
+        function toggleHidePage(index) { allPagesMemory[index].hidden = !allPagesMemory[index].hidden; renderExistingPagesList(); }
+        function deletePage(index) { if(confirm(`തീർച്ചയായും പേജ് ${index + 1} ഡിലീറ്റ് ചെയ്യണോ?`)) { allPagesMemory.splice(index, 1); renderExistingPagesList(); } }
+
+        // 🎪 ക്വിസ്സ് മോഡൽ പോപ്പ്അപ്പ് പ്രവർത്തനങ്ങൾ
+        function openQuizModal() {
+            document.getElementById('quizModal').style.display = 'flex';
+            clearQuizDrawBoard();
+            if(savedQuizPathsForZone) {
+                // മുൻപ് വരച്ചതുണ്ടെങ്കിൽ ലോഡ് ചെയ്യുക
+                quizPaths = JSON.parse(JSON.stringify(savedQuizPathsForZone));
+                redrawQuizPaths();
             }
         }
+        function closeQuizModal() { document.getElementById('quizModal').style.display = 'none'; }
 
-        function toggleHidePage(index) {
-            allPagesMemory[index].hidden = !allPagesMemory[index].hidden; renderExistingPagesList();
-        }
-
-        function deletePage(index) {
-            if(confirm(`തീർച്ചയായും പേജ് ${index + 1} ഡിലീറ്റ് ചെയ്യണോ?`)) {
-                allPagesMemory.splice(index, 1); renderExistingPagesList();
-            }
-        }
-
-        // 🛠️ ടൂൾ മോഡ് മാറ്റാനുള്ള ഫംഗ്ഷൻ
-        function switchToolMode(mode) {
-            currentToolMode = mode;
-            document.getElementById('btnModeBox').classList.remove('active');
-            document.getElementById('btnModeDraw').classList.remove('active');
-            
-            if(mode === "BOX") {
-                document.getElementById('btnModeBox').classList.add('active');
-                pageDrawBoard.style.display = "none";
-                selectionBox.style.display = pctLeft || pctTop ? "block" : "none";
-                document.getElementById('btnClearDrawBtn').style.display = "none";
-            } else {
-                document.getElementById('btnModeDraw').classList.add('active');
-                pageDrawBoard.style.display = "block";
-                selectionBox.style.display = "none"; // ഡ്രോയിംഗ് ചെയ്യുമ്പോൾ സെലക്ഷൻ ബോക്സ് താൽക്കാലികമായി മറയ്ക്കുന്നു
-                document.getElementById('btnClearDrawBtn').style.display = "inline-block";
-            }
-        }
-
-        let mediaRecorder;
-        let audioChunks = [];
+        // 📸 ഇമേജ് അപ്‌ലോഡർ
         const imageUploader = document.getElementById('imageUploader');
-
         imageUploader.addEventListener('change', function(e) {
-            selectedImageFile = e.target.files[0];
-            if(!selectedImageFile) return;
+            selectedImageFile = e.target.files[0]; if(!selectedImageFile) return;
             const reader = new FileReader();
             reader.onload = function(event) {
                 bookImg.onload = function() {
                     document.getElementById('mappingSection').style.display = 'block';
-                    clearDrawBoard();
-                    switchToolMode('BOX');
-                    pctLeft = 0; pctTop = 0;
-                    pctWidth = 15; pctHeight = 6; 
+                    clearReadingDrawBoard();
+                    clearQuizDrawBoard();
+                    savedQuizPathsForZone = null;
+                    document.getElementById('quizStatusText').innerText = "";
+                    pctLeft = 0; pctTop = 0; pctWidth = 15; pctHeight = 6;
                 }
                 bookImg.src = event.target.result;
             }
             reader.readAsDataURL(selectedImageFile);
         });
 
-        // 🟥 ബോക്സ് ക്ലിക്ക് & റീസൈസ് പ്രവർത്തനങ്ങൾ
+        // 🟥 റെഡ് ബോക്സ് ടച്ച്/ക്ലിക്ക് മെക്കാനിസം (റീഡിങ് ഡ്രോയിംഗിന് തടസ്സമാകാതിരിക്കാൻ ഡബിൾ ഫിംഗർ അല്ലെങ്കിൽ ഷിഫ്റ്റ് കീ ഉപയോഗിക്കാം, പക്ഷെ ലളിതമാക്കാൻ ഇമേജ് കണ്ടെയ്നറിന്റെ ഒഴിഞ്ഞ ഭാഗത്ത് ക്ലിക്ക് ചെയ്താൽ ബോക്സ് വരും)
         function onContainerAction(e) {
-            if (currentToolMode !== "BOX") return; // ഡ്രോയിംഗ് മോഡിൽ ആണെങ്കിൽ ബോക്സ് വർക്ക് ചെയ്യില്ല
-            
+            if (e.target.id === 'pageDrawBoard' || e.target.tagName === 'path') return; // എസ്‌വിജിയിൽ വരയ്ക്കുമ്പോൾ ബോക്സ് മാറില്ല
             e.stopPropagation();
             let clientX = e.clientX || (e.touches && e.touches[0].clientX);
             let clientY = e.clientY || (e.touches && e.touches[0].clientY);
             
             if (e.target.id === 'resizeHandle') {
                 e.preventDefault(); isResizing = true;
-                window.addEventListener('mousemove', onWindowMove);
-                window.addEventListener('mouseup', onWindowEnd);
-                window.addEventListener('touchmove', onWindowMove, { passive: false });
-                window.addEventListener('touchend', onWindowEnd);
+                window.addEventListener('mousemove', onWindowMove); window.addEventListener('mouseup', onWindowEnd);
+                window.addEventListener('touchmove', onWindowMove, { passive: false }); window.addEventListener('touchend', onWindowEnd);
             } else {
                 createNewBox(clientX, clientY);
             }
         }
-
         function onWindowMove(e) {
             if (!isResizing) return;
-            let clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            let clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            if(e.type === 'touchmove') e.preventDefault(); 
-            resizeBoxProcess(clientX, clientY);
+            let clientX = e.clientX || (e.touches && e.touches[0].clientX); let clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            if(e.type === 'touchmove') e.preventDefault(); resizeBoxProcess(clientX, clientY);
         }
-
         function onWindowEnd() {
             isResizing = false;
-            window.removeEventListener('mousemove', onWindowMove);
-            window.removeEventListener('mouseup', onWindowEnd);
-            window.removeEventListener('touchmove', onWindowMove);
-            window.removeEventListener('touchend', onWindowEnd);
+            window.removeEventListener('mousemove', onWindowMove); window.removeEventListener('mouseup', onWindowEnd);
+            window.removeEventListener('touchmove', onWindowMove); window.removeEventListener('touchend', onWindowEnd);
         }
-
         function createNewBox(clientX, clientY) {
-            if(!clientX || !clientY) return;
-            const rect = imgContainer.getBoundingClientRect();
+            if(!clientX || !clientY) return; const rect = imgContainer.getBoundingClientRect();
             let clickX = clientX - rect.left; let clickY = clientY - rect.top;
-            
-            pctLeft = ((clickX / rect.width) * 100) - (pctWidth / 2);
-            pctTop = ((clickY / rect.height) * 100) - (pctHeight / 2);
-            
+            pctLeft = ((clickX / rect.width) * 100) - (pctWidth / 2); pctTop = ((clickY / rect.height) * 100) - (pctHeight / 2);
             if(pctLeft < 0) pctLeft = 0; if(pctTop < 0) pctTop = 0;
-            if(pctLeft + pctWidth > 100) pctLeft = 100 - pctWidth;
-            if(pctTop + pctHeight > 100) pctTop = 100 - pctHeight;
+            if(pctLeft + pctWidth > 100) pctLeft = 100 - pctWidth; if(pctTop + pctHeight > 100) pctTop = 100 - pctHeight;
             drawSelectionBox();
         }
-
         function resizeBoxProcess(clientX, clientY) {
-            if(!clientX || !clientY) return;
-            const rect = imgContainer.getBoundingClientRect();
-            let currentXpct = ((clientX - rect.left) / rect.width) * 100;
-            let currentYpct = ((clientY - rect.top) / rect.height) * 100;
-            
+            if(!clientX || !clientY) return; const rect = imgContainer.getBoundingClientRect();
+            let currentXpct = ((clientX - rect.left) / rect.width) * 100; let currentYpct = ((clientY - rect.top) / rect.height) * 100;
             let newWidth = currentXpct - pctLeft; let newHeight = currentYpct - pctTop;
             if (newWidth > 3 && (pctLeft + newWidth <= 100)) pctWidth = newWidth;
             if (newHeight > 2 && (pctTop + newHeight <= 100)) pctHeight = newHeight;
             drawSelectionBox();
         }
-
         function drawSelectionBox() {
             selectionBox.style.left = pctLeft + '%'; selectionBox.style.top = pctTop + '%';
             selectionBox.style.width = pctWidth + '%'; selectionBox.style.height = pctHeight + '%';
             selectionBox.style.display = 'block';
         }
 
-        // ✍️ നേരിട്ട് ചിത്രത്തിന് മുകളിൽ വരയ്ക്കാനുള്ള കാൻവാസ് എൻജിൻ (0-1000 വ്യൂബോക്സ് സ്കെയിലിംഗ്)
-        function clearDrawBoard() {
-            pageDrawBoard.innerHTML = ""; rawPathData = []; currentHwPaths = null;
-            document.getElementById('drawStatusText').innerText = "";
+        // 📖 1. റീഡിങ് ടൈം ഡ്രോയിങ് എൻജിൻ (ചിത്രത്തിന് മുകളിൽ നേരിട്ട് - നീല നിറം)
+        function clearReadingDrawBoard() {
+            pageDrawBoard.innerHTML = ""; readingPaths = [];
+            document.getElementById('readingDrawStatus').innerText = "";
         }
-
-        function initDirectDrawingEngine() {
-            function getCanvasCoords(e) {
+        function initReadingDrawingEngine() {
+            function getCoords(e) {
                 const rect = pageDrawBoard.getBoundingClientRect();
                 let clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
                 let clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
-                
-                // ചിത്രത്തിന്റെ വലിപ്പം എത്രയായാലും അതിനെ 1000 x 1000 വ്യൂബോക്സ് കോർഡിനേറ്റിലേക്ക് മാറ്റുന്നു
-                let x = Math.round(((clientX - rect.left) / rect.width) * 1000);
-                let y = Math.round(((clientY - rect.top) / rect.height) * 1000);
-                return { x: x, y: y };
+                return {
+                    x: Math.round(((clientX - rect.left) / rect.width) * 1000),
+                    y: Math.round(((clientY - rect.top) / rect.height) * 1000)
+                };
             }
-
-            function handleStart(e) {
-                if (currentToolMode !== "DRAW") return;
-                e.preventDefault();
-                hwDrawing = true;
-                const c = getCanvasCoords(e);
-                
-                // അറബിക് കാലിഗ്രാഫി നിബ് രൂപത്തിലുള്ള കട്ടിയുള്ള വരയ്ക്കായി 
-                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                const nibSize = 18; 
-                
-                for(let i = 0; i < nibSize; i++) {
+            function start(e) {
+                // ടച്ച് സെലക്ഷൻ ബോക്സിന് മുകളിൽ അല്ലെങ്കിൽ ഇത് വർക്ക് ചെയ്യും
+                if(e.target.id === 'resizeHandle') return;
+                isReadingDrawing = true; const c = getCoords(e);
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                for(let i=0; i<12; i++) { // നിബ് സ്റ്റൈൽ
                     let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    let offset = i - (nibSize/2);
-                    p.setAttribute("transform", `translate(${offset * 0.4}, ${-offset})`);
-                    p.setAttribute("stroke", "#e74c3c"); // ചുവപ്പ് വര
-                    p.setAttribute("stroke-width", "2");
-                    p.setAttribute("fill", "none");
-                    p.setAttribute("stroke-linecap", "round");
-                    p.setAttribute("d", `M ${c.x} ${c.y}`);
-                    group.appendChild(p);
+                    p.setAttribute("transform", `translate(${(i-6)*0.3}, ${-(i-6)})`);
+                    p.setAttribute("stroke", "#2980b9"); p.setAttribute("stroke-width", "2"); // കുട്ടികളുടെ റീഡിംഗിന് നീല നിറം
+                    p.setAttribute("fill", "none"); p.setAttribute("stroke-linecap", "round");
+                    p.setAttribute("d", `M ${c.x} ${c.y}`); g.appendChild(p);
                 }
-                pageDrawBoard.appendChild(group);
-                rawPathData.push([{x: c.x, y: c.y}]);
+                pageDrawBoard.appendChild(g); readingPaths.push([{x: c.x, y: c.y}]);
             }
-
-            function handleMove(e) {
-                if(!hwDrawing || currentToolMode !== "DRAW") return;
-                e.preventDefault();
-                const c = getCanvasCoords(e);
-                const currentGroup = pageDrawBoard.lastElementChild;
-                if (!currentGroup) return;
-                
-                const paths = currentGroup.querySelectorAll("path");
-                paths.forEach(p => {
-                    p.setAttribute("d", p.getAttribute("d") + ` L ${c.x} ${c.y}`);
-                });
-                rawPathData[rawPathData.length - 1].push({x: c.x, y: c.y});
+            function move(e) {
+                if(!isReadingDrawing) return; const c = getCoords(e);
+                const g = pageDrawBoard.lastElementChild; if(!g) return;
+                g.querySelectorAll("path").forEach(p => p.setAttribute("d", p.getAttribute("d") + ` L ${c.x} ${c.y}`));
+                readingPaths[readingPaths.length - 1].push({x: c.x, y: c.y});
             }
+            function end() { 
+                if(isReadingDrawing) { 
+                    isReadingDrawing = false; 
+                    document.getElementById('readingDrawStatus').innerText = `✏️ റീഡിങ് വരകൾ ചേർത്തു (${readingPaths.length})`;
+                } 
+            }
+            pageDrawBoard.addEventListener("mousedown", start); pageDrawBoard.addEventListener("mousemove", move); window.addEventListener("mouseup", end);
+            pageDrawBoard.addEventListener("touchstart", start, {passive:false}); pageDrawBoard.addEventListener("touchmove", move, {passive:false}); window.addEventListener("touchend", end);
+        }
 
-            function handleEnd() { 
-                if(hwDrawing) {
-                    hwDrawing = false;
-                    currentHwPaths = JSON.parse(JSON.stringify(rawPathData));
-                    document.getElementById('drawStatusText').innerText = `✏️ വരകൾ റെക്കോർഡ് ചെയ്തു (${currentHwPaths.length} Lines)`;
+        // ✍️ 2. ക്വിസ്സ് ഹാൻഡ്‌റൈറ്റിങ് എൻജിൻ (പോപ്പ്അപ്പ് വിൻഡോയ്ക്കുള്ളിൽ - ചുവപ്പ് നിറം)
+        function clearQuizDrawBoard() { quizDrawBoard.innerHTML = ""; quizPaths = []; }
+        function initQuizDrawingEngine() {
+            function getCoords(e) {
+                const rect = quizDrawBoard.getBoundingClientRect();
+                let clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+                let clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+                return {
+                    x: Math.round(((clientX - rect.left) / rect.width) * 1000),
+                    y: Math.round(((clientY - rect.top) / rect.height) * 1000)
+                };
+            }
+            function start(e) { e.preventDefault(); isQuizDrawing = true; const c = getCoords(e);
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                for(let i=0; i<16; i++) {
+                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    p.setAttribute("transform", `translate(${(i-8)*0.4}, ${-(i-8)})`);
+                    p.setAttribute("stroke", "#e74c3c"); p.setAttribute("stroke-width", "2"); // ക്വിസ്സിന് ചുവപ്പ് നിറം
+                    p.setAttribute("fill", "none"); p.setAttribute("stroke-linecap", "round");
+                    p.setAttribute("d", `M ${c.x} ${c.y}`); g.appendChild(p);
                 }
+                quizDrawBoard.appendChild(g); quizPaths.push([{x: c.x, y: c.y}]);
             }
-
-            pageDrawBoard.addEventListener("mousedown", handleStart);
-            pageDrawBoard.addEventListener("mousemove", handleMove);
-            window.addEventListener("mouseup", handleEnd);
-
-            pageDrawBoard.addEventListener("touchstart", handleStart, {passive: false});
-            pageDrawBoard.addEventListener("touchmove", handleMove, {passive: false});
-            window.addEventListener("touchend", handleEnd);
+            function move(e) { if(!isQuizDrawing) return; e.preventDefault(); const c = getCoords(e);
+                const g = quizDrawBoard.lastElementChild; if(!g) return;
+                g.querySelectorAll("path").forEach(p => p.setAttribute("d", p.getAttribute("d") + ` L ${c.x} ${c.y}`));
+                quizPaths[quizPaths.length - 1].push({x: c.x, y: c.y});
+            }
+            function end() { isQuizDrawing = false; }
+            quizDrawBoard.addEventListener("mousedown", start); quizDrawBoard.addEventListener("mousemove", move); window.addEventListener("mouseup", end);
+            quizDrawBoard.addEventListener("touchstart", start, {passive:false}); quizDrawBoard.addEventListener("touchmove", move, {passive:false}); window.addEventListener("touchend", end);
+        }
+        function redrawQuizPaths() {
+            quizDrawBoard.innerHTML = "";
+            quizPaths.forEach(path => {
+                const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                for(let i=0; i<16; i++) {
+                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    p.setAttribute("transform", `translate(${(i-8)*0.4}, ${-(i-8)})`);
+                    p.setAttribute("stroke", "#e74c3c"); p.setAttribute("stroke-width", "2");
+                    p.setAttribute("fill", "none"); p.setAttribute("stroke-linecap", "round");
+                    let dStr = `M ${path[0].x} ${path[0].y}`;
+                    for(let pt=1; pt<path.length; pt++) { dStr += ` L ${path[pt].x} ${path[pt].y}`; }
+                    p.setAttribute("d", dStr); g.appendChild(p);
+                }
+                quizDrawBoard.appendChild(g);
+            });
+        }
+        function saveQuizDrawing() {
+            if(quizPaths.length === 0) { alert("ആദ്യം ബോക്സിൽ എഴുതുക!"); return; }
+            savedQuizPathsForZone = JSON.parse(JSON.stringify(quizPaths));
+            document.getElementById('quizStatusText').innerText = `📝 ക്വിസ്സ് അക്ഷരങ്ങൾ റെക്കോർഡ് ചെയ്തു (${savedQuizPathsForZone.length} Lines)`;
+            closeQuizModal();
         }
 
         // 🎤 ഓഡിയോ എൻജിൻ
+        let mediaRecorder; let audioChunks = [];
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-                mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.start(); audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream); mediaRecorder.start(); audioChunks = [];
                 mediaRecorder.addEventListener("dataavailable", event => audioChunks.push(event.data));
                 mediaRecorder.addEventListener("stop", () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-                    currentAudioBlobs.push(audioBlob);
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' }); currentAudioBlobs.push(audioBlob);
                     document.getElementById('audioPlayback').src = URL.createObjectURL(audioBlob);
                     document.getElementById('audioPlayback').style.display = 'block';
                 });
-                document.getElementById('startBtn').style.display = 'none';
-                document.getElementById('stopBtn').style.display = 'block';
+                document.getElementById('startBtn').style.display = 'none'; document.getElementById('stopBtn').style.display = 'block';
                 document.getElementById('recordStatus').innerText = "🔴 റെക്കോർഡ് ചെയ്യുന്നു...";
             }).catch(() => alert("മൈക്ക് ഓൺ ചെയ്യുക!"));
         }
-
         function stopRecording() {
-            mediaRecorder.stop();
-            document.getElementById('startBtn').style.display = 'block';
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
+            mediaRecorder.stop(); document.getElementById('startBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none'; document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
         }
 
+        // 💾 വാക്ക് ലിങ്ക് ചെയ്യുക (Zone സേവിങ്)
         function saveWordZone() {
             let arabic = document.getElementById('arabicText').value.trim(); 
-            if (pctLeft === 0 && pctTop === 0) return alert("ആദ്യം ഒന്നാമത്തെ മോഡ് ക്ലിക്ക് ചെയ്ത് ചിത്രത്തിൽ തൊട്ട് ഒരു ടച്ച് ബോക്സ് നിശ്ചയിക്കുക!");
+            if (pctLeft === 0 && pctTop === 0) return alert("ആദ്യം ചിത്രത്തിൽ തൊട്ട് ഒരു ടച്ച് ബോക്സ് നിശ്ചയിക്കുക!");
             if (currentAudioBlobs.length === 0 || currentAudioBlobs.length <= currentZones.length) return alert("ഓഡിയോ റെക്കോർഡ് ചെയ്യുക!");
             
             let isTextAlreadyExists = false;
@@ -522,17 +526,16 @@
                 });
                 currentZones.forEach(zone => { if (zone.text && zone.text.trim() === arabic) isTextAlreadyExists = true; });
             }
-
             if (isTextAlreadyExists) {
-                arabic = ""; 
-                alert("⚠️ ഈ വാക്ക് നിലവിലുള്ള പാഠങ്ങളിൽ നൽകിയിട്ടുള്ളതാണ്! അതിനാൽ ഇതിന്റെ ടെക്സ്റ്റ് ഒഴിവാക്കി ഓഡിയോ റെക്കോർഡ് മാത്രം വിജയകരമായി ലിങ്ക് ചെയ്യുന്നു.");
+                arabic = ""; alert("⚠️ ഈ വാക്ക് നിലവിലുണ്ട്! അതിനാൽ ഇതിന്റെ ടെക്സ്റ്റ് ഒഴിവാക്കി ഓഡിയോ റെക്കോർഡ് മാത്രം ലിങ്ക് ചെയ്യുന്നു.");
             }
             
+            // ക്വിസ്സ് ഡാറ്റയും ടച്ച് ഏരിയയും കോർഡിനേറ്റ്സും ചേർക്കുന്നു
             currentZones.push({ 
                 coords: { left: pctLeft, top: pctTop, width: pctWidth, height: pctHeight }, 
                 text: arabic, 
                 localAudioIndex: currentAudioBlobs.length - 1,
-                writingPaths: currentHwPaths ? currentHwPaths : null 
+                writingPaths: savedQuizPathsForZone ? savedQuizPathsForZone : null // ക്വിസ്സ് റൈറ്റിംഗ് പാത്ത്
             });
             
             document.getElementById('zoneCount').innerText = `(${currentZones.length} വാക്കുകൾ ചേർത്തു)`;
@@ -540,15 +543,14 @@
             document.getElementById('recordStatus').innerText = "";
             document.getElementById('arabicText').value = ""; 
             
-            // റീസെറ്റ് ചെയ്യുന്നു
-            clearDrawBoard();
-            switchToolMode('BOX');
-            selectionBox.style.display = 'none';
-            pctLeft = 0; pctTop = 0;
-            
-            if (!isTextAlreadyExists) alert("🎯 വാക്ക് വിജയകരമായി ലിങ്ക് ചെയ്തു!");
+            // അടുത്ത വാക്കിനായി ക്വിസ്സ് റൈറ്റിംഗ് ഡാറ്റ മാത്രം റീസെറ്റ് ചെയ്യുന്നു
+            savedQuizPathsForZone = null;
+            document.getElementById('quizStatusText').innerText = "";
+            selectionBox.style.display = 'none'; pctLeft = 0; pctTop = 0;
+            if (!isTextAlreadyExists) alert("🎯 വാക്ക് ക്വിസ്സ് ഡാറ്റയോടെ വിജയകരമായി ലിങ്ക് ചെയ്തു!");
         }
 
+        // ➕ പേജ് മെമ്മറിയിലേക്ക് മാറ്റുക (റീഡിങ് ഡ്രോയിംഗ് പേജ് ലെവലിലാണ് സേവ് ആകുന്നത്)
         function addNextPageToMemory() {
             let lesson = parseInt(document.getElementById('lessonNum').value);
             if(!lesson || lesson < 1) return alert("ദയവായി ശരിയായ പാഠം നമ്പർ നൽകുക!");
@@ -560,40 +562,35 @@
                 lesson: lesson,
                 zones: currentZones,
                 audioBlobs: currentAudioBlobs,
+                readingPaths: readingPaths.length > 0 ? readingPaths : null, // കുട്ടികൾക്കുള്ള റീഡിങ് ടൈം വരകൾ
                 hidden: false
             });
             alert(`ഈ പേജ് വിജയകരമായി പാഠം ${lesson}-ലേക്ക് മാറ്റി!`);
-            currentZones = []; currentAudioBlobs = []; selectedImageFile = null;
+            currentZones = []; currentAudioBlobs = []; selectedImageFile = null; readingPaths = [];
             document.getElementById('imageUploader').value = '';
             document.getElementById('mappingSection').style.display = 'none';
             document.getElementById('zoneCount').innerText = "(0 വാക്കുകൾ ചേർത്തു)";
-            renderExistingPagesList();
+            clearReadingDrawBoard(); renderExistingPagesList();
         }
 
         function blobToBase64(blob) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result.split(',')[1]);
+                const reader = new FileReader(); reader.onloadend = () => resolve(reader.result.split(',')[1]);
                 reader.onerror = reject; reader.readAsDataURL(blob);
             });
         }
 
         async function uploadToGitHubAPI(path, blobData, token) {
             const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${path}`;
-            const base64Content = await blobToBase64(blobData);
-            let sha = null;
+            const base64Content = await blobToBase64(blobData); let sha = null;
             try {
                 let checkRes = await fetch(url, { headers: { "Authorization": `token ${token}` } });
                 if(checkRes.ok) { let checkData = await checkRes.json(); sha = checkData.sha; }
             } catch(e) {}
-
-            let bodyObj = { message: `Admin auto-update: ${path}`, content: base64Content, branch: GH_BRANCH };
+            let bodyObj = { message: `Admin update: ${path}`, content: base64Content, branch: GH_BRANCH };
             if(sha) bodyObj.sha = sha;
-
             let res = await fetch(url, {
-                method: "PUT",
-                headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" },
-                body: JSON.stringify(bodyObj)
+                method: "PUT", headers: { "Authorization": `token ${token}`, "Content-Type": "application/json" }, body: JSON.stringify(bodyObj)
             });
             if(!res.ok) { let errText = await res.text(); throw new Error(`GitHub Upload Failed: ${errText}`); }
         }
@@ -603,8 +600,7 @@
             if(!token) return alert("ദയവായി ആദ്യം താങ്കളുടെ GitHub ടോക്കൺ മുകളിൽ നൽകുക!");
             if(allPagesMemory.length === 0) return alert("കുറഞ്ഞത് ഒരു പേജ് എങ്കിലും ഉണ്ടാകണം!");
             
-            const overlay = document.getElementById('loadingOverlay');
-            overlay.style.display = 'flex';
+            const overlay = document.getElementById('loadingOverlay'); overlay.style.display = 'flex';
             
             try {
                 document.getElementById('loadText').innerText = "📝 മദ്രസ ലിസ്റ്റ് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യുന്നു...";
@@ -616,36 +612,33 @@
                     let pageItem = allPagesMemory[p]; let zipImgName = "";
                     
                     if(pageItem.isNewPage) {
-                        zipImgName = `page_${Date.now()}_${p}_image.jpg`; 
+                        zipImgName = `page_${Date.now()}_${p}_image.jpg`;
                         document.getElementById('loadText').innerText = `📸 പുതിയ പേജ് ${p + 1} ചിത്രം അപ്‌ലോഡ് ചെയ്യുന്നു...`;
                         await uploadToGitHubAPI(`data/${zipImgName}`, pageItem.imageFile, token);
-                    } else {
-                        zipImgName = pageItem.image.split('/').pop().split('?')[0];
-                    }
+                    } else { zipImgName = pageItem.image.split('/').pop().split('?')[0]; }
                     
                     let updatedZones = [];
                     for(let z = 0; z < pageItem.zones.length; z++) {
                         let zoneItem = pageItem.zones[z]; let zipAudioName = "";
-                        
                         if(pageItem.isNewPage) {
-                            zipAudioName = `audio_${Date.now()}_p${p}_z${z}.mp3`; 
+                            zipAudioName = `audio_${Date.now()}_p${p}_z${z}.mp3`;
                             document.getElementById('loadText').innerText = `🎙️ പേജ് ${p + 1} - ഓഡിയോ ${z + 1} അപ്‌ലോഡ് ചെയ്യുന്നു...`;
                             let audioBlob = pageItem.audioBlobs[zoneItem.localAudioIndex];
                             await uploadToGitHubAPI(`data/${zipAudioName}`, audioBlob, token);
-                        } else {
-                            zipAudioName = zoneItem.audioSrc.split('/').pop().split('?')[0];
-                        }
+                        } else { zipAudioName = zoneItem.audioSrc.split('/').pop().split('?')[0]; }
                         
                         updatedZones.push({
-                            coords: zoneItem.coords,
-                            text: zoneItem.text || "", 
-                            audioSrc: `data/${zipAudioName}`,
-                            writingPaths: zoneItem.writingPaths || null 
+                            coords: zoneItem.coords, text: zoneItem.text || "", audioSrc: `data/${zipAudioName}`,
+                            writingPaths: zoneItem.writingPaths || null // ക്വിസ്സ് ഹാൻഡ്‌റൈറ്റിംഗ്
                         });
                     }
                     
                     pagesJsonArray.push({
-                        image: `data/${zipImgName}`, lesson: pageItem.lesson || 1, zones: updatedZones, hidden: pageItem.hidden ? true : false
+                        image: `data/${zipImgName}`,
+                        lesson: pageItem.lesson || 1,
+                        zones: updatedZones,
+                        readingPaths: pageItem.readingPaths || null, // റീഡിങ് വരകൾ പേജ് ലെവലിൽ സേവ് ആകുന്നു
+                        hidden: pageItem.hidden ? true : false
                     });
                 }
                 
@@ -653,12 +646,10 @@
                 let bookBlob = new Blob([JSON.stringify({ version: Date.now(), pages: pagesJsonArray }, null, 2)], {type: "application/json"});
                 await uploadToGitHubAPI("data/data_book.json", bookBlob, token);
 
-                overlay.style.display = 'none';
-                alert("🎉 വിജയകരം! എല്ലാ മാറ്റങ്ങളും നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യപ്പെട്ടു.");
+                overlay.style.display = 'none'; alert("🎉 വിജയകരം! എല്ലാ മാറ്റങ്ങളും നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യപ്പെട്ടു.");
                 window.location.reload();
             } catch (error) {
-                console.error(error); overlay.style.display = 'none';
-                alert("❌ അപ്‌ലോഡ് പരാജയപ്പെട്ടു! " + error.message);
+                console.error(error); overlay.style.display = 'none'; alert("❌ അപ്‌ലോഡ് പരാജയപ്പെട്ടു! " + error.message);
             }
         }
     </script>

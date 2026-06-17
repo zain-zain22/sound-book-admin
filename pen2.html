@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✏️ പെൻസിൽ പോയിന്റ് അഡ്ജസ്റ്റ്മെന്റ് ടൂൾ</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; text-align: center; padding: 20px; margin: 0; }
+        h2 { color: #2c3e50; margin-bottom: 5px; }
+        .description { color: #555; max-width: 500px; margin: 0 auto 15px auto; font-size: 14px; line-height: 1.4; }
+        
+        .test-container { background: white; max-width: 480px; margin: 0 auto; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        
+        /* മെയിൻ ആപ്പിലെ അതേ ഡിസൈൻ ലിങ്ക് ചെയ്തത് */
+        .book-container-mock { 
+            position: relative; 
+            width: 100%; 
+            height: 300px; 
+            background: #fff; 
+            border: 3px solid #2c3e50; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.05);
+        }
+        .mock-svg { width: 100%; height: 100%; display: block; background: #fafafa; }
+        
+        /* കൈയുടെ ചിത്രം */
+        .hand-cursor { 
+            position: absolute; 
+            width: 140px; /* മെയിൻ ആപ്പിലെ അതേ സൈസ് (140x140) */
+            height: 140px; 
+            pointer-events: none; 
+            z-index: 1000; 
+            transition: left 0.1s, top 0.1s; /* മാറ്റങ്ങൾ പെട്ടെന്ന് തിരിച്ചറിയാൻ */
+        }
+
+        .controls { margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 12px; text-align: left; border: 1px solid #e2e8f0; }
+        .controls label { font-weight: bold; display: block; margin-top: 12px; color: #34495e; font-size: 14px; }
+        .controls input { width: 100%; margin-top: 6px; padding: 10px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        .controls input:focus { border-color: #3498db; outline: none; }
+        
+        .btn-apply { background: #2ecc71; color: white; border: none; padding: 14px; width: 100%; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 6px rgba(46, 204, 113, 0.2); }
+        .btn-apply:active { transform: scale(0.98); }
+        
+        .code-box { background: #2c3e50; color: #fff; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; margin-top: 15px; word-break: break-all; text-align: left; border-left: 5px solid #3498db; }
+        .code-title { font-size: 11px; color: #bdc3c7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <h2>✏️ പെൻസിൽ പോയിന്റ് ട്യൂണിംഗ് ബോക്സ്</h2>
+    <p class="description">താഴെ കാണുന്ന ചുവന്ന പ്ലസ് (+) അടയാളത്തിന്റെ <b>കൃത്യം നടുവിലായിരിക്കണം (Centre)</b> ചൂണ്ടുവിരലിന്റെയോ പെൻസിലിന്റെയോ തുമ്പ് വരേണ്ടത്. വാല്യൂസ് മാറ്റി 'ടെസ്റ്റ് ചെയ്യുക' ബട്ടൺ അടിക്കുക.</p>
+
+    <div class="test-container">
+        <div class="book-container-mock" id="testContainer">
+            <svg class="mock-svg" id="testSvg" viewBox="0 0 1000 1000" preserveAspectRatio="none">
+                <line x1="500" y1="350" x2="500" y2="650" stroke="#e74c3c" stroke-width="10" stroke-linecap="round" />
+                <line x1="350" y1="500" x2="650" y2="500" stroke="#e74c3c" stroke-width="10" stroke-linecap="round" />
+                <circle cx="500" cy="500" r="12" fill="#2c3e50" />
+            </svg>
+            <img src="hand.png" id="handCursor" class="hand-cursor" alt="hand">
+        </div>
+
+        <div class="controls">
+            <label>1. X അഡ്ജസ്റ്റ്മെന്റ് (ഇടത്ത് / വലത്ത്):</label>
+            <input type="number" id="offsetX" value="15">
+            <small style="color:#7f8c8d; display:block; margin-top:2px;">(കൈ ഇടത്തോട്ട് നീക്കാൻ ഈ സംഖ്യ <b>കൂട്ടുക</b>, വലത്തോട്ട് നീക്കാൻ <b>കുറയ്ക്കുക</b>)</small>
+
+            <label>2. Y അഡ്ജസ്റ്റ്മെന്റ് (മുകളിൽ / താഴെ):</label>
+            <input type="number" id="offsetY" value="5">
+            <small style="color:#7f8c8d; display:block; margin-top:2px;">(കൈ മുകളിലോട്ട് നീക്കാൻ ഈ സംഖ്യ <b>കൂട്ടുക</b>, താഴോട്ട് നീക്കാൻ <b>കുറയ്ക്കുക</b>)</small>
+
+            <button class="btn-apply" onclick="applyTuning()">പൊസിഷൻ ലൈവ് ടെസ്റ്റ് ചെയ്യുക 🔄</button>
+        </div>
+
+        <div class="code-box">
+            <div class="code-title">📋 മെയിൻ ആപ്പിൽ മാറ്റേണ്ട കോഡ്:</div>
+            <span id="generatedCode">ഫയൽ റൺ ചെയ്യുമ്പോൾ കോഡ് ഇവിടെ തനിയെ വരും...</span>
+        </div>
+    </div>
+
+    <script>
+        function applyTuning() {
+            // ഇൻപുട്ടിൽ നിന്നും പുതിയ വാല്യൂസ് എടുക്കുന്നു
+            let xOffset = parseFloat(document.getElementById('offsetX').value) || 0;
+            let yOffset = parseFloat(document.getElementById('offsetY').value) || 0;
+
+            let svg = document.getElementById('testSvg');
+            let container = document.getElementById('testContainer');
+            let hand = document.getElementById('handCursor');
+
+            // SVG-യിലെ കൃത്യം നടുവിലുള്ള പോയിന്റ് (500, 500) ടാർഗെറ്റ് ചെയ്യുന്നു
+            let targetPoint = svg.createSVGPoint();
+            targetPoint.x = 500;
+            targetPoint.y = 500;
+            
+            let matrix = svg.getScreenCTM();
+            if (!matrix) return;
+            
+            let screenPos = targetPoint.matrixTransform(matrix);
+            let containerRect = container.getBoundingClientRect();
+
+            // കണ്ടെയ്നറിന് ആപേക്ഷികമായ ലോക്കൽ കോർഡിനേറ്റ്സ് കണ്ടെത്തുന്നു
+            let localX = screenPos.x - containerRect.left;
+            let localY = screenPos.y - containerRect.top;
+
+            // പുതിയ ഓഫ്‌സെറ്റ് അനുസരിച്ച് കൈയുടെ പൊസിഷൻ മാറ്റുന്നു
+            hand.style.left = (localX - xOffset) + 'px';
+            hand.style.top = (localY - yOffset) + 'px';
+
+            // മെയിൻ ആപ്പിലെ 'animateReadingPath' ഫങ്ക്ഷനിൽ നേരിട്ട് മാറ്റാനുള്ള കോഡ് ജനറേറ്റ് ചെയ്യുന്നു
+            document.getElementById('generatedCode').innerHTML = 
+                `// മെയിൻ ആപ്പിലെ animateReadingPath ഫങ്ക്ഷനിൽ ഇങ്ങനെ മാറ്റിയെഴുതുക:<br>` +
+                `handImg.setAttribute("x", pathPoints[0].x - ${xOffset});<br>` +
+                `handImg.setAttribute("y", pathPoints[0].y - ${yOffset});<br><br>` +
+                `// Interval-ന്റെ ഉള്ളിലുള്ള വരിയും ഇതുപോലെ മാറ്റുക:<br>` +
+                `handImg.setAttribute("x", currPt.x - ${xOffset});<br>` +
+                `handImg.setAttribute("y", currPt.y - ${yOffset});`;
+        }
+
+        // പേജ് ലോഡ് ചെയ്യുമ്പോൾ തന്നെ ഫങ്ക്ഷൻ ആദ്യ തവണ വർക്ക് ചെയ്യാൻ വേണ്ടി
+        window.onload = function() {
+            setTimeout(applyTuning, 300);
+        };
+    </script>
+</body>
+</html>

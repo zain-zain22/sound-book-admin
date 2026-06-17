@@ -166,12 +166,13 @@
             document.getElementById(id).classList.add('active-screen');
         }
 
-        // 📅 ഓരോ ദിവസവും ലോക്ക് സിസ്റ്റം കൃത്യമായി വർക്ക് ചെയ്യാൻ തീയതിയും പേരും ചേർത്തുള്ള കീ ഉണ്ടാക്കുന്നു
+        // 📅 കുട്ടിയുടെ പേരും ഇന്നത്തെ കറക്റ്റ് തീയതിയും ചേർത്തുള്ള ലോക്ക് കീ ഉണ്ടാക്കുന്നു
         function getTodayLockKey(studentName) {
             let today = new Date().toISOString().split('T')[0];
             return `lock_${studentName}_${today}`;
         }
 
+        // മെനു ലോഡ് ചെയ്യുമ്പോൾ ബട്ടൺ ലോക്ക് ചെയ്യണോ അൺലോക്ക് ചെയ്യണോ എന്ന് തീരുമാനിക്കുന്നു
         function updateMenuButtons() {
             let isUnlocked = localStorage.getItem(getTodayLockKey(currentStudent));
             let quizBtn = document.getElementById('btnMenuQuiz');
@@ -182,6 +183,7 @@
                 quizBtn.className = "btn-green";
                 quizBtn.innerText = "🎮 ക്വിസ്സ് ഗെയിം കളിക്കുക 🚀";
             } else {
+                // ഇന്നത്തെ തീയതിയിൽ റിവിഷൻ കഴിഞ്ഞിട്ടില്ലെങ്കിൽ നിർബന്ധമായും ലോക്ക് ആയിരിക്കും
                 quizBtn.disabled = true;
                 quizBtn.className = "btn-lock";
                 quizBtn.innerText = "🎮 ക്വിസ്സ് ഗെയിം (Lock 🔒)";
@@ -194,6 +196,16 @@
             if(!currentMadrasa || !currentStudent || currentMadrasa === "ഡാറ്റ ലഭ്യമല്ല") return alert("വിവരങ്ങൾ തിരഞ്ഞെടുക്കുക!");
             
             document.getElementById('welcomeText').innerText = `👤 ${currentStudent}`;
+            
+            // 🔒 പേജ് ഓപ്പൺ ചെയ്യുമ്പോൾ ആദ്യം തന്നെ ബട്ടൺ നിർബന്ധമായും ലോക്ക് സ്റ്റേറ്റിലേക്ക് മാറ്റുന്നു
+            let quizBtn = document.getElementById('btnMenuQuiz');
+            if(quizBtn) {
+                quizBtn.disabled = true;
+                quizBtn.className = "btn-lock";
+                quizBtn.innerText = "🎮 ക്വിസ്സ് ഗെയിം (Lock 🔒)";
+            }
+
+            // അതിനുശേഷം ഇന്നത്തെ തീയതി നോക്കി മാത്രം അപ്ഡേറ്റ് ചെയ്യുന്നു
             updateMenuButtons();
             showScreen('mainMenuScreen');
         }
@@ -286,8 +298,8 @@
             handImg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "hand.png");
             handImg.setAttribute("width", "140");
             handImg.setAttribute("height", "140");
-            handImg.setAttribute("x", pathPoints[0].x - 33); // 👈 ആവശ്യപ്പെട്ടതുപോലെ മൈനസ് വാല്യൂ ആക്കി
-            handImg.setAttribute("y", pathPoints[0].y - 50); // 👈 ആവശ്യപ്പെട്ടതുപോലെ മൈനസ് വാല്യൂ ആക്കി
+            handImg.setAttribute("x", pathPoints[0].x - 33); // 👈 ആവശ്യപ്പെട്ടതുപോലെ മൈനസ് വാല്യൂ
+            handImg.setAttribute("y", pathPoints[0].y - 50); // 👈 ആവശ്യപ്പെട്ടതുപോലെ മൈനസ് വാല്യൂ
             svg.appendChild(handImg);
 
             let ptIdx = 1;
@@ -302,8 +314,8 @@
                 let currPt = pathPoints[ptIdx];
                 let dString = ` L ${currPt.x} ${currPt.y}`;
                 paths.forEach(p => p.setAttribute("d", p.getAttribute("d") + dString));
-                handImg.setAttribute("x", currPt.x - 33); // 👈 ഇവിടെയും മൈനസ് വാല്യൂ ആക്കി
-                handImg.setAttribute("y", currPt.y - 50); // 👈 ഇവിടെയും മൈനസ് വാല്യൂ ആക്കി
+                handImg.setAttribute("x", currPt.x - 33); // 👈 ഇവിടെയും മൈനസ് വാല്യൂ
+                handImg.setAttribute("y", currPt.y - 50); // 👈 ഇവിടെയും മൈനസ് വാല്യൂ
                 ptIdx++;
             }, speed);
         }
@@ -314,7 +326,7 @@
                 alert("🎯 ഈ പേജ് കഴിഞ്ഞു! അടുത്ത പേജിലേക്ക് പോകാം.");
                 loadRevisionPage();
             } else {
-                // ഇന്നത്തെ ദിവസത്തേക്ക് റിവിഷൻ കഴിഞ്ഞതായി മെമ്മറിയിൽ ലോക്ക് മാറ്റുന്നു
+                // 🔑 റിവിഷൻ പൂർണ്ണമായി കണ്ടു കഴിഞ്ഞാൽ മാത്രം ഇന്നത്തെ തീയതിയിൽ 'true' എന്ന് സേവ് ചെയ്യുന്നു
                 localStorage.setItem(getTodayLockKey(currentStudent), "true");
                 
                 alert("🎉 വലിയൊരു കൈയടി! ഇന്നത്തെ റിവിഷൻ പൂർത്തിയായിരിക്കുന്നു. ഇനി നിനക്ക് ക്വിസ്സ് ഗെയിം കളിക്കാം 🎮");
@@ -331,6 +343,7 @@
                     };
                 }
                 
+                // മെയിൻ മെനുവിലെ ബട്ടൺ അൺലോക്ക് ആക്കാൻ ഫങ്ക്ഷൻ കോൾ ചെയ്യുന്നു
                 updateMenuButtons();
             }
         }

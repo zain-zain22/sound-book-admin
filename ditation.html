@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ഡിജിറ്റൽ സൗണ്ട് ബുക്ക് - കേട്ടെഴുത്ത് പാനൽ (Projector View)</title>
+    <style>
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', sans-serif; background: #1a252f; color: white; margin: 0; padding: 0; user-select: none; overflow-x: hidden; }
+        
+        .container { width: 100%; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        
+        h1 { font-size: 38px; color: #3498db; margin: 0 0 5px 0; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        p.subtitle { font-size: 20px; color: #bdc3c7; margin: 0 0 25px 0; text-align: center; }
+
+        /* വാക്കുകൾ കാണിക്കുന്ന വലിയ ബോക്സുകൾ */
+        .words-wrapper { display: flex; gap: 40px; justify-content: center; align-items: center; width: 100%; max-width: 900px; margin-bottom: 25px; flex-wrap: wrap; }
+        .word-box { font-size: 65px; font-weight: bold; color: #fff; background: #2c3e50; padding: 35px 50px; border-radius: 18px; border: 4px dashed #3498db; min-width: 280px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: 0.3s; }
+        
+        /* ടൈമർ സ്റ്റൈൽ */
+        .timer-container { font-size: 32px; font-weight: bold; color: #e74c3c; margin-bottom: 25px; background: rgba(0,0,0,0.3); padding: 10px 30px; border-radius: 50px; border: 2px solid #e74c3c; display: flex; align-items: center; gap: 15px; }
+
+        /* ⬜ വെളുത്ത റൈറ്റിംഗ് പാഡ് */
+        .book-container { position: relative; width: 100%; max-width: 550px; background: #ffffff; border: 5px solid #3498db; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 30px rgba(0,0,0,0.5); display: none; margin-bottom: 25px; }
+        .book-container img { width: 100%; height: auto; display: block; opacity: 0.15; }
+        #dictPlaybackEngine { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+
+        /* കൺട്രോൾ ബട്ടണുകൾ */
+        .controls-bar { width: 100%; max-width: 600px; display: flex; gap: 15px; justify-content: center; margin-top: 10px; flex-wrap: wrap; }
+        button { color: white; border: none; padding: 18px 30px; font-size: 22px; font-weight: bold; border-radius: 12px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transition: 0.2s; min-width: 160px; }
+        button:active { transform: scale(0.95); }
+        
+        .btn-orange { background: #e67e22; }
+        .btn-green { background: #2ecc71; }
+        .btn-purple { background: #9b59b6; }
+
+        .big-answer { font-size: 80px; font-weight: bold; color: #2ecc71; margin: 20px 0; text-shadow: 0 0 10px rgba(46,204,113,0.5); display: none; text-align: center; }
+        .tick-timer { font-size: 35px; color: #2ecc71; font-weight: bold; margin-bottom: 20px; animation: pulse 1s infinite; display: none; text-align: center; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .loading { font-size: 24px; color: #3498db; font-weight: bold; }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 28px; }
+            p.subtitle { font-size: 16px; }
+            .word-box { font-size: 42px; padding: 20px 30px; min-width: 100%; }
+            .timer-container { font-size: 22px; }
+            .big-answer { font-size: 55px; }
+            .tick-timer { font-size: 26px; }
+            button { font-size: 18px; padding: 14px 20px; flex: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="loadingText" class="loading">🔄 ഡാറ്റ ലോഡ് ചെയ്യുന്നു...</div>
+
+        <div id="mainContent" style="display:none; width: 100%; flex-direction: column; align-items: center;">
+            <h1>✍️ കേട്ടെഴുത്ത് പരിശീലനം (Dictation)</h1>
+            <p class="subtitle">ശരിയായ വാക്ക് കണ്ടെത്തി നോട്ട്ബുക്കിൽ എഴുതുക</p>
+
+            <div class="words-wrapper">
+                <div id="wordDisplay1" class="word-box">???</div>
+                <div id="wordDisplay2" class="word-box">???</div>
+            </div>
+
+            <div id="mainTimerContainer" class="timer-container">
+                <span id="timerIcon">⏳</span>
+                <span id="timerText">ബാക്കി സമയം: 30 സെക്കൻഡ്</span>
+            </div>
+
+            <div id="bigAnswerText" class="big-answer"></div>
+
+            <div id="dictBookContainer" class="book-container">
+                <img id="dictBookImg" src="" alt="Book Page">
+                <svg id="dictPlaybackEngine" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+            </div>
+
+            <div id="tickTimerText" class="tick-timer">📝 നോട്ട്ബുക്കിൽ ടിക്ക് ഇടൂ... (5)</div>
+
+            <div class="controls-bar">
+                <button id="btnPauseResume" class="btn-orange" onclick="togglePauseResume()">⏸️ Pause</button>
+                <button id="btnForceSkip" class="btn-purple" style="display:none;" onclick="startNewRound()">➡️ അടുത്ത വാക്ക്</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="audioPlayer" style="display:none;"></audio>
+
+    <script>
+        let bookData = { pages: [] };
+        let allWords = [];
+        let currentTargetWord = null;
+        let timerId = null;
+        let audioIntervalId = null;
+        let selfCheckTimerId = null;
+        
+        let timeLeft = 30;
+        let isPaused = false;
+        let animationLoopCount = 0; // ആനിമേഷൻ എണ്ണം ട്രാക്ക് ചെയ്യാൻ
+
+        window.onload = function() {
+            loadBookData();
+        };
+
+        async function loadBookData() {
+            try {
+                let r = await fetch(`./data/data_book.json?t=${Date.now()}`);
+                if(r.ok) {
+                    bookData = await r.json();
+                    extractLatest30Words();
+                } else {
+                    document.getElementById('loadingText').innerText = "❌ data_book.json കണ്ടെത്താനായില്ല!";
+                }
+            } catch(e) {
+                document.getElementById('loadingText').innerText = "❌ ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പിശക്!";
+            }
+        }
+
+        function extractLatest30Words() {
+            allWords = [];
+            if(!bookData.pages) return;
+            
+            bookData.pages.forEach(page => {
+                if(page.zones) {
+                    page.zones.forEach((zone, idx) => {
+                        allWords.push({
+                            word: zone.word || "",
+                            audioSrc: zone.audioSrc,
+                            image: page.image,
+                            path: page.readingPaths ? page.readingPaths[idx] : null
+                        });
+                    });
+                }
+            });
+
+            if(allWords.length < 2) {
+                document.getElementById('loadingText').innerText = "❌ പാനലിൽ മതിയായ വാക്കുകൾ ഇല്ല!";
+                return;
+            }
+
+            if(allWords.length > 30) {
+                allWords = allWords.slice(-30);
+            }
+
+            document.getElementById('loadingText').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'flex';
+            
+            startNewRound();
+        }
+
+        function startNewRound() {
+            clearInterval(timerId);
+            clearInterval(audioIntervalId);
+            clearInterval(selfCheckTimerId);
+            document.getElementById('audioPlayer').pause();
+
+            isPaused = false;
+            timeLeft = 30;
+            animationLoopCount = 0;
+
+            // വ്യൂ റീസെറ്റ്
+            document.getElementById('mainTimerContainer').style.display = 'flex';
+            document.getElementById('bigAnswerText').style.display = 'none';
+            document.getElementById('dictBookContainer').style.display = 'none';
+            document.getElementById('tickTimerText').style.display = 'none';
+            document.getElementById('btnPauseResume').style.display = 'block';
+            document.getElementById('btnPauseResume').className = "btn-orange";
+            document.getElementById('btnPauseResume').innerText = "⏸️ Pause";
+            document.getElementById('btnForceSkip').style.display = 'none';
+            document.getElementById('timerIcon').innerText = "⏳";
+            document.getElementById('dictPlaybackEngine').innerHTML = "";
+
+            let shuffled = [...allWords].sort(() => 0.5 - Math.random());
+            let w1 = shuffled[0];
+            let w2 = shuffled[1];
+
+            document.getElementById('wordDisplay1').innerText = w1.word;
+            document.getElementById('wordDisplay2').innerText = w2.word;
+
+            currentTargetWord = Math.random() > 0.5 ? w1 : w2;
+
+            let player = document.getElementById('audioPlayer');
+            function playVoice() {
+                if(!isPaused) {
+                    player.src = currentTargetWord.audioSrc + "?t=" + Date.now();
+                    player.play().catch(e => console.log(e));
+                }
+            }
+            playVoice();
+            audioIntervalId = setInterval(playVoice, 3800);
+
+            document.getElementById('timerText').innerText = `ബാക്കി സമയം: ${timeLeft} സെക്കൻഡ്`;
+            timerId = setInterval(() => {
+                if(!isPaused) {
+                    timeLeft--;
+                    if(timeLeft <= 0) {
+                        clearInterval(timerId);
+                        revealAnswerAutomatically();
+                    } else {
+                        document.getElementById('timerText').innerText = `ബാക്കി സമയം: ${timeLeft} സെക്കൻഡ്`;
+                    }
+                }
+            }, 1000);
+        }
+
+        function togglePauseResume() {
+            let btn = document.getElementById('btnPauseResume');
+            let player = document.getElementById('audioPlayer');
+            
+            if(!isPaused) {
+                isPaused = true;
+                btn.innerText = "▶️ Resume";
+                btn.className = "btn-green";
+                document.getElementById('timerIcon').innerText = "⏸️";
+                player.pause();
+            } else {
+                isPaused = false;
+                btn.innerText = "⏸️ Pause";
+                btn.className = "btn-orange";
+                document.getElementById('timerIcon').innerText = "⏳";
+                player.play().catch(e => console.log(e));
+            }
+        }
+
+        // 🤖 30 സെക്കൻഡ് കഴിഞ്ഞാൽ ഓട്ടോമാറ്റിക്കായി ഉത്തരം കാണിക്കുന്നു
+        function revealAnswerAutomatically() {
+            clearInterval(timerId);
+            clearInterval(audioIntervalId);
+            document.getElementById('audioPlayer').pause();
+
+            document.getElementById('mainTimerContainer').style.display = 'none';
+            document.getElementById('btnPauseResume').style.display = 'none';
+
+            let ansDiv = document.getElementById('bigAnswerText');
+            ansDiv.innerText = `ശരിയുത്തരം: ${currentTargetWord.word}`;
+            ansDiv.style.display = 'block';
+
+            if(currentTargetWord.image && currentTargetWord.path) {
+                let container = document.getElementById('dictBookContainer');
+                container.style.display = 'block';
+                document.getElementById('dictBookImg').src = currentTargetWord.image + "?t=" + Date.now();
+                
+                animationLoopCount = 0; // റീസെറ്റ് ലൂപ്പ് കൗണ്ട്
+                runHandwritingLoop();   // ആനിമേഷൻ ലൂപ്പ് സ്റ്റാർട്ട് ചെയ്യുന്നു
+            } else {
+                // ഒരുപക്ഷേ പാത്ത് ഇല്ലെങ്കിൽ നേരിട്ട് ടിക്ക് ടൈമറിലേക്ക് പോകാൻ
+                startSelfCheckCountdown();
+            }
+        }
+
+        // 🔄 ഹാൻഡ്റൈറ്റിംഗ് 3 തവണ ആവർത്തിച്ച് കാണിക്കാനുള്ള ലൂപ്പ്
+        function runHandwritingLoop() {
+            animationLoopCount++;
+            if (animationLoopCount <= 3) {
+                document.getElementById('dictPlaybackEngine').innerHTML = "";
+                animateHandwriting(currentTargetWord.path, () => {
+                    // ഒരു തവണ ആനിമേഷൻ തീരുമ്പോൾ ഒരു ചെറിയ ഇടവേളയ്ക്ക് ശേഷം അടുത്ത തവണ ഓടിക്കുന്നു
+                    setTimeout(runHandwritingLoop, 600);
+                });
+            } else {
+                // 3 തവണ കാണിച്ചു കഴിഞ്ഞാൽ കുട്ടികൾക്ക് ടിക്ക് ഇടാനുള്ള ടൈമറിലേക്ക് പോകുന്നു
+                startSelfCheckCountdown();
+            }
+        }
+
+        // 🖐️ ഹാൻഡ് ആനിമേഷൻ കോർ എൻജിൻ
+        function animateHandwriting(pathPoints, onCompleteCB) {
+            if(!pathPoints || pathPoints.length === 0) { if(onCompleteCB) onCompleteCB(); return; }
+            let svg = document.getElementById('dictPlaybackEngine');
+            let g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+            let paths = [];
+            
+            for(let i=0; i<12; i++) {
+                let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                p.setAttribute("transform", `translate(${(i-6)*0.3}, ${-(i-6)})`);
+                p.setAttribute("stroke", "#27ae60"); // 🟢 പ്രൊജക്ടറിൽ വെളുത്ത പാടിൽ കാണാൻ നല്ല പച്ച നിറം
+                p.setAttribute("stroke-width", "5"); // ലൈൻ കട്ടി കൂട്ടി
+                p.setAttribute("fill", "none");
+                p.setAttribute("stroke-linecap", "round");
+                p.setAttribute("d", `M ${pathPoints[0].x} ${pathPoints[0].y}`);
+                g.appendChild(p);
+                paths.push(p);
+            }
+            svg.appendChild(g);
+
+            let handImg = document.createElementNS("http://www.w3.org/2000/svg", "image");
+            handImg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "hand.png");
+            handImg.setAttribute("width", "140");
+            handImg.setAttribute("height", "140");
+            handImg.setAttribute("x", pathPoints[0].x - 33);
+            handImg.setAttribute("y", pathPoints[0].y - 50);
+            svg.appendChild(handImg);
+
+            let ptIdx = 1;
+            let speed = Math.max(5, Math.min(25, Math.floor(1500 / pathPoints.length)));
+
+            let interval = setInterval(() => {
+                let currPt = pathPoints[ptIdx];
+                if(!currPt) {
+                    clearInterval(interval);
+                    if(handImg && handImg.parentNode) handImg.parentNode.removeChild(handImg);
+                    if(onCompleteCB) onCompleteCB(); // ഈ തവണത്തെ ആനിമേഷൻ തീർന്നു എന്ന് അറിയിക്കുന്നു
+                    return;
+                }
+                let dString = ` L ${currPt.x} ${currPt.y}`;
+                paths.forEach(p => p.setAttribute("d", p.getAttribute("d") + dString));
+                handImg.setAttribute("x", currPt.x - 33);
+                handImg.setAttribute("y", currPt.y - 50);
+                ptIdx++;
+            }, speed);
+        }
+
+        // 📝 5 സെക്കൻഡ് സ്വയം ടിക്ക് ഇടാനുള്ള ടൈമർ സിസ്റ്റം
+        function startSelfCheckCountdown() {
+            let tickTimeLeft = 5;
+            let tickUi = document.getElementById('tickTimerText');
+            tickUi.innerText = `📝 നോട്ട്ബുക്കിൽ ടിക്ക് ഇടൂ... (${tickTimeLeft})`;
+            tickUi.style.display = 'block';
+            
+            // പ്രൊജക്ടർ നിയന്ത്രിക്കുന്ന ടീച്ചർക്ക് വേണമെങ്കിൽ നേരിട്ട് അടുത്തതിലേക്ക് പോകാൻ ഒരു സ്കിപ്പ് ബട്ടൺ കൂടി ബാക്കപ്പായി കാണിക്കുന്നു
+            document.getElementById('btnForceSkip').style.display = 'block';
+
+            selfCheckTimerId = setInterval(() => {
+                tickTimeLeft--;
+                if(tickTimeLeft <= 0) {
+                    clearInterval(selfCheckTimerId);
+                    startNewRound(); // 5 സെക്കൻഡ് കഴിഞ്ഞാൽ സ്വയം അടുത്ത വാക്കിലേക്ക് പോകുന്നു
+                } else {
+                    tickUi.innerText = `📝 നോട്ട്ബുക്കിൽ ടിക്ക് ഇടൂ... (${tickTimeLeft})`;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

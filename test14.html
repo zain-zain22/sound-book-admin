@@ -124,13 +124,11 @@
         let currentStudent = "";
         let currentMadrasa = "";
         
-        // റിവിഷൻ വേരിയബിളുകൾ
         let revisionPagesList = []; 
         let currentRevIdx = 0;       
         let currentZoneIdx = -1;     
         let isWordAudioFinished = true;
 
-        // ക്വിസ്സ് വേരിയബിളുകൾ
         let quizPool = [];
         let currentQuizIdx = 0;
         let correctQuizZone = null;
@@ -139,26 +137,46 @@
             loadDataFromBackend();
         };
 
-        // GitHub-ൽ നിന്ന് ഡാറ്റ ലോഡ് ചെയ്യുന്നു (Cache ബസ്റ്റർ ചേർത്തു)
+        // 🎯 സുരക്ഷിതമായി ഡാറ്റ ലോഡ് ചെയ്യാനും പിശകുകൾ ഉണ്ടെങ്കിൽ കൃത്യമായി കാണിക്കാനും മാറ്റം വരുത്തിയ ഫങ്ക്ഷൻ
         async function loadDataFromBackend() {
             let cacheBuster = Date.now(); 
             try {
-                let r1 = await fetch(`data/master_list.json?t=${cacheBuster}`);
-                if(r1.ok) masterList = await r1.json();
+                // ഇവിടെ ഫോൾഡർ പാത്ത് കൃത്യമാണെന്ന് ഉറപ്പാക്കാൻ './data/' എന്ന് മാറ്റിയിട്ടുണ്ട്
+                let r1 = await fetch(`./data/master_list.json?t=${cacheBuster}`);
+                if(r1.ok) {
+                    masterList = await r1.json();
+                } else {
+                    console.error("master_list.json ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല");
+                }
                 
-                let r2 = await fetch(`data/data_book.json?t=${cacheBuster}`);
-                if(r2.ok) bookData = await r2.json();
+                let r2 = await fetch(`./data/data_book.json?t=${cacheBuster}`);
+                if(r2.ok) {
+                    bookData = await r2.json();
+                } else {
+                    console.error("data_book.json ലോഡ് ചെയ്യാൻ കഴിഞ്ഞില്ല");
+                }
                 
                 initProfileSelectors();
             } catch(e) {
-                alert("ഡാറ്റ ലോഡ് ചെയ്യുന്നതിൽ പരാജയപ്പെട്ടു. ഇന്റർനെറ്റ് പരിശോധിക്കുക!");
+                console.error("Error loading JSON:", e);
+            } finally {
+                // ഡാറ്റ ലോഡ് ആയാലും ഇല്ലെങ്കിലും ലോഗിൻ ബോക്സ് കാണാൻ വേണ്ടി ലോഡിംഗ് ലെയർ മാറ്റുന്നു
+                document.getElementById('loadingLayer').style.display = 'none';
             }
-            document.getElementById('loadingLayer').style.display = 'none';
         }
 
         function initProfileSelectors() {
             let mSel = document.getElementById('madrasaSelect');
             mSel.innerHTML = "";
+            
+            // ഡാറ്റ കാലിയാണെങ്കിൽ ഒരു ഡിഫോൾട്ട് ഓപ്ഷൻ കാണിക്കും
+            if (Object.keys(masterList).length === 0) {
+                let opt = document.createElement('option');
+                opt.innerText = "ഡാറ്റ ലഭ്യമല്ല";
+                mSel.appendChild(opt);
+                return;
+            }
+
             Object.keys(masterList).sort().forEach(m => {
                 let opt = document.createElement('option');
                 opt.value = m; opt.innerText = m; mSel.appendChild(opt);
@@ -185,7 +203,7 @@
         function enterToMainMenu() {
             currentMadrasa = document.getElementById('madrasaSelect').value;
             currentStudent = document.getElementById('studentSelect').value;
-            if(!currentMadrasa || !currentStudent) return alert("വിവരങ്ങൾ തിരഞ്ഞെടുക്കുക!");
+            if(!currentMadrasa || !currentStudent || currentMadrasa === "ഡാറ്റ ലഭ്യമല്ല") return alert("വിവരങ്ങൾ തിരഞ്ഞെടുക്കുക!");
             
             document.getElementById('welcomeText').innerText = `👤 ${currentStudent}`;
             updateMenuButtons();
@@ -211,13 +229,8 @@
             }
         }
 
-        // ==========================================
-        // 📖 റിവിഷൻ മോഡ് സിസ്റ്റം (പേജുകൾ റിവേഴ്സ് ഓർഡറിൽ)
-        // ==========================================
         function startRevisionMode() {
-            let visiblePages = bookData.pages.filter(p => !p.hidden);
-            
-            // 🎯 അപ്‌ലോഡ് ചെയ്ത ക്രമത്തിന്റെ നേരെ തിരിച്ച് (റിവേഴ്സ്) ആക്കുന്നു
+            let visiblePages = bookData.pages ? bookData.pages.filter(p => !p.hidden) : [];
             revisionPagesList = visiblePages.reverse(); 
             
             if(revisionPagesList.length === 0) return alert("പേജുകൾ ലഭ്യമല്ല!");
@@ -344,14 +357,10 @@
             showScreen('mainMenuScreen');
         }
 
-        // ==========================================
-        // 🎮 ക്വിസ്സ് ഗെയിം എഞ്ചിൻ
-        // ==========================================
         function startQuizMode() {
             quizPool = [];
-            let visiblePages = bookData.pages.filter(p => !p.hidden);
+            let visiblePages = bookData.pages ? bookData.pages.filter(p => !p.hidden) : [];
             
-            // ടെക്സ്റ്റ് ഉള്ള വാക്കുകൾ മാത്രം ക്വിസ്സിലേക്ക് എടുക്കുന്നു
             visiblePages.forEach(page => {
                 if(page.zones) {
                     page.zones.forEach(zone => {
@@ -384,7 +393,6 @@
             
             replayQuizAudio();
 
-            // 4 ഓപ്ഷനുകൾ തയ്യാറാക്കുന്നു
             let optionsText = [correctQuizZone.text.trim()];
             let allTextWords = [];
             
@@ -465,3 +473,29 @@
                     p.setAttribute("stroke-linecap", "round");
                     p.setAttribute("d", `M ${pathPoints[0].x} ${pathPoints[0].y}`);
                     g.appendChild(p);
+                    paths.push(p);
+                }
+                svg.appendChild(g);
+
+                let ptIdx = 1;
+                let speed = Math.max(5, Math.min(25, Math.floor(1000 / pathPoints.length)));
+                let interval = setInterval(() => {
+                    if(ptIdx >= pathPoints.length) {
+                        clearInterval(interval);
+                        return;
+                    }
+                    let currPt = pathPoints[ptIdx];
+                    let dString = ` L ${currPt.x} ${currPt.y}`;
+                    paths.forEach(p => p.setAttribute("d", p.getAttribute("d") + dString));
+                    ptIdx++;
+                }, speed);
+            });
+        }
+
+        function quitQuiz() {
+            document.getElementById('audioPlayer').pause();
+            showScreen('mainMenuScreen');
+        }
+    </script>
+</body>
+</html>

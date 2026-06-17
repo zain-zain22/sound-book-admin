@@ -14,11 +14,14 @@
         .arabic-input { direction: rtl; font-size: 20px; font-family: 'Traditional Arabic', 'Courier New', sans-serif; text-align: right; border: 2px solid #2ecc71 !important; }
         
         /* 📸 ഇമേജ് കണ്ടെയ്നര്‍ സ്റ്റൈല്‍ */
-        .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; cursor: crosshair; }
+        .image-container { position: relative; display: inline-block; border: 2px solid #34495e; width: 100%; background: #000; margin-top: 5px; user-select: none; -webkit-user-select: none; }
         .image-container img { display: block; width: 100%; height: auto; }
         
-        /* 🟥 റീസൈസ് ചെയ്യാന്‍ പറ്റുന്ന പുതിയ ബോക്സ് സ്റ്റൈല്‍ */
-        .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; }
+        /* ✍️ ചിത്രത്തിന് മുകളിൽ നേരിട്ട് വരയ്ക്കാനുള്ള എസ്‌വിജി ബോർഡ് */
+        #pageDrawBoard { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; display: none; cursor: crosshair; }
+        
+        /* 🟥 റീസൈസ് ചെയ്യാന്‍ പറ്റുന്ന സെലക്ഷൻ ബോക്സ് സ്റ്റൈല്‍ */
+        .selection-box { position: absolute; border: 2px dashed #e74c3c; background: rgba(231, 76, 60, 0.3); display: none; box-sizing: border-box; cursor: move; }
         .resize-handle { position: absolute; width: 16px; height: 16px; background: #e74c3c; right: -8px; bottom: -8px; cursor: se-resize; border-radius: 50%; border: 2px solid white; z-index: 10; }
         
         button { color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; margin: 5px 0; font-weight: bold; width: 100%; font-size: 14px; }
@@ -35,16 +38,10 @@
         .page-badge { background: #34495e; color: white; padding: 5px 10px; border-radius: 4px; font-size: 12px; float: right; }
         .manage-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 8px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
         .hidden-page { opacity: 0.5; background: #f1f2f6; }
-
-        /* ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് മോഡൽ വിൻഡോ സ്റ്റൈൽ */
-        .hw-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; overflow: hidden; touch-action: none; }
-        #hw-toolbar { position: absolute; top: 0; left: 0; right: 0; background: white; padding: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3); z-index: 10001; }
-        #hw-viewport { width: 100vw; height: 100vh; position: relative; background: #f0f0f0; }
-        #hw-content { position: absolute; width: 2000px; height: 2000px; background: white; top: 50%; left: 50%; margin-top: -1000px; margin-left: -1000px; border: 2px dashed #ccc; }
-        #hw-trace-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 250px; color: rgba(220, 220, 220, 0.5); pointer-events: none; font-family: serif; direction: rtl; }
-        #hw-board { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; }
-        .hw-tool-row { display: flex; gap: 5px; align-items: center; }
-        .hw-slider-group { display: flex; align-items: center; gap: 4px; font-size: 11px; background: #eee; padding: 2px 6px; border-radius: 4px; color: #333; }
+        
+        .mode-container { display: flex; gap: 5px; margin-bottom: 10px; }
+        .mode-btn { background: #7f8c8d; flex: 1; padding: 10px; font-size: 13px; }
+        .mode-btn.active { background: #2c3e50; border: 2px solid #fff; }
     </style>
 </head>
 <body>
@@ -84,75 +81,63 @@
         <h2>📖 പാഠപുസ്തകം നിർമ്മിക്കുക <span class="page-badge" id="pageNumberBadge">ആകെ പേജുകൾ: 0</span> </h2>
         
         <div class="section" style="background: #fff3e0; border-color: #ffe0b2;">
-            <h4>📚 Nilavilulla Page-ukalude List:</h4>
+            <h4>📚 നിലവിലുള്ള പേജുകളുടെ ലിസ്റ്റ്:</h4>
             <div id="existingPagesList" style="max-height: 150px; overflow-y: auto; background: #fff; padding: 5px; border-radius: 4px; border: 1px solid #ffcc80;"></div>
         </div>
         
         <div class="section">
-            <h4>🆕 Puthiya Page Cherkkuka:</h4>
+            <h4>🆕 പുതിയ പേജ് ചേർക്കുക:</h4>
             <input type="file" id="imageUploader" accept="image/*">
             
             <div id="mappingSection" style="display:none;">
                 <div style="background: #e8f4fd; padding: 10px; border-radius: 4px; margin-bottom: 10px; border: 1px solid #bce0fd;">
-                    <label style="font-weight: bold; color: #2980b9;">📚 Ee Page Ee Paathathinte Bhaagamanu? (Lesson Number):</label>
+                    <label style="font-weight: bold; color: #2980b9;">📚 ഈ പേജ് ഏത് പാഠത്തിന്റെ ഭാഗമാണ്? (Lesson Number):</label>
                     <input type="number" id="lessonNum" value="1" min="1">
                 </div>
                 
-                <p style="color: #2c3e50; font-weight: bold; text-align:center; font-size:13px;">📱 Chithrathil Click Cheythathinu Shesham Chuvanna Vattathil Pidichu Valiykuka:</p>
+                <!-- 🛠️ മോഡ് സെലക്ഷൻ ടൂളുകൾ -->
+                <div class="mode-container">
+                    <button type="button" id="btnModeBox" class="mode-btn active" onclick="switchToolMode('BOX')">🟥 1. ടച്ച് ബോക്സ് സെറ്റ് ചെയ്യുക</button>
+                    <button type="button" id="btnModeDraw" class="mode-btn" onclick="switchToolMode('DRAW')">✍️ 2. വാക്കിന് മേൽ വട്ടം വരയ്ക്കുക</button>
+                </div>
                 
+                <div style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center; justify-content: center;">
+                    <button type="button" id="btnClearDrawBtn" style="background:#7f8c8d; padding:5px; font-size:11px; display:none; width:auto;" onclick="clearDrawBoard()">❌ വരകൾ മാറ്റുക</button>
+                    <span id="drawStatusText" style="font-size:12px; color:#e67e22; font-weight:bold;"></span>
+                </div>
+                
+                <!-- 📸 ഇമേജ് കണ്ടെയ്നർ (ചിത്രവും എസ്‌വിജിയും ഒന്നിച്ച്) -->
                 <div class="image-container" id="imageContainer" onmousedown="onContainerAction(event)" ontouchstart="onContainerAction(event)">
                     <img id="bookImg" src="" alt="Book Page">
+                    
+                    <!-- വരയ്ക്കാനുള്ള കാൻവാസ് (ഇത് ചിത്രത്തിന് മുകളിലാണ്) -->
+                    <svg id="pageDrawBoard" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+                    
                     <div class="selection-box" id="selectionBox">
                         <div class="resize-handle" id="resizeHandle"></div>
                     </div>
                 </div>
                 
                 <div style="background: #ebfcf2; padding: 10px; border-radius: 4px; margin: 10px 0; border: 1px solid #c3f3d7;">
-                    <label style="font-weight: bold; color: #27ae60; display:block; text-align:left;">✍️ Ee Vaakkinte Text (Optional):</label>
+                    <label style="font-weight: bold; color: #27ae60; display:block; text-align:left;">✍️ ഈ വാക്കിന്റെ അറബിക് ടെക്സ്റ്റ്:</label>
                     <input type="text" id="arabicText" class="arabic-input" placeholder="ڪَتَبَ">
                 </div>
-
-                <button type="button" class="btn-orange" style="background:#8e44ad; margin-bottom:10px;" onclick="openHandwritingModal()">✍️ Ee Vaakkinu Hand-Writing Vara റെക്കോർഡ് ചെയ്യുക</button>
-                <p id="hwStatusText" style="font-size:12px; color:#27ae60; font-weight:bold; text-align:center; margin:0;"></p>
                 
-                <button type="button" class="btn-record" id="startBtn" onclick="startRecording()">🎤 Audio Recording Thudanguka</button>
-                <button type="button" class="btn-stop" id="stopBtn" onclick="stopRecording()">🛑 Recording Nirthuka</button>
+                <button type="button" class="btn-record" id="startBtn" onclick="startRecording()">🎤 ഓഡിയോ റെക്കോർഡിംഗ് തുടങ്ങുക</button>
+                <button type="button" class="btn-stop" id="stopBtn" onclick="stopRecording()">🛑 റെക്കോർഡിംഗ് നിർത്തുക</button>
                 <p class="status-text" id="recordStatus"></p>
                 <audio id="audioPlayback" controls></audio>
                 
-                <button type="button" class="btn-blue" onclick="saveWordZone()">💾 Ee Vaakku Link Cheyyuka</button>
+                <button type="button" class="btn-blue" onclick="saveWordZone()">💾 ഈ വാക്ക് ലിങ്ക് ചെയ്യുക</button>
                 <h4 id="zoneCount" style="color: #7f8c8d; text-align:center; margin: 5px 0;">(0 വാക്കുകൾ ചേർത്തു)</h4>
                 
-                <button type="button" class="btn-orange" style="margin-top:15px;" onclick="addNextPageToMemory()">➕ Ee Page Save Cheythu List-ilekke Maattuka</button>
+                <button type="button" class="btn-orange" style="margin-top:15px;" onclick="addNextPageToMemory()">➕ ഈ പേജ് സേവ് ചെയ്ത് ലിസ്റ്റിലേക്ക് മാറ്റുക</button>
             </div>
         </div>
         
         <hr style="margin: 20px 0; border: 1px dashed #ccc;">
-        <button class="btn-green" style="font-size:16px; width: 100%; padding: 15px;" onclick="publishToGitHubDirectly()">🚀 Puthiya Maattangal Direct Aayi GitHub-lekk Update Cheyyuka</button>
+        <button class="btn-green" style="font-size:16px; width: 100%; padding: 15px;" onclick="publishToGitHubDirectly()">🚀 പുതിയ മാറ്റങ്ങൾ നേരിട്ട് GitHub-ലേക്ക് അപ്ഡേറ്റ് ചെയ്യുക</button>
         <h4 id="totalAddedPagesText" style="color: #27ae60; text-align:center; margin-top:5px;">(നിലവിൽ 0 പേജുകൾ തയാറായിട്ടുണ്ട്)</h4>
-    </div>
-
-    <div id="hwModal" class="hw-modal">
-        <div id="hw-toolbar">
-            <div class="hw-tool-row">
-                <button onclick="closeHandwritingModal(false)" style="background:#e74c3c; padding:6px 10px;">Cancel</button>
-                <button onclick="clearHwBoard()" style="background:#7f8c8d; padding:6px 10px;">Clear</button>
-                <button onclick="undoHw()" style="background:#34495e; padding:6px 10px;">Undo</button>
-            </div>
-            <div style="font-weight: bold; color: #2c3e50; font-size: 14px;">വാക്കിന് മുകളിൽ നേരിട്ട് വരയ്ക്കുക ✏️</div>
-            <div class="hw-tool-row">
-                <div class="hw-slider-group">
-                    Size: <input type="range" id="hwThickness" min="5" max="50" value="20" style="width:60px; margin:0;">
-                </div>
-                <button onclick="closeHandwritingModal(true)" style="background:#2ecc71; padding:8px 15px; font-size:14px;">💾 Save Drawing</button>
-            </div>
-        </div>
-        <div id="hw-viewport">
-            <div id="hw-content">
-                <div id="hw-trace-text"></div>
-                <svg id="hw-board" xmlns="http://www.w3.org/2000/svg" width="2000" height="2000"></svg>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -165,27 +150,27 @@
         let currentZones = [];
         let currentAudioBlobs = [];
         let selectedImageFile = null;
+        
+        let currentToolMode = "BOX"; // BOX അല്ലെങ്കിൽ DRAW
         let currentHwPaths = null; 
+        let rawPathData = []; 
+        let hwDrawing = false;
 
         let pctLeft = 0, pctTop = 0;
         let pctWidth = 15, pctHeight = 6; 
         let isResizing = false;
 
-        // ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് വേരിയബിളുകൾ
-        const hwModal = document.getElementById("hwModal");
-        const hwBoard = document.getElementById("hw-board");
-        const hwTraceText = document.getElementById("hw-trace-text");
-        const hwThickness = document.getElementById("hwThickness");
-        let hwDrawing = false;
-        let hwStrokes = []; 
-        let rawPathData = []; 
+        const imgContainer = document.getElementById('imageContainer');
+        const pageDrawBoard = document.getElementById('pageDrawBoard');
+        const selectionBox = document.getElementById('selectionBox');
+        const bookImg = document.getElementById('bookImg');
 
         window.onload = function() {
             if(localStorage.getItem('gh_token')) {
                 document.getElementById('ghToken').value = localStorage.getItem('gh_token');
             }
             loadOldDataFromGitHub();
-            initHandwritingEngine();
+            initDirectDrawingEngine();
         }
 
         function saveTokenToLocal() {
@@ -317,12 +302,28 @@
             }
         }
 
+        // 🛠️ ടൂൾ മോഡ് മാറ്റാനുള്ള ഫംഗ്ഷൻ
+        function switchToolMode(mode) {
+            currentToolMode = mode;
+            document.getElementById('btnModeBox').classList.remove('active');
+            document.getElementById('btnModeDraw').classList.remove('active');
+            
+            if(mode === "BOX") {
+                document.getElementById('btnModeBox').classList.add('active');
+                pageDrawBoard.style.display = "none";
+                selectionBox.style.display = pctLeft || pctTop ? "block" : "none";
+                document.getElementById('btnClearDrawBtn').style.display = "none";
+            } else {
+                document.getElementById('btnModeDraw').classList.add('active');
+                pageDrawBoard.style.display = "block";
+                selectionBox.style.display = "none"; // ഡ്രോയിംഗ് ചെയ്യുമ്പോൾ സെലക്ഷൻ ബോക്സ് താൽക്കാലികമായി മറയ്ക്കുന്നു
+                document.getElementById('btnClearDrawBtn').style.display = "inline-block";
+            }
+        }
+
         let mediaRecorder;
         let audioChunks = [];
         const imageUploader = document.getElementById('imageUploader');
-        const bookImg = document.getElementById('bookImg');
-        const selectionBox = document.getElementById('selectionBox');
-        const imgContainer = document.getElementById('imageContainer');
 
         imageUploader.addEventListener('change', function(e) {
             selectedImageFile = e.target.files[0];
@@ -331,7 +332,9 @@
             reader.onload = function(event) {
                 bookImg.onload = function() {
                     document.getElementById('mappingSection').style.display = 'block';
-                    selectionBox.style.display = 'none';
+                    clearDrawBoard();
+                    switchToolMode('BOX');
+                    pctLeft = 0; pctTop = 0;
                     pctWidth = 15; pctHeight = 6; 
                 }
                 bookImg.src = event.target.result;
@@ -339,7 +342,10 @@
             reader.readAsDataURL(selectedImageFile);
         });
 
+        // 🟥 ബോക്സ് ക്ലിക്ക് & റീസൈസ് പ്രവർത്തനങ്ങൾ
         function onContainerAction(e) {
+            if (currentToolMode !== "BOX") return; // ഡ്രോയിംഗ് മോഡിൽ ആണെങ്കിൽ ബോക്സ് വർക്ക് ചെയ്യില്ല
+            
             e.stopPropagation();
             let clientX = e.clientX || (e.touches && e.touches[0].clientX);
             let clientY = e.clientY || (e.touches && e.touches[0].clientY);
@@ -403,6 +409,81 @@
             selectionBox.style.display = 'block';
         }
 
+        // ✍️ നേരിട്ട് ചിത്രത്തിന് മുകളിൽ വരയ്ക്കാനുള്ള കാൻവാസ് എൻജിൻ (0-1000 വ്യൂബോക്സ് സ്കെയിലിംഗ്)
+        function clearDrawBoard() {
+            pageDrawBoard.innerHTML = ""; rawPathData = []; currentHwPaths = null;
+            document.getElementById('drawStatusText').innerText = "";
+        }
+
+        function initDirectDrawingEngine() {
+            function getCanvasCoords(e) {
+                const rect = pageDrawBoard.getBoundingClientRect();
+                let clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
+                let clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
+                
+                // ചിത്രത്തിന്റെ വലിപ്പം എത്രയായാലും അതിനെ 1000 x 1000 വ്യൂബോക്സ് കോർഡിനേറ്റിലേക്ക് മാറ്റുന്നു
+                let x = Math.round(((clientX - rect.left) / rect.width) * 1000);
+                let y = Math.round(((clientY - rect.top) / rect.height) * 1000);
+                return { x: x, y: y };
+            }
+
+            function handleStart(e) {
+                if (currentToolMode !== "DRAW") return;
+                e.preventDefault();
+                hwDrawing = true;
+                const c = getCanvasCoords(e);
+                
+                // അറബിക് കാലിഗ്രാഫി നിബ് രൂപത്തിലുള്ള കട്ടിയുള്ള വരയ്ക്കായി 
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                const nibSize = 18; 
+                
+                for(let i = 0; i < nibSize; i++) {
+                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    let offset = i - (nibSize/2);
+                    p.setAttribute("transform", `translate(${offset * 0.4}, ${-offset})`);
+                    p.setAttribute("stroke", "#e74c3c"); // ചുവപ്പ് വര
+                    p.setAttribute("stroke-width", "2");
+                    p.setAttribute("fill", "none");
+                    p.setAttribute("stroke-linecap", "round");
+                    p.setAttribute("d", `M ${c.x} ${c.y}`);
+                    group.appendChild(p);
+                }
+                pageDrawBoard.appendChild(group);
+                rawPathData.push([{x: c.x, y: c.y}]);
+            }
+
+            function handleMove(e) {
+                if(!hwDrawing || currentToolMode !== "DRAW") return;
+                e.preventDefault();
+                const c = getCanvasCoords(e);
+                const currentGroup = pageDrawBoard.lastElementChild;
+                if (!currentGroup) return;
+                
+                const paths = currentGroup.querySelectorAll("path");
+                paths.forEach(p => {
+                    p.setAttribute("d", p.getAttribute("d") + ` L ${c.x} ${c.y}`);
+                });
+                rawPathData[rawPathData.length - 1].push({x: c.x, y: c.y});
+            }
+
+            function handleEnd() { 
+                if(hwDrawing) {
+                    hwDrawing = false;
+                    currentHwPaths = JSON.parse(JSON.stringify(rawPathData));
+                    document.getElementById('drawStatusText').innerText = `✏️ വരകൾ റെക്കോർഡ് ചെയ്തു (${currentHwPaths.length} Lines)`;
+                }
+            }
+
+            pageDrawBoard.addEventListener("mousedown", handleStart);
+            pageDrawBoard.addEventListener("mousemove", handleMove);
+            window.addEventListener("mouseup", handleEnd);
+
+            pageDrawBoard.addEventListener("touchstart", handleStart, {passive: false});
+            pageDrawBoard.addEventListener("touchmove", handleMove, {passive: false});
+            window.addEventListener("touchend", handleEnd);
+        }
+
+        // 🎤 ഓഡിയോ എൻജിൻ
         function startRecording() {
             navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
                 mediaRecorder = new MediaRecorder(stream);
@@ -427,115 +508,9 @@
             document.getElementById('recordStatus').innerText = "✅ റെക്കോർഡിംഗ് കഴിഞ്ഞു.";
         }
 
-        // ✍️ ഹാൻഡ്‌റൈറ്റിംഗ് ബോർഡ് കൺട്രോളുകൾ (മൊബൈൽ ഒപ്റ്റിമൈസ് ചെയ്തത്)
-        function openHandwritingModal() {
-            if (selectionBox.style.display === 'none') {
-                return alert("ആദ്യം ചിത്രത്തിൽ തൊട്ട് വാക്കിന്റെ സ്ഥാനം (Selection Box) നിശ്ചയിക്കുക!");
-            }
-            let text = document.getElementById('arabicText').value.trim();
-            hwTraceText.innerText = text ? text : "";
-            clearHwBoard();
-            hwModal.style.display = "block";
-            
-            document.body.style.overflow = "hidden";
-            document.body.style.position = "fixed";
-        }
-
-        function closeHandwritingModal(saveData) {
-            if(saveData && rawPathData.length > 0) {
-                currentHwPaths = JSON.parse(JSON.stringify(rawPathData)); 
-                document.getElementById('hwStatusText').innerText = `✅ ഹാൻഡ്‌റൈറ്റിംഗ് സ്ട്രോക്കുകൾ റെക്കോർഡ് ചെയ്തു (${currentHwPaths.length} Lines)`;
-            } else if (!saveData) {
-                currentHwPaths = null;
-                document.getElementById('hwStatusText').innerText = "";
-            }
-            hwModal.style.display = "none";
-            
-            document.body.style.overflow = "auto";
-            document.body.style.position = "static";
-        }
-
-        function clearHwBoard() {
-            hwBoard.innerHTML = ""; hwStrokes = []; rawPathData = [];
-        }
-
-        function undoHw() {
-            if (hwStrokes.length > 0) {
-                hwBoard.removeChild(hwStrokes.pop());
-                rawPathData.pop();
-            }
-        }
-
-        function initHandwritingEngine() {
-            function getHwCoords(e) {
-                const rect = hwBoard.getBoundingClientRect();
-                let clientX = e.clientX ?? e.touches?.[0]?.clientX ?? 0;
-                let clientY = e.clientY ?? e.touches?.[0]?.clientY ?? 0;
-                
-                // 🎯 2000x2000 സ്കെയിലിലെ അബ്സല്യൂട്ട് മൗസ് പോയിന്റ് കാൽക്കുലേഷൻ
-                let canvasX = Math.round(clientX - rect.left);
-                let canvasY = Math.round(clientY - rect.top);
-
-                // 📐 പുതിയ സ്കെയിലിംഗ് ലോജിക്: ടോട്ടൽ സ്കെയിലിൽ നിന്നും സെലക്ഷൻ ബോക്സിലേക്ക് പുള്ളികളെ റീ-മാപ്പ് ചെയ്യുന്നു
-                let mappedX = Math.round(pctLeft * 20 + (canvasX / 2000) * (pctWidth * 20));
-                let mappedY = Math.round(pctTop * 20 + (canvasY / 2000) * (pctHeight * 20));
-
-                return { rawX: canvasX, rawY: canvasY, x: mappedX, y: mappedY };
-            }
-
-            function handleStart(e) {
-                if (e.target.closest('#hw-toolbar')) return;
-                
-                e.preventDefault(); 
-                hwDrawing = true;
-                const c = getHwCoords(e);
-                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                const nibSize = parseInt(hwThickness.value);
-                
-                for(let i = 0; i < nibSize; i++) {
-                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    let offset = i - (nibSize/2);
-                    p.setAttribute("transform", `translate(${offset * 0.4}, ${-offset})`);
-                    p.setAttribute("stroke", "#e74c3c"); // അഡ്മിനിൽ തിരിച്ചറിയാൻ ചുവപ്പ് നിറം
-                    p.setAttribute("stroke-width", "2");
-                    p.setAttribute("fill", "none");
-                    p.setAttribute("stroke-linecap", "round");
-                    p.setAttribute("d", `M ${c.rawX} ${c.rawY}`);
-                    group.appendChild(p);
-                }
-                hwBoard.appendChild(group);
-                hwStrokes.push(group);
-                rawPathData.push([{x: c.x, y: c.y, rawX: c.rawX, rawY: c.rawY}]);
-            }
-
-            function handleMove(e) {
-                if(!hwDrawing) return;
-                e.preventDefault();
-                const c = getHwCoords(e);
-                const currentGroup = hwStrokes[hwStrokes.length - 1];
-                if (!currentGroup) return;
-                
-                const paths = currentGroup.querySelectorAll("path");
-                paths.forEach(p => {
-                    p.setAttribute("d", p.getAttribute("d") + ` L ${c.rawX} ${c.rawY}`);
-                });
-                rawPathData[rawPathData.length - 1].push({x: c.x, y: c.y, rawX: c.rawX, rawY: c.rawY});
-            }
-
-            function handleEnd() { hwDrawing = false; }
-
-            hwBoard.addEventListener("mousedown", handleStart);
-            hwBoard.addEventListener("mousemove", handleMove);
-            window.addEventListener("mouseup", handleEnd);
-
-            hwBoard.addEventListener("touchstart", handleStart, {passive: false});
-            hwBoard.addEventListener("touchmove", handleMove, {passive: false});
-            window.addEventListener("touchend", handleEnd);
-        }
-
         function saveWordZone() {
             let arabic = document.getElementById('arabicText').value.trim(); 
-            if (selectionBox.style.display === 'none') return alert("ചിത്രത്തിൽ തൊടുക!");
+            if (pctLeft === 0 && pctTop === 0) return alert("ആദ്യം ഒന്നാമത്തെ മോഡ് ക്ലിക്ക് ചെയ്ത് ചിത്രത്തിൽ തൊട്ട് ഒരു ടച്ച് ബോക്സ് നിശ്ചയിക്കുക!");
             if (currentAudioBlobs.length === 0 || currentAudioBlobs.length <= currentZones.length) return alert("ഓഡിയോ റെക്കോർഡ് ചെയ്യുക!");
             
             let isTextAlreadyExists = false;
@@ -564,9 +539,13 @@
             document.getElementById('audioPlayback').style.display = 'none';
             document.getElementById('recordStatus').innerText = "";
             document.getElementById('arabicText').value = ""; 
-            document.getElementById('hwStatusText').innerText = "";
+            
+            // റീസെറ്റ് ചെയ്യുന്നു
+            clearDrawBoard();
+            switchToolMode('BOX');
             selectionBox.style.display = 'none';
-            currentHwPaths = null; 
+            pctLeft = 0; pctTop = 0;
+            
             if (!isTextAlreadyExists) alert("🎯 വാക്ക് വിജയകരമായി ലിങ്ക് ചെയ്തു!");
         }
 

@@ -26,12 +26,19 @@
         .book-container { position: relative; width: 100%; max-width: 600px; background: #000; border: 3px solid #2c3e50; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
         .book-container img { width: 100%; height: auto; display: block; }
         
-        /* ലൈവ് ആനിമേഷൻ പ്ലേ ചെയ്യുന്ന SVG ലെയർ */
-        #playbackEngine { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+        /* ആനിമേഷൻ SVG ലെയർ */
+        #playbackEngine, #quizWriteEngine { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
         
-        /* കൺട്രോൾ ബട്ടണുകൾ */
         .controls-bar { width: 100%; max-width: 600px; display: flex; gap: 10px; margin-top: 10px; }
         .btn-half { flex: 1; padding: 12px; font-size: 15px; }
+        
+        /* 🎮 ക്വിസ്സ് ഗെയിം സ്റ്റൈലുകൾ */
+        .quiz-box { background: white; width: 100%; max-width: 500px; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; margin-top: 10px; }
+        .quiz-canvas-area { position: relative; width: 100%; height: 260px; background: #fff; border: 3px solid #9b59b6; border-radius: 8px; margin-bottom: 15px; box-shadow: inset 0 0 10px rgba(0,0,0,0.1); }
+        .quiz-options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 10px; }
+        .quiz-opt-btn { background: #f39c12; color: white; padding: 18px; font-size: 22px; font-family: 'Traditional Arabic', Arial; direction: rtl; border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); }
+        .quiz-opt-btn:active { background: #d35400; }
+        .zones-disabled { pointer-events: none; opacity: 0.6; }
         
         /* ലോഡിംഗ് ലെയർ */
         .loading-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; font-size: 18px; font-weight: bold; color: #2c3e50; }
@@ -40,7 +47,7 @@
 <body>
 
     <div id="loadingLayer" class="loading-layer">
-        <span>🔄 പാഠപുസ്തകം ലോഡ് ചെയ്യുന്നു...</span>
+        <span>🔄 പാഠപുസ്തക വിവരങ്ങൾ ശേഖരിക്കുന്നു...</span>
     </div>
 
     <div id="loginScreen" class="screen active-screen">
@@ -53,7 +60,7 @@
             <select id="madrasaSelect" onchange="onMadrasaChanged()"></select>
             
             <label style="display:block; text-align:left; font-weight:bold; margin-bottom:5px; color:#34495e;">👤 കുട്ടിയുടെ പേര്:</label>
-            <select id="studentSelect" onchange="onStudentChanged()"></select>
+            <select id="studentSelect"></select>
             
             <button class="btn-green" onclick="enterToMainMenu()">തുടങ്ങുക 🚀</button>
         </div>
@@ -66,7 +73,6 @@
             <hr style="border: 1px dashed #eee; margin: 15px 0;">
             
             <button id="btnMenuRevision" class="btn-purple" onclick="startRevisionMode()">📖 ഇന്നത്തെ റിവിഷൻ പ്ലേ ചെയ്യുക</button>
-            
             <button id="btnMenuQuiz" class="btn-lock" onclick="startQuizMode()" disabled>🎮 ക്വിസ്സ് ഗെയിം (Lock 🔒)</button>
             
             <button style="background:#7f8c8d; margin-top:20px; font-size:14px; padding:10px;" onclick="showScreen('loginScreen')">🔙 പ്രൊഫൈൽ മാറ്റുക</button>
@@ -77,7 +83,7 @@
         <h2 style="margin: 5px 0; color:#2c3e50;">📖 റീഡിങ് ടൈം</h2>
         <div style="font-size:13px; color:#7f8c8d; margin-bottom:5px;" id="revisionProgressText">പേജ്: 0 / 0</div>
         
-        <div class="book-container" id="bookContainer">
+        <div class="book-container">
             <img id="revisionBookImg" src="" alt="Book Page">
             <svg id="playbackEngine" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
         </div>
@@ -90,6 +96,26 @@
         </div>
     </div>
 
+    <div id="quizScreen" class="screen">
+        <h2 style="margin:5px 0; color:#e67e22;">🎮 കേട്ട് കണ്ടെത്തുക ക്വിസ്സ്</h2>
+        <div id="quizProgressText" style="font-size:13px; color:#7f8c8d; margin-bottom:5px;">ചോദ്യം: 0 / 0</div>
+        
+        <div class="quiz-box">
+            <div class="quiz-canvas-area">
+                <div style="position:absolute; top:40%; left:0; width:100%; text-align:center; color:#bdc3c7; font-size:14px; font-weight:bold;" id="quizCanvasPlaceholder">ഉത്തരം ശരിയായാൽ ഇവിടെ എഴുതി കാണിക്കും!</div>
+                <svg id="quizWriteEngine" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" preserveAspectRatio="none"></svg>
+            </div>
+
+            <button class="btn-purple" style="padding:12px; font-size:15px; margin-bottom:10px;" onclick="replayQuizAudio()">🔊 ശബ്ദം വീണ്ടും കേൾക്കുക</button>
+            
+            <div class="quiz-options" id="quizOptionsContainer"></div>
+        </div>
+
+        <div class="controls-bar" style="max-width:500px;">
+            <button style="background:#7f8c8d; padding:10px; font-size:14px;" onclick="quitQuiz()">❌ ക്വിസ്സ് നിർത്തുക</button>
+        </div>
+    </div>
+
     <audio id="audioPlayer" style="display:none;"></audio>
 
     <script>
@@ -98,24 +124,29 @@
         let currentStudent = "";
         let currentMadrasa = "";
         
-        // റിവിഷൻ കൺട്രോൾ വേരിയബിളുകൾ
+        // റിവിഷൻ വേരിയബിളുകൾ
         let revisionPagesList = []; 
         let currentRevIdx = 0;       
         let currentZoneIdx = -1;     
         let isWordAudioFinished = true;
 
+        // ക്വിസ്സ് വേരിയബിളുകൾ
+        let quizPool = [];
+        let currentQuizIdx = 0;
+        let correctQuizZone = null;
+
         window.onload = function() {
-            window.location.hash = "main";
             loadDataFromBackend();
         };
 
-        // ഗിറ്റ്ഹബ്ബിൽ നിന്ന് ഡാറ്റകൾ ലോഡ് ചെയ്യുന്നു
+        // GitHub-ൽ നിന്ന് ഡാറ്റ ലോഡ് ചെയ്യുന്നു (Cache ബസ്റ്റർ ചേർത്തു)
         async function loadDataFromBackend() {
+            let cacheBuster = Date.now(); 
             try {
-                let r1 = await fetch('data/master_list.json?t=' + Date.now());
+                let r1 = await fetch(`data/master_list.json?t=${cacheBuster}`);
                 if(r1.ok) masterList = await r1.json();
                 
-                let r2 = await fetch('data/data_book.json?t=' + Date.now());
+                let r2 = await fetch(`data/data_book.json?t=${cacheBuster}`);
                 if(r2.ok) bookData = await r2.json();
                 
                 initProfileSelectors();
@@ -146,8 +177,6 @@
             });
         }
 
-        function onStudentChanged() { /* ആവശ്യമുണ്ടെങ്കിൽ ഉപയോഗിക്കാം */ }
-
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active-screen'));
             document.getElementById(id).classList.add('active-screen');
@@ -163,7 +192,6 @@
             showScreen('mainMenuScreen');
         }
 
-        // ലോക്ക് സിസ്റ്റം കീ
         function getTodayLockKey(studentName) {
             let today = new Date().toISOString().split('T')[0];
             return `lock_${studentName}_${today}`;
@@ -184,14 +212,15 @@
         }
 
         // ==========================================
-        // 📖 റിവിഷൻ മോഡ് (MAIN ENGINE)
+        // 📖 റിവിഷൻ മോഡ് സിസ്റ്റം (പേജുകൾ റിവേഴ്സ് ഓർഡറിൽ)
         // ==========================================
         function startRevisionMode() {
-            // ഹൈഡ് ചെയ്യാത്ത (Visible) പേജുകൾ മാത്രം ഫിൽട്ടർ ചെയ്ത് എടുക്കുന്നു
-            revisionPagesList = bookData.pages.filter(p => !p.hidden);
-            if(revisionPagesList.length === 0) {
-                return alert("പാഠപുസ്തകത്തിൽ പേജുകൾ ഒന്നും ലഭ്യമല്ല!");
-            }
+            let visiblePages = bookData.pages.filter(p => !p.hidden);
+            
+            // 🎯 അപ്‌ലോഡ് ചെയ്ത ക്രമത്തിന്റെ നേരെ തിരിച്ച് (റിവേഴ്സ്) ആക്കുന്നു
+            revisionPagesList = visiblePages.reverse(); 
+            
+            if(revisionPagesList.length === 0) return alert("പേജുകൾ ലഭ്യമല്ല!");
             currentRevIdx = 0;
             loadRevisionPage();
             showScreen('revisionScreen');
@@ -200,15 +229,10 @@
         function loadRevisionPage() {
             let page = revisionPagesList[currentRevIdx];
             document.getElementById('revisionProgressText').innerText = `പേജ്: ${currentRevIdx + 1} / ${revisionPagesList.length}`;
+            document.getElementById('revisionBookImg').src = page.image + "?t=" + Date.now();
             
-            let img = document.getElementById('revisionBookImg');
-            img.src = page.image + "?t=" + Date.now();
-            
-            // പേജ് മാറുമ്പോൾ ഇൻഡെക്സ് ആദ്യ വാക്കിന് തൊട്ട് മുൻപിലേക്ക് സെറ്റ് ചെയ്യുന്നു
             currentZoneIdx = -1; 
             isWordAudioFinished = true;
-            
-            // പഴയ വരകൾ മായ്ക്കുന്നു
             document.getElementById('playbackEngine').innerHTML = "";
             disableNextWordButton(false);
         }
@@ -227,57 +251,46 @@
             }
         }
 
-        // 🎯 കുട്ടി 'Next' ബട്ടൺ അമർത്തുമ്പോൾ മാത്രം അടുത്ത വാക്കിലേക്ക് പോകുന്നു
         function stepToNextWord() {
-            if(!isWordAudioFinished) return; // ഓഡിയോ തീരും മുൻപ് വീണ്ടും ഞെക്കിയാൽ വർക്ക് ആകില്ല
-            
+            if(!isWordAudioFinished) return;
             let page = revisionPagesList[currentRevIdx];
             currentZoneIdx++;
             
-            // ഈ പേജിലെ വാക്കുകൾ കഴിഞ്ഞാൽ അടുത്ത പേജിലേക്ക് പോകുന്നു
             if(currentZoneIdx >= page.zones.length) {
                 stepToNextPage();
                 return;
             }
             
             let zone = page.zones[currentZoneIdx];
-            
-            // ഓഡിയോ പ്ലേ ചെയ്യുന്നു
             isWordAudioFinished = false;
             disableNextWordButton(true);
             
             let player = document.getElementById('audioPlayer');
             player.src = zone.audioSrc + "?t=" + Date.now();
             player.play().catch(() => {
-                // ഓഡിയോ ലോഡ് ആയില്ലെങ്കിൽ ലോക്ക് റിലീസ് ചെയ്യും
                 isWordAudioFinished = true;
                 disableNextWordButton(false);
             });
             
-            // ✍️ ലൈവ് വര വരയ്ക്കുന്ന ആനിമേഷൻ റൺ ചെയ്യുന്നു
             if(page.readingPaths && page.readingPaths[currentZoneIdx]) {
                 animateReadingPath(page.readingPaths[currentZoneIdx]);
             }
         }
 
-        // ഓഡിയോ തീർന്നു എന്ന് ഉറപ്പാക്കുന്ന ലിസണർ
         document.getElementById('audioPlayer').addEventListener('ended', () => {
             isWordAudioFinished = true;
             disableNextWordButton(false);
         });
 
-        // ലൈവ് വര വരയ്ക്കുന്ന ഫങ്ക്ഷൻ (with hand.png ആനിമേഷൻ)
         function animateReadingPath(pathPoints) {
             if(!pathPoints || pathPoints.length === 0) return;
             let svg = document.getElementById('playbackEngine');
-            
-            // ഒന്നിലധികം ലെയറുകൾ ഉള്ള മനോഹരമായ കാലിഗ്രാഫി വര നിർമ്മിക്കുന്നു
             let g = document.createElementNS("http://www.w3.org/2000/svg", "g");
             let paths = [];
             for(let i=0; i<12; i++) {
                 let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
                 p.setAttribute("transform", `translate(${(i-6)*0.3}, ${-(i-6)})`);
-                p.setAttribute("stroke", "#2980b9"); // നീല വര
+                p.setAttribute("stroke", "#2980b9");
                 p.setAttribute("stroke-width", "2");
                 p.setAttribute("fill", "none");
                 p.setAttribute("stroke-linecap", "round");
@@ -287,7 +300,6 @@
             }
             svg.appendChild(g);
 
-            // കൈയുടെ ചിത്രം (hand.png) ലെയറിലേക്ക് ചേർക്കുന്നു
             let handImg = document.createElementNS("http://www.w3.org/2000/svg", "image");
             handImg.setAttributeNS("http://www.w3.org/1999/xlink", "href", "assets/hand.png");
             handImg.setAttribute("width", "140");
@@ -302,17 +314,14 @@
             let interval = setInterval(() => {
                 if(ptIdx >= pathPoints.length) {
                     clearInterval(interval);
-                    // വര കഴിഞ്ഞാൽ കൈ അപ്രത്യക്ഷമാകും
                     if(handImg && handImg.parentNode) handImg.parentNode.removeChild(handImg);
                     return;
                 }
                 let currPt = pathPoints[ptIdx];
                 let dString = ` L ${currPt.x} ${currPt.y}`;
-                
                 paths.forEach(p => p.setAttribute("d", p.getAttribute("d") + dString));
                 handImg.setAttribute("x", currPt.x - 15);
                 handImg.setAttribute("y", currPt.y - 5);
-                
                 ptIdx++;
             }, speed);
         }
@@ -323,10 +332,9 @@
                 alert("🎯 ഈ പേജ് കഴിഞ്ഞു! അടുത്ത പേജിലേക്ക് പോകാം.");
                 loadRevisionPage();
             } else {
-                // എല്ലാ പേജും കണ്ട് കഴിഞ്ഞാൽ ക്വിസ്സ് അൺലോക്ക് ആകും
                 localStorage.setItem(getTodayLockKey(currentStudent), "true");
                 updateMenuButtons();
-                alert("🎉 വലിയൊരു കൈയടി! ഇന്നത്തെ റീഡിങ് റിവിഷൻ നീ വിജയകരമായി പൂർത്തിയാക്കി. ഇനി നിനക്ക് ക്വിസ്സ് ഗെയിം കളിക്കാം 🎮");
+                alert("🎉 വലിയൊരു കൈയടി! ഇന്നത്തെ റിവിഷൻ പൂർത്തിയായി. ഇനി നിനക്ക് ക്വിസ്സ് ഗെയിം കളിക്കാം 🎮");
                 showScreen('mainMenuScreen');
             }
         }
@@ -336,9 +344,124 @@
             showScreen('mainMenuScreen');
         }
 
+        // ==========================================
+        // 🎮 ക്വിസ്സ് ഗെയിം എഞ്ചിൻ
+        // ==========================================
         function startQuizMode() {
-            alert("🎮 ക്വിസ്സ് ഗെയിം ഇവിടെ പഴയ കോഡ് പ്രകാരം ലോഡ് ചെയ്യാം.");
+            quizPool = [];
+            let visiblePages = bookData.pages.filter(p => !p.hidden);
+            
+            // ടെക്സ്റ്റ് ഉള്ള വാക്കുകൾ മാത്രം ക്വിസ്സിലേക്ക് എടുക്കുന്നു
+            visiblePages.forEach(page => {
+                if(page.zones) {
+                    page.zones.forEach(zone => {
+                        if(zone.text && zone.text.trim() !== "") {
+                            quizPool.push({ zone: zone, allPages: visiblePages });
+                        }
+                    });
+                }
+            });
+
+            if(quizPool.length === 0) {
+                return alert("⚠️ ക്വിസ്സ് നടത്താൻ ആവശ്യമായ അറബിക് വാക്കുകൾ ലഭ്യമല്ല!");
+            }
+
+            quizPool.sort(() => Math.random() - 0.5);
+            currentQuizIdx = 0;
+            showScreen('quizScreen');
+            loadQuizQuestion();
         }
-    </script>
-</body>
-</html>
+
+        function loadQuizQuestion() {
+            document.getElementById('quizWriteEngine').innerHTML = "";
+            document.getElementById('quizCanvasPlaceholder').style.display = "block";
+            document.getElementById('quizOptionsContainer').classList.remove('zones-disabled');
+            
+            let currentQuiz = quizPool[currentQuizIdx];
+            correctQuizZone = currentQuiz.zone;
+            
+            document.getElementById('quizProgressText').innerText = `ചോദ്യം: ${currentQuizIdx + 1} / ${quizPool.length}`;
+            
+            replayQuizAudio();
+
+            // 4 ഓപ്ഷനുകൾ തയ്യാറാക്കുന്നു
+            let optionsText = [correctQuizZone.text.trim()];
+            let allTextWords = [];
+            
+            currentQuiz.allPages.forEach(p => {
+                if(p.zones) p.zones.forEach(z => {
+                    if(z.text && z.text.trim() !== "") allTextWords.push(z.text.trim());
+                });
+            });
+            
+            allTextWords = [...new Set(allTextWords)].filter(w => w !== correctQuizZone.text.trim());
+            allTextWords.sort(() => Math.random() - 0.5);
+            
+            for(let i=0; i<3; i++) {
+                if(allTextWords[i]) optionsText.push(allTextWords[i]);
+            }
+            
+            optionsText.sort(() => Math.random() - 0.5);
+            
+            let container = document.getElementById('quizOptionsContainer');
+            container.innerHTML = "";
+            optionsText.forEach(txt => {
+                let btn = document.createElement('button');
+                btn.className = "quiz-opt-btn";
+                btn.innerText = txt;
+                btn.onclick = () => checkQuizAnswer(txt, btn);
+                container.appendChild(btn);
+            });
+        }
+
+        function replayQuizAudio() {
+            if(!correctQuizZone) return;
+            let player = document.getElementById('audioPlayer');
+            player.src = correctQuizZone.audioSrc + "?t=" + Date.now();
+            player.play();
+        }
+
+        function checkQuizAnswer(selectedText, btnElement) {
+            document.getElementById('quizOptionsContainer').classList.add('zones-disabled');
+            
+            if(selectedText === correctQuizZone.text.trim()) {
+                btnElement.style.background = "#2ecc71";
+                document.getElementById('quizCanvasPlaceholder').style.display = "none";
+                
+                if(correctQuizZone.writingPaths) {
+                    animateQuizHandwriting(correctQuizZone.writingPaths);
+                }
+                
+                setTimeout(() => {
+                    currentQuizIdx++;
+                    if(currentQuizIdx < quizPool.length) {
+                        loadQuizQuestion();
+                    } else {
+                        alert("🎉 അഭിനന്ദനങ്ങൾ! നീ എല്ലാ ചോദ്യങ്ങൾക്കും കൃത്യമായി ഉത്തരം നൽകി ക്വിസ്സ് ഗെയിം ജയിച്ചിരിക്കുന്നു! 🏆");
+                        showScreen('mainMenuScreen');
+                    }
+                }, 2500);
+            } else {
+                btnElement.style.background = "#e74c3c";
+                alert("❌ ഉത്തരം തെറ്റാണ്, വിഷമിക്കേണ്ട ശബ്ദം വീണ്ടും കേട്ട് ഒന്നുകൂടി നോക്കൂ!");
+                document.getElementById('quizOptionsContainer').classList.remove('zones-disabled');
+                btnElement.style.background = "#f39c12"; 
+            }
+        }
+
+        function animateQuizHandwriting(pathsData) {
+            let svg = document.getElementById('quizWriteEngine');
+            svg.innerHTML = "";
+            
+            pathsData.forEach(pathPoints => {
+                let g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                let paths = [];
+                for(let i=0; i<16; i++) {
+                    let p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    p.setAttribute("transform", `translate(${(i-8)*0.4}, ${-(i-8)})`);
+                    p.setAttribute("stroke", "#e74c3c"); 
+                    p.setAttribute("stroke-width", "2");
+                    p.setAttribute("fill", "none");
+                    p.setAttribute("stroke-linecap", "round");
+                    p.setAttribute("d", `M ${pathPoints[0].x} ${pathPoints[0].y}`);
+                    g.appendChild(p);
